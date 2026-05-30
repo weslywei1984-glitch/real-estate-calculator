@@ -1,0 +1,1130 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>房地稅費與貸款試算</title>
+  <style>
+    :root {
+      --bg: #f5f7f4;
+      --panel: #ffffff;
+      --ink: #1f2933;
+      --muted: #64748b;
+      --line: #d9e0db;
+      --teal: #0f766e;
+      --teal-2: #ccfbf1;
+      --amber: #b45309;
+      --amber-2: #fef3c7;
+      --rose: #be123c;
+      --rose-2: #ffe4e6;
+      --blue: #2563eb;
+      --shadow: 0 20px 50px rgba(31, 41, 51, .08);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(135deg, rgba(15, 118, 110, .08), transparent 32%),
+        linear-gradient(225deg, rgba(180, 83, 9, .09), transparent 30%),
+        var(--bg);
+      color: var(--ink);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 44px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 4vw, 3.1rem);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .title-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 1cm;
+      align-items: center;
+      margin-bottom: 9px;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 780px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .client-info {
+      display: inline-grid;
+      gap: 3px;
+      min-width: min(100%, 310px);
+      padding: 9px 12px;
+      border: 1px solid rgba(15, 118, 110, .24);
+      border-radius: 8px;
+      background: rgba(236, 253, 245, .84);
+    }
+
+    .client-info strong {
+      font-size: 1.02rem;
+      line-height: 1.25;
+    }
+
+    .client-info span {
+      color: #0f766e;
+      font-size: .96rem;
+      font-weight: 800;
+    }
+
+    .status {
+      display: grid;
+      gap: 6px;
+      min-width: 190px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .72);
+    }
+
+    .status span {
+      color: var(--muted);
+      font-size: .84rem;
+    }
+
+    .status strong {
+      font-size: 1rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 18px 0;
+      padding: 6px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .7);
+      box-shadow: var(--shadow);
+    }
+
+    .tab {
+      flex: 1 1 190px;
+      border: 0;
+      border-radius: 6px;
+      padding: 11px 14px;
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      transition: background .18s ease, color .18s ease, transform .18s ease;
+    }
+
+    .tab:hover {
+      background: rgba(15, 118, 110, .08);
+      color: var(--ink);
+    }
+
+    .tab[aria-selected="true"] {
+      background: var(--teal);
+      color: #fff;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .94);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfa;
+    }
+
+    h2,
+    h3 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+    }
+
+    h3 {
+      font-size: 1.02rem;
+    }
+
+    .section {
+      padding: 20px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field.wide {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      color: #334155;
+      font-size: .92rem;
+      font-weight: 650;
+    }
+
+    .control {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 8px;
+      min-height: 45px;
+      padding: 0 12px;
+      border: 1px solid #cbd5d1;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .control:focus-within {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, .13);
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--ink);
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--teal);
+    }
+
+    .unit {
+      color: var(--muted);
+      font-size: .88rem;
+      white-space: nowrap;
+    }
+
+    .checks {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .check-row {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfa;
+    }
+
+    .check-row span {
+      display: block;
+      color: var(--muted);
+      font-size: .86rem;
+      line-height: 1.5;
+      margin-top: 3px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .primary,
+    .secondary {
+      border: 0;
+      border-radius: 8px;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .primary {
+      background: var(--teal);
+      color: #fff;
+    }
+
+    .secondary {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .result-stack {
+      display: grid;
+      gap: 14px;
+      padding: 20px;
+    }
+
+    .metric {
+      display: grid;
+      gap: 8px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .metric.main {
+      border-color: rgba(15, 118, 110, .3);
+      background: linear-gradient(180deg, #ecfdf5, #fff);
+    }
+
+    .metric.warn {
+      border-color: rgba(180, 83, 9, .32);
+      background: var(--amber-2);
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: .88rem;
+    }
+
+    .metric strong {
+      font-size: clamp(1.35rem, 4vw, 2.1rem);
+      line-height: 1;
+    }
+
+    .breakdown {
+      display: grid;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .line {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: baseline;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed #d7ded9;
+      color: #334155;
+    }
+
+    .line:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .line b {
+      white-space: nowrap;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: .88rem;
+      line-height: 1.65;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .amortization {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .9rem;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    th,
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    th:first-child,
+    td:first-child {
+      text-align: left;
+    }
+
+    th {
+      background: #f8faf8;
+      color: #475569;
+      font-weight: 700;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .sources {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .82);
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: .88rem;
+    }
+
+    .sources a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    .sources a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 900px) {
+      header,
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .status {
+        min-width: 0;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .shell {
+        width: min(100% - 20px, 1180px);
+        padding-top: 16px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .panel-head {
+        align-items: start;
+        flex-direction: column;
+      }
+
+      .tab {
+        flex-basis: 100%;
+      }
+
+      .section,
+      .result-stack {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <div class="title-row">
+          <h1>房地稅費與貸款試算</h1>
+          <div class="client-info" aria-label="客戶專屬聯絡資訊">
+            <strong>台南小魏 買厝作伙-客戶專屬</strong>
+            <span>魏泉承 0927-617-207</span>
+          </div>
+        </div>
+        <p class="subtitle">以新臺幣輸入金額，快速估算出售時房地合一稅、買方準備現金與房貸月付。正式申報仍以稅捐機關、地政士、銀行核定為準。</p>
+      </div>
+      <div class="status" aria-label="資料版本">
+        <span>資料基準</span>
+        <strong>2026-05-30</strong>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="計算器">
+      <button class="tab" type="button" data-tab="tax" aria-selected="true">房地合一稅</button>
+      <button class="tab" type="button" data-tab="buyer" aria-selected="false">買方費用</button>
+      <button class="tab" type="button" data-tab="loan" aria-selected="false">貸款計算</button>
+    </nav>
+
+    <section class="workspace" data-panel="tax">
+      <form class="panel" id="taxForm">
+        <div class="panel-head">
+          <h2>出售所得試算</h2>
+          <span class="note">個人房地合一稅 2.0</span>
+        </div>
+        <div class="section">
+          <div class="form-grid">
+            <div class="field">
+              <label for="salePrice">出售成交價額</label>
+              <div class="control">
+                <input id="salePrice" type="number" min="0" step="10000" value="14600000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="buyCost">取得成本</label>
+              <div class="control">
+                <input id="buyCost" type="number" min="0" step="10000" value="10000000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="sellExpense">取得、改良與移轉費用</label>
+              <div class="control">
+                <input id="sellExpense" type="number" min="0" step="1000" value="450000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="landGain">土地漲價總數額</label>
+              <div class="control">
+                <input id="landGain" type="number" min="0" step="1000" value="150000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="holdingYears">持有年數</label>
+              <div class="control">
+                <input id="holdingYears" type="number" min="0" step="0.1" value="5.5">
+                <span class="unit">年</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="residentType">身分</label>
+              <div class="control">
+                <select id="residentType">
+                  <option value="resident">境內居住者個人</option>
+                  <option value="nonresident">非境內居住者個人</option>
+                </select>
+                <span class="unit">稅率</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="checks">
+            <label class="check-row">
+              <input id="selfUse" type="checkbox">
+              <span><b>符合自住房地優惠</b><span>持有並設籍滿 6 年等條件：課稅所得 400 萬元以內免稅，超過部分 10%。</span></span>
+            </label>
+            <label class="check-row">
+              <input id="specialRate" type="checkbox">
+              <span><b>適用 20% 特別情形</b><span>例如公告非自願因素，或自有土地與建商合建分回後出售等。</span></span>
+            </label>
+          </div>
+
+          <div class="actions">
+            <button class="primary" type="submit">重新計算</button>
+            <button class="secondary" type="button" data-reset="tax">套用範例</button>
+          </div>
+        </div>
+      </form>
+
+      <aside class="panel">
+        <div class="panel-head">
+          <h2>試算結果</h2>
+        </div>
+        <div class="result-stack" id="taxResult"></div>
+      </aside>
+    </section>
+
+    <section class="workspace hidden" data-panel="buyer">
+      <form class="panel" id="buyerForm">
+        <div class="panel-head">
+          <h2>買方現金需求</h2>
+          <span class="note">稅費、規費與常見代辦費</span>
+        </div>
+        <div class="section">
+          <div class="form-grid">
+            <div class="field">
+              <label for="purchasePrice">買賣成交總價</label>
+              <div class="control">
+                <input id="purchasePrice" type="number" min="0" step="10000" value="15000000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="loanRatio">預估貸款成數</label>
+              <div class="control">
+                <input id="loanRatio" type="number" min="0" max="100" step="1" value="80">
+                <span class="unit">%</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="buildingValue">房屋評定現值／契價</label>
+              <div class="control">
+                <input id="buildingValue" type="number" min="0" step="1000" value="1000000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="publicContractPrice">公契所載價格</label>
+              <div class="control">
+                <input id="publicContractPrice" type="number" min="0" step="1000" value="2500000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="landDeclaredValue">土地申報地價總額</label>
+              <div class="control">
+                <input id="landDeclaredValue" type="number" min="0" step="1000" value="1800000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="brokerRate">買方仲介服務費率</label>
+              <div class="control">
+                <input id="brokerRate" type="number" min="0" max="6" step="0.1" value="2">
+                <span class="unit">%</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="scrivenerTransfer">移轉登記地政士費</label>
+              <div class="control">
+                <input id="scrivenerTransfer" type="number" min="0" step="500" value="10000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="scrivenerLoan">貸款設定地政士費</label>
+              <div class="control">
+                <input id="scrivenerLoan" type="number" min="0" step="500" value="4000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="signingFee">簽約執筆費</label>
+              <div class="control">
+                <input id="signingFee" type="number" min="0" step="100" value="1000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="bankFee">銀行徵信與開辦費</label>
+              <div class="control">
+                <input id="bankFee" type="number" min="0" step="100" value="4300">
+                <span class="unit">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="insuranceFee">火險與地震險</label>
+              <div class="control">
+                <input id="insuranceFee" type="number" min="0" step="100" value="5000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="settlementFee">稅費、水電與管理費分攤</label>
+              <div class="control">
+                <input id="settlementFee" type="number" min="0" step="100" value="10000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="transcriptCount">登記謄本張數</label>
+              <div class="control">
+                <input id="transcriptCount" type="number" min="0" step="1" value="2">
+                <span class="unit">張</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="certificateCount">權狀張數</label>
+              <div class="control">
+                <input id="certificateCount" type="number" min="0" step="1" value="2">
+                <span class="unit">張</span>
+              </div>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="primary" type="submit">重新計算</button>
+            <button class="secondary" type="button" data-reset="buyer">套用範例</button>
+          </div>
+        </div>
+      </form>
+
+      <aside class="panel">
+        <div class="panel-head">
+          <h2>試算結果</h2>
+        </div>
+        <div class="result-stack" id="buyerResult"></div>
+      </aside>
+    </section>
+
+    <section class="workspace hidden" data-panel="loan">
+      <form class="panel" id="loanForm">
+        <div class="panel-head">
+          <h2>房貸月付試算</h2>
+          <span class="note">本息平均／本金平均</span>
+        </div>
+        <div class="section">
+          <div class="form-grid">
+            <div class="field">
+              <label for="loanAmount">貸款本金</label>
+              <div class="control">
+                <input id="loanAmount" type="number" min="0" step="10000" value="12000000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="annualRate">年利率</label>
+              <div class="control">
+                <input id="annualRate" type="number" min="0" step="0.01" value="2.2">
+                <span class="unit">%</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="loanYears">貸款年限</label>
+              <div class="control">
+                <input id="loanYears" type="number" min="1" max="50" step="1" value="30">
+                <span class="unit">年</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="graceYears">寬限期</label>
+              <div class="control">
+                <input id="graceYears" type="number" min="0" max="10" step="1" value="0">
+                <span class="unit">年</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="loanMode">還款方式</label>
+              <div class="control">
+                <select id="loanMode">
+                  <option value="levelPayment">本息平均攤還</option>
+                  <option value="levelPrincipal">本金平均攤還</option>
+                </select>
+                <span class="unit">方式</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="extraPayment">每月額外還本</label>
+              <div class="control">
+                <input id="extraPayment" type="number" min="0" step="1000" value="0">
+                <span class="unit">元</span>
+              </div>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="primary" type="submit">重新計算</button>
+            <button class="secondary" type="button" data-reset="loan">套用範例</button>
+          </div>
+        </div>
+      </form>
+
+      <aside class="panel">
+        <div class="panel-head">
+          <h2>試算結果</h2>
+        </div>
+        <div class="result-stack" id="loanResult"></div>
+      </aside>
+    </section>
+
+    <section class="sources">
+      <b>計算依據：</b>
+      房地合一稅基與自住房地優惠參考
+      <a href="https://www.mof.gov.tw/houseandland/multiplehtml/de144e74630c4ac59f2d84a068c889c9" target="_blank" rel="noreferrer">財政部房地合一稅制設計</a>；
+      買方常見費用參考
+      <a href="https://land.yunlin.gov.tw/cp.aspx?n=540" target="_blank" rel="noreferrer">雲林縣政府地政處／內政部不動產交易服務網資料</a>；
+      契稅按契價計算與買賣稅率 6% 參考
+      <a href="https://www.tycg.gov.tw/NewsPage_Content.aspx?n=7&s=1598159&sms=7882" target="_blank" rel="noreferrer">桃園市政府地方稅務局</a>。
+    </section>
+
+  </main>
+
+  <script>
+    const money = new Intl.NumberFormat("zh-TW", {
+      style: "currency",
+      currency: "TWD",
+      maximumFractionDigits: 0
+    });
+
+    const number = new Intl.NumberFormat("zh-TW", {
+      maximumFractionDigits: 2
+    });
+
+    const defaults = {
+      tax: {
+        salePrice: 14600000,
+        buyCost: 10000000,
+        sellExpense: 450000,
+        landGain: 150000,
+        holdingYears: 5.5,
+        residentType: "resident",
+        selfUse: false,
+        specialRate: false
+      },
+      buyer: {
+        purchasePrice: 15000000,
+        loanRatio: 80,
+        buildingValue: 1000000,
+        publicContractPrice: 2500000,
+        landDeclaredValue: 1800000,
+        brokerRate: 2,
+        scrivenerTransfer: 10000,
+        scrivenerLoan: 4000,
+        signingFee: 1000,
+        bankFee: 4300,
+        insuranceFee: 5000,
+        settlementFee: 10000,
+        transcriptCount: 2,
+        certificateCount: 2
+      },
+      loan: {
+        loanAmount: 12000000,
+        annualRate: 2.2,
+        loanYears: 30,
+        graceYears: 0,
+        loanMode: "levelPayment",
+        extraPayment: 0
+      }
+    };
+
+    function value(id) {
+      const el = document.getElementById(id);
+      return el.type === "checkbox" ? el.checked : Number(el.value || 0);
+    }
+
+    function selectValue(id) {
+      return document.getElementById(id).value;
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(Math.max(value, min), max);
+    }
+
+    function metric(label, amount, tone = "") {
+      return `
+        <div class="metric ${tone}">
+          <span>${label}</span>
+          <strong>${money.format(Math.round(amount))}</strong>
+        </div>
+      `;
+    }
+
+    function line(label, amount) {
+      return `<div class="line"><span>${label}</span><b>${money.format(Math.round(amount))}</b></div>`;
+    }
+
+    function taxRate({ years, resident, selfUse, special }) {
+      if (selfUse) return { rate: 0.10, label: "自住房地優惠 10%" };
+      if (special) return { rate: 0.20, label: "特別情形 20%" };
+      if (resident === "nonresident") {
+        return years <= 2
+          ? { rate: 0.45, label: "非境內個人，持有 2 年以內 45%" }
+          : { rate: 0.35, label: "非境內個人，持有超過 2 年 35%" };
+      }
+      if (years <= 2) return { rate: 0.45, label: "境內個人，持有 2 年以內 45%" };
+      if (years <= 5) return { rate: 0.35, label: "境內個人，持有超過 2 年至 5 年 35%" };
+      if (years <= 10) return { rate: 0.20, label: "境內個人，持有超過 5 年至 10 年 20%" };
+      return { rate: 0.15, label: "境內個人，持有超過 10 年 15%" };
+    }
+
+    function calculateTax() {
+      const salePrice = value("salePrice");
+      const buyCost = value("buyCost");
+      const sellExpense = value("sellExpense");
+      const landGain = value("landGain");
+      const holdingYears = value("holdingYears");
+      const selfUse = value("selfUse");
+      const specialRate = value("specialRate");
+      const grossIncome = Math.max(0, salePrice - buyCost - sellExpense - landGain);
+      const exemption = selfUse ? Math.min(grossIncome, 4000000) : 0;
+      const taxableIncome = Math.max(0, grossIncome - exemption);
+      const rate = taxRate({
+        years: holdingYears,
+        resident: selectValue("residentType"),
+        selfUse,
+        special: specialRate
+      });
+      const tax = taxableIncome * rate.rate;
+      const netAfterTax = grossIncome - tax;
+      document.getElementById("taxResult").innerHTML = `
+        ${metric("預估應納房地合一稅", tax, "main")}
+        <div class="metric">
+          <span>適用稅率</span>
+          <strong>${number.format(rate.rate * 100)}%</strong>
+          <div class="note">${rate.label}</div>
+        </div>
+        <div class="metric">
+          <span>計算明細</span>
+          <div class="breakdown">
+            ${line("出售成交價額", salePrice)}
+            ${line("減：取得成本", -buyCost)}
+            ${line("減：取得、改良與移轉費用", -sellExpense)}
+            ${line("減：土地漲價總數額", -landGain)}
+            ${line("課稅所得稅基", grossIncome)}
+            ${selfUse ? line("自住房地免稅額", -exemption) : ""}
+            ${line("適用稅基", taxableIncome)}
+            ${line("稅後所得", netAfterTax)}
+          </div>
+        </div>
+        <div class="metric warn">
+          <span>提醒</span>
+          <div class="note">若無合法支出憑證，相關費用可能按成交價額 3% 推計且以 30 萬元為限；自住優惠需逐項符合設籍、持有與使用條件。</div>
+        </div>
+      `;
+    }
+
+    function calculateBuyer() {
+      const purchasePrice = value("purchasePrice");
+      const ratio = clamp(value("loanRatio"), 0, 100);
+      const loanAmount = purchasePrice * ratio / 100;
+      const downPayment = Math.max(0, purchasePrice - loanAmount);
+      const buildingValue = value("buildingValue");
+      const publicContractPrice = value("publicContractPrice");
+      const landDeclaredValue = value("landDeclaredValue");
+      const brokerRate = clamp(value("brokerRate"), 0, 6);
+      const deedTax = buildingValue * 0.06;
+      const stampTax = publicContractPrice * 0.001;
+      const registrationFee = (buildingValue + landDeclaredValue) * 0.001;
+      const documentFee = value("transcriptCount") * 20 + value("certificateCount") * 80;
+      const brokerFee = purchasePrice * brokerRate / 100;
+      const serviceFees =
+        value("scrivenerTransfer") +
+        value("scrivenerLoan") +
+        value("signingFee") +
+        value("bankFee") +
+        value("insuranceFee") +
+        value("settlementFee") +
+        documentFee;
+      const statutoryFees = deedTax + stampTax + registrationFee;
+      const totalFees = statutoryFees + brokerFee + serviceFees;
+      const cashNeeded = downPayment + totalFees;
+      document.getElementById("buyerResult").innerHTML = `
+        ${metric("預估買方需準備現金", cashNeeded, "main")}
+        <div class="metric">
+          <span>買方費用合計，不含自備款</span>
+          <strong>${money.format(Math.round(totalFees))}</strong>
+          <div class="breakdown">
+            ${line("自備款", downPayment)}
+            ${line("契稅：房屋契價 6%", deedTax)}
+            ${line("印花稅：公契價格 0.1%", stampTax)}
+            ${line("買賣登記規費：建物契價與土地申報地價 0.1%", registrationFee)}
+            ${line("登記謄本與權狀費", documentFee)}
+            ${line(`仲介服務費：成交總價 ${number.format(brokerRate)}%`, brokerFee)}
+            ${line("地政士、銀行、保險與交屋分攤", serviceFees - documentFee)}
+          </div>
+        </div>
+        <div class="metric">
+          <span>預估貸款金額</span>
+          <strong>${money.format(Math.round(loanAmount))}</strong>
+          <div class="note">可到「貸款計算」分頁輸入此金額估算月付。</div>
+        </div>
+      `;
+    }
+
+    function monthlyPayment(principal, monthlyRate, months) {
+      if (months <= 0) return 0;
+      if (monthlyRate === 0) return principal / months;
+      const factor = Math.pow(1 + monthlyRate, months);
+      return principal * monthlyRate * factor / (factor - 1);
+    }
+
+    function calculateLoan() {
+      const principal = value("loanAmount");
+      const monthlyRate = value("annualRate") / 100 / 12;
+      const totalMonths = Math.max(1, Math.round(value("loanYears") * 12));
+      const graceMonths = Math.min(totalMonths - 1, Math.round(value("graceYears") * 12));
+      const mode = selectValue("loanMode");
+      const extra = value("extraPayment");
+      let balance = principal;
+      let totalInterest = 0;
+      let maxPayment = 0;
+      let minPayment = Number.POSITIVE_INFINITY;
+      const rows = [];
+      const repaymentMonths = Math.max(1, totalMonths - graceMonths);
+      const scheduledLevelPayment = monthlyPayment(principal, monthlyRate, repaymentMonths);
+
+      for (let month = 1; month <= totalMonths && balance > 0.5; month += 1) {
+        const interest = balance * monthlyRate;
+        let principalPaid = 0;
+        let payment = 0;
+
+        if (month <= graceMonths) {
+          payment = interest;
+        } else if (mode === "levelPrincipal") {
+          const remainingMonths = totalMonths - month + 1;
+          principalPaid = balance / remainingMonths;
+          payment = principalPaid + interest;
+        } else {
+          payment = scheduledLevelPayment;
+          principalPaid = payment - interest;
+        }
+
+        if (month > graceMonths && extra > 0) {
+          principalPaid += extra;
+          payment += extra;
+        }
+
+        if (principalPaid > balance) {
+          payment -= principalPaid - balance;
+          principalPaid = balance;
+        }
+
+        balance = Math.max(0, balance - principalPaid);
+        totalInterest += interest;
+        maxPayment = Math.max(maxPayment, payment);
+        minPayment = Math.min(minPayment, payment);
+
+        if (month <= 12 || month % 12 === 0 || balance === 0) {
+          rows.push({
+            month,
+            payment,
+            principalPaid,
+            interest,
+            balance
+          });
+        }
+      }
+
+      const firstNormalMonth = rows.find(row => row.month > graceMonths) || rows[0];
+      const paidMonths = rows.length ? rows[rows.length - 1].month : 0;
+      const tableRows = rows.slice(0, 24).map(row => `
+        <tr>
+          <td>第 ${row.month} 期</td>
+          <td>${money.format(Math.round(row.payment))}</td>
+          <td>${money.format(Math.round(row.principalPaid))}</td>
+          <td>${money.format(Math.round(row.interest))}</td>
+          <td>${money.format(Math.round(row.balance))}</td>
+        </tr>
+      `).join("");
+
+      document.getElementById("loanResult").innerHTML = `
+        ${metric("首期月付", firstNormalMonth ? firstNormalMonth.payment : 0, "main")}
+        <div class="metric">
+          <span>總利息</span>
+          <strong>${money.format(Math.round(totalInterest))}</strong>
+          <div class="breakdown">
+            ${line("貸款本金", principal)}
+            ${line("還款總額", principal + totalInterest)}
+            ${line("最高月付", maxPayment)}
+            ${line("最低月付", Number.isFinite(minPayment) ? minPayment : 0)}
+          </div>
+        </div>
+        <div class="metric">
+          <span>攤還期數</span>
+          <strong>${paidMonths} 期</strong>
+          <div class="note">${graceMonths > 0 ? `前 ${graceMonths} 期為寬限期，只付利息。` : "未設定寬限期。"}</div>
+        </div>
+        <div class="table-wrap">
+          <table class="amortization">
+            <thead>
+              <tr>
+                <th>期數</th>
+                <th>月付</th>
+                <th>本金</th>
+                <th>利息</th>
+                <th>剩餘本金</th>
+              </tr>
+            </thead>
+            <tbody>${tableRows}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function resetGroup(group) {
+      Object.entries(defaults[group]).forEach(([id, preset]) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (el.type === "checkbox") {
+          el.checked = preset;
+        } else {
+          el.value = preset;
+        }
+      });
+      calculateAll();
+    }
+
+    function calculateAll() {
+      calculateTax();
+      calculateBuyer();
+      calculateLoan();
+    }
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(item => {
+          item.setAttribute("aria-selected", String(item === tab));
+        });
+        document.querySelectorAll("[data-panel]").forEach(panel => {
+          panel.classList.toggle("hidden", panel.dataset.panel !== tab.dataset.tab);
+        });
+      });
+    });
+
+    document.querySelectorAll("form").forEach(form => {
+      form.addEventListener("submit", event => {
+        event.preventDefault();
+        calculateAll();
+      });
+      form.addEventListener("input", calculateAll);
+      form.addEventListener("change", calculateAll);
+    });
+
+    document.querySelectorAll("[data-reset]").forEach(button => {
+      button.addEventListener("click", () => resetGroup(button.dataset.reset));
+    });
+
+    document.getElementById("purchasePrice").addEventListener("input", () => {
+      const purchasePrice = value("purchasePrice");
+      const ratio = clamp(value("loanRatio"), 0, 100);
+      document.getElementById("loanAmount").value = Math.round(purchasePrice * ratio / 100);
+    });
+
+    document.getElementById("loanRatio").addEventListener("input", () => {
+      const purchasePrice = value("purchasePrice");
+      const ratio = clamp(value("loanRatio"), 0, 100);
+      document.getElementById("loanAmount").value = Math.round(purchasePrice * ratio / 100);
+    });
+
+    calculateAll();
+  </script>
+</body>
+</html>
