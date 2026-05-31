@@ -483,7 +483,7 @@
       </div>
       <div class="status" aria-label="資料版本">
         <span>資料基準</span>
-        <strong>2026-05-30</strong>
+        <strong>2026-05-31</strong>
       </div>
     </header>
 
@@ -594,6 +594,13 @@
               <div class="control">
                 <input id="loanRatio" type="number" min="0" max="100" step="1" value="80">
                 <span class="unit">%</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="mortgageSettingRatio">抵押權設定金額倍率</label>
+              <div class="control">
+                <input id="mortgageSettingRatio" type="number" min="0" step="0.1" value="1.2">
+                <span class="unit">倍</span>
               </div>
             </div>
             <div class="field">
@@ -772,7 +779,9 @@
       買方常見費用參考
       <a href="https://land.yunlin.gov.tw/cp.aspx?n=540" target="_blank" rel="noreferrer">雲林縣政府地政處／內政部不動產交易服務網資料</a>；
       契稅按契價計算與買賣稅率 6% 參考
-      <a href="https://www.tycg.gov.tw/NewsPage_Content.aspx?n=7&s=1598159&sms=7882" target="_blank" rel="noreferrer">桃園市政府地方稅務局</a>。
+      <a href="https://www.tycg.gov.tw/NewsPage_Content.aspx?n=7&s=1598159&sms=7882" target="_blank" rel="noreferrer">桃園市政府地方稅務局</a>；
+      抵押權設定登記規費參考
+      <a href="https://land.kinmen.gov.tw/Service/faq_more?id=e747821184c841a9ab225bed07212a98" target="_blank" rel="noreferrer">金門縣地政局登記規費說明</a>。
     </section>
 
   </main>
@@ -802,6 +811,7 @@
       buyer: {
         purchasePrice: 15000000,
         loanRatio: 80,
+        mortgageSettingRatio: 1.2,
         buildingValue: 1000000,
         publicContractPrice: 2500000,
         landDeclaredValue: 1800000,
@@ -915,6 +925,7 @@
       const purchasePrice = value("purchasePrice");
       const ratio = clamp(value("loanRatio"), 0, 100);
       const loanAmount = purchasePrice * ratio / 100;
+      const mortgageSettingValue = loanAmount * value("mortgageSettingRatio");
       const downPayment = Math.max(0, purchasePrice - loanAmount);
       const buildingValue = value("buildingValue");
       const publicContractPrice = value("publicContractPrice");
@@ -923,6 +934,7 @@
       const deedTax = buildingValue * 0.06;
       const stampTax = publicContractPrice * 0.001;
       const registrationFee = (buildingValue + landDeclaredValue) * 0.001;
+      const mortgageRegistrationFee = mortgageSettingValue * 0.001;
       const documentFee = value("transcriptCount") * 20 + value("certificateCount") * 80;
       const brokerFee = purchasePrice * brokerRate / 100;
       const serviceFees =
@@ -933,7 +945,7 @@
         value("insuranceFee") +
         value("settlementFee") +
         documentFee;
-      const statutoryFees = deedTax + stampTax + registrationFee;
+      const statutoryFees = deedTax + stampTax + registrationFee + mortgageRegistrationFee;
       const totalFees = statutoryFees + brokerFee + serviceFees;
       const cashNeeded = downPayment + totalFees;
       document.getElementById("buyerResult").innerHTML = `
@@ -946,6 +958,7 @@
             ${line("契稅：房屋契價 6%", deedTax)}
             ${line("印花稅：公契價格 0.1%", stampTax)}
             ${line("買賣登記規費：建物契價與土地申報地價 0.1%", registrationFee)}
+            ${line("抵押權設定登記規費：設定權利價值 0.1%", mortgageRegistrationFee)}
             ${line("登記謄本與權狀費", documentFee)}
             ${line(`仲介服務費：成交總價 ${number.format(brokerRate)}%`, brokerFee)}
             ${line("地政士、銀行、保險與交屋分攤", serviceFees - documentFee)}
