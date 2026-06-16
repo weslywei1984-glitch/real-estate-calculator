@@ -466,6 +466,396 @@
         padding: 16px;
       }
     }
+
+    :root {
+      --bg: #f6f7f3;
+      --panel: #ffffff;
+      --ink: #18212b;
+      --muted: #68758a;
+      --line: #dce3df;
+      --teal: #0d6f66;
+      --teal-2: #e3f8f2;
+      --gold: #b98a2d;
+      --gold-2: #fff6df;
+      --blue: #2f5f9f;
+      --shadow: 0 18px 46px rgba(24, 33, 43, .09);
+      --shadow-soft: 0 8px 22px rgba(24, 33, 43, .06);
+    }
+
+    body {
+      background:
+        linear-gradient(180deg, #f1f4ee 0, #fbfcfa 270px, #eef2ee 100%),
+        var(--bg);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(24, 33, 43, .035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(24, 33, 43, .025) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, .7), transparent 62%);
+    }
+
+    .shell {
+      width: min(1240px, calc(100% - 40px));
+      padding: 30px 0 52px;
+    }
+
+    header {
+      position: relative;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 28px;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 10px 0 24px;
+      border-bottom: 1px solid rgba(13, 111, 102, .16);
+    }
+
+    header::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      width: min(420px, 58%);
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), var(--teal));
+    }
+
+    h1 {
+      color: #14212b;
+      font-weight: 850;
+      text-wrap: balance;
+    }
+
+    .title-row {
+      gap: 10px 1cm;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      max-width: 760px;
+      color: #617086;
+      font-size: .98rem;
+    }
+
+    .client-info {
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+      gap: 10px;
+      min-width: min(100%, 330px);
+      padding: 9px 13px 9px 10px;
+      border-color: rgba(13, 111, 102, .2);
+      background: rgba(255, 255, 255, .76);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(12px);
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      color: #fff;
+      background: linear-gradient(145deg, #0d6f66, #194f4b);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 8px 16px rgba(13, 111, 102, .2);
+      font-weight: 850;
+    }
+
+    .client-copy {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .client-info .client-copy strong {
+      color: #14212b;
+      font-size: 1rem;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .client-info .client-copy span {
+      color: var(--teal);
+      font-size: .95rem;
+      font-weight: 800;
+    }
+
+    .status {
+      min-width: 168px;
+      padding: 13px 15px;
+      border-color: rgba(24, 33, 43, .1);
+      background: rgba(255, 255, 255, .78);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(12px);
+    }
+
+    .status strong {
+      color: #14212b;
+      font-weight: 800;
+    }
+
+    .tabs {
+      gap: 6px;
+      margin: 18px 0 20px;
+      padding: 7px;
+      border-color: rgba(24, 33, 43, .09);
+      background: rgba(255, 255, 255, .82);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(10px);
+    }
+
+    .tab {
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: #58677a;
+      font-weight: 760;
+    }
+
+    .tab:hover {
+      background: #eef7f4;
+      transform: translateY(-1px);
+    }
+
+    .tab[aria-selected="true"] {
+      background: linear-gradient(180deg, #0f766e, #0b5f58);
+      box-shadow: 0 10px 22px rgba(13, 111, 102, .22);
+    }
+
+    .workspace {
+      grid-template-columns: minmax(0, 1.2fr) minmax(340px, .8fr);
+      gap: 20px;
+    }
+
+    .panel {
+      border-color: rgba(24, 33, 43, .09);
+      background: rgba(255, 255, 255, .92);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .workspace > aside.panel {
+      position: sticky;
+      top: 18px;
+    }
+
+    .panel-head {
+      padding: 18px 22px;
+      border-bottom-color: rgba(24, 33, 43, .08);
+      background: linear-gradient(180deg, #ffffff, #f7faf8);
+    }
+
+    h2 {
+      color: #17212c;
+      font-size: 1.18rem;
+      font-weight: 850;
+    }
+
+    .section {
+      padding: 22px;
+    }
+
+    .form-grid {
+      gap: 16px;
+    }
+
+    label {
+      color: #263545;
+      font-size: .9rem;
+      font-weight: 760;
+    }
+
+    .control {
+      min-height: 48px;
+      padding: 0 13px;
+      border-color: rgba(24, 33, 43, .13);
+      background: #fbfcfb;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8);
+      transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .control:hover {
+      border-color: rgba(13, 111, 102, .28);
+      background: #fff;
+    }
+
+    .control:focus-within {
+      border-color: var(--teal);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(13, 111, 102, .12);
+    }
+
+    input,
+    select {
+      font-weight: 650;
+    }
+
+    .unit {
+      color: #758294;
+      font-weight: 700;
+    }
+
+    .check-row {
+      padding: 13px;
+      border-color: rgba(24, 33, 43, .1);
+      background: #fbfcfb;
+      transition: border-color .18s ease, background .18s ease;
+    }
+
+    .check-row:hover {
+      border-color: rgba(13, 111, 102, .24);
+      background: #ffffff;
+    }
+
+    .primary,
+    .secondary {
+      min-height: 44px;
+      border-radius: 8px;
+      padding: 11px 18px;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .primary {
+      background: linear-gradient(180deg, #0f766e, #0b5f58);
+      box-shadow: 0 10px 22px rgba(13, 111, 102, .2);
+    }
+
+    .primary:hover,
+    .secondary:hover {
+      transform: translateY(-1px);
+    }
+
+    .secondary {
+      border-color: rgba(24, 33, 43, .12);
+      background: #fff;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .result-stack {
+      gap: 13px;
+      padding: 22px;
+    }
+
+    .metric {
+      border-color: rgba(24, 33, 43, .09);
+      background: #ffffff;
+      box-shadow: 0 8px 18px rgba(24, 33, 43, .045);
+    }
+
+    .metric.main {
+      position: relative;
+      overflow: hidden;
+      border-color: rgba(13, 111, 102, .2);
+      background: linear-gradient(150deg, #e7f8f3, #ffffff 72%);
+    }
+
+    .metric.main::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 4px;
+      background: linear-gradient(90deg, var(--teal), var(--gold));
+    }
+
+    .metric.warn {
+      border-color: rgba(185, 138, 45, .28);
+      background: linear-gradient(180deg, #fff8e8, #fffdf8);
+    }
+
+    .metric span {
+      color: #6a7788;
+      font-weight: 700;
+    }
+
+    .metric strong {
+      color: #14212b;
+      font-weight: 850;
+    }
+
+    .line {
+      border-bottom-color: rgba(24, 33, 43, .12);
+      color: #354353;
+    }
+
+    .line b {
+      color: #17212c;
+      font-weight: 800;
+    }
+
+    .table-wrap {
+      border-color: rgba(24, 33, 43, .1);
+      background: #fff;
+    }
+
+    th {
+      background: #f3f7f5;
+      color: #425066;
+    }
+
+    td,
+    th {
+      border-bottom-color: rgba(24, 33, 43, .08);
+    }
+
+    .sources {
+      margin-top: 20px;
+      border-color: rgba(24, 33, 43, .09);
+      background: rgba(255, 255, 255, .76);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .sources a {
+      color: #1d5f9f;
+      font-weight: 700;
+    }
+
+    @media (max-width: 900px) {
+      header,
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .workspace > aside.panel {
+        position: static;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .shell {
+        width: min(100% - 22px, 1240px);
+        padding-top: 18px;
+      }
+
+      header {
+        padding-bottom: 18px;
+      }
+
+      header::after {
+        width: 100%;
+      }
+
+      h1 {
+        line-height: 1.12;
+      }
+
+      .title-row {
+        gap: 10px;
+      }
+
+      .client-info {
+        width: 100%;
+      }
+
+      .tabs {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+    }
   </style>
 </head>
 <body>
@@ -475,8 +865,11 @@
         <div class="title-row">
           <h1>房地稅費與貸款試算</h1>
           <div class="client-info" aria-label="客戶專屬聯絡資訊">
-            <strong>台南小魏 買厝作伙-客戶專屬</strong>
-            <span>魏泉承 0927-617-207</span>
+            <span class="brand-mark" aria-hidden="true">魏</span>
+            <span class="client-copy">
+              <strong>台南小魏 買厝作伙-客戶專屬</strong>
+              <span>魏泉承 0927-617-207</span>
+            </span>
           </div>
         </div>
         <p class="subtitle">以新臺幣輸入金額，快速估算出售時房地合一稅、買方準備現金與房貸月付。正式申報仍以稅捐機關、地政士、銀行核定為準。</p>
