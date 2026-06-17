@@ -478,6 +478,9 @@
       --gold: #b98a2d;
       --gold-2: #fff6df;
       --blue: #2f5f9f;
+      --navy: #17364b;
+      --cyan: #167f98;
+      --coral: #dc8159;
       --shadow: 0 18px 46px rgba(24, 33, 43, .09);
       --shadow-soft: 0 8px 22px rgba(24, 33, 43, .06);
     }
@@ -624,6 +627,21 @@
     .tab[aria-selected="true"] {
       background: linear-gradient(180deg, #0f766e, #0b5f58);
       box-shadow: 0 10px 22px rgba(13, 111, 102, .22);
+    }
+
+    .tab[data-tab="buyer"][aria-selected="true"] {
+      background: linear-gradient(180deg, #2d6f88, #23586c);
+      box-shadow: 0 10px 22px rgba(35, 88, 108, .22);
+    }
+
+    .tab[data-tab="loan"][aria-selected="true"] {
+      background: linear-gradient(180deg, #294f71, #1c3d5b);
+      box-shadow: 0 10px 22px rgba(28, 61, 91, .22);
+    }
+
+    .tab-young[aria-selected="true"] {
+      background: linear-gradient(135deg, #176f88, #0d6861);
+      box-shadow: 0 10px 24px rgba(22, 111, 136, .25);
     }
 
     .workspace {
@@ -813,6 +831,221 @@
       font-weight: 700;
     }
 
+    .young-workspace {
+      grid-template-columns: minmax(0, 1.18fr) minmax(360px, .82fr);
+    }
+
+    .young-form {
+      overflow: hidden;
+    }
+
+    .young-hero {
+      position: relative;
+      overflow: hidden;
+      padding: 25px 24px 22px;
+      color: #fff;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, .07), transparent 45%),
+        linear-gradient(120deg, #173f56, #126b71 72%, #1a7880);
+    }
+
+    .young-hero::after {
+      content: "";
+      position: absolute;
+      right: -34px;
+      bottom: -66px;
+      width: 220px;
+      height: 160px;
+      border: 28px solid rgba(255, 255, 255, .065);
+      transform: rotate(45deg);
+    }
+
+    .young-kicker {
+      position: relative;
+      z-index: 1;
+      width: fit-content;
+      margin-bottom: 9px;
+      padding: 5px 9px;
+      border: 1px solid rgba(255, 229, 176, .34);
+      border-radius: 6px;
+      color: #ffe5b0;
+      background: rgba(14, 40, 55, .24);
+      font-size: .8rem;
+      font-weight: 800;
+    }
+
+    .young-hero h2 {
+      position: relative;
+      z-index: 1;
+      color: #fff;
+      font-size: clamp(1.35rem, 3vw, 1.85rem);
+    }
+
+    .young-hero p {
+      position: relative;
+      z-index: 1;
+      max-width: 720px;
+      margin: 8px 0 0;
+      color: rgba(255, 255, 255, .78);
+      line-height: 1.65;
+    }
+
+    .policy-stats {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, .2);
+    }
+
+    .policy-stat {
+      display: grid;
+      gap: 4px;
+      padding: 0 14px;
+      border-left: 1px solid rgba(255, 255, 255, .16);
+    }
+
+    .policy-stat:first-child {
+      padding-left: 0;
+      border-left: 0;
+    }
+
+    .policy-stat span {
+      color: rgba(255, 255, 255, .64);
+      font-size: .78rem;
+    }
+
+    .policy-stat strong {
+      font-size: 1rem;
+      white-space: nowrap;
+    }
+
+    .eligibility-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0;
+      margin-bottom: 20px;
+      padding: 14px 0;
+      border-top: 1px solid rgba(23, 54, 75, .12);
+      border-bottom: 1px solid rgba(23, 54, 75, .12);
+    }
+
+    .eligibility-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 9px;
+      align-items: start;
+      padding: 0 14px;
+      border-left: 1px solid rgba(23, 54, 75, .1);
+      cursor: pointer;
+    }
+
+    .eligibility-item:first-child {
+      padding-left: 0;
+      border-left: 0;
+    }
+
+    .eligibility-item input {
+      margin-top: 3px;
+    }
+
+    .eligibility-item span {
+      display: grid;
+      gap: 4px;
+    }
+
+    .eligibility-item b {
+      color: #203342;
+      font-size: .88rem;
+    }
+
+    .eligibility-item small {
+      color: #738092;
+      font-size: .77rem;
+      line-height: 1.55;
+    }
+
+    .young-fields .control:focus-within {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 4px rgba(22, 127, 152, .12);
+    }
+
+    .young-primary {
+      background: linear-gradient(135deg, #176f88, #0d6861);
+      box-shadow: 0 10px 22px rgba(22, 111, 136, .22);
+    }
+
+    .young-result-panel .panel-head {
+      border-bottom-color: rgba(22, 111, 136, .13);
+      background: linear-gradient(180deg, #f7fbfc, #f2f8f7);
+    }
+
+    .metric.young-main {
+      border-color: rgba(22, 111, 136, .22);
+      background: linear-gradient(145deg, #e7f7f9, #ffffff 72%);
+    }
+
+    .metric.young-main::before {
+      background: linear-gradient(90deg, var(--cyan), var(--coral), var(--gold));
+    }
+
+    .eligibility-result {
+      padding: 13px 14px;
+      border: 1px solid;
+      border-radius: 8px;
+      font-size: .88rem;
+      font-weight: 750;
+      line-height: 1.6;
+    }
+
+    .eligibility-result.good {
+      border-color: rgba(13, 111, 102, .24);
+      color: #0c5f58;
+      background: #ebf8f4;
+    }
+
+    .eligibility-result.bad {
+      border-color: rgba(220, 129, 89, .3);
+      color: #a34f31;
+      background: #fff4ef;
+    }
+
+    .ratio-meter {
+      display: grid;
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    .ratio-meter-track {
+      height: 7px;
+      overflow: hidden;
+      border-radius: 7px;
+      background: #e7ecea;
+    }
+
+    .ratio-meter-fill {
+      height: 100%;
+      max-width: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--teal), var(--gold), var(--coral));
+    }
+
+    .policy-note {
+      padding-left: 12px;
+      border-left: 3px solid var(--gold);
+      color: #6d5a38;
+      font-size: .82rem;
+      line-height: 1.65;
+    }
+
+    .metric .young-rate-title {
+      font-size: 1.02rem;
+      line-height: 1.55;
+    }
+
     @media (max-width: 900px) {
       header,
       .workspace {
@@ -821,6 +1054,17 @@
 
       .workspace > aside.panel {
         position: static;
+      }
+
+      .eligibility-list {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .eligibility-item,
+      .eligibility-item:first-child {
+        padding: 0;
+        border-left: 0;
       }
     }
 
@@ -855,6 +1099,21 @@
         top: 0;
         z-index: 10;
       }
+
+      .tabs .tab {
+        flex: 1 1 calc(50% - 6px);
+        min-height: 46px;
+      }
+
+      .policy-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px 0;
+      }
+
+      .policy-stat:nth-child(3) {
+        padding-left: 0;
+        border-left: 0;
+      }
     }
   </style>
 </head>
@@ -876,7 +1135,7 @@
       </div>
       <div class="status" aria-label="資料版本">
         <span>資料基準</span>
-        <strong>2026-05-31</strong>
+        <strong>2026-06-17</strong>
       </div>
     </header>
 
@@ -884,6 +1143,7 @@
       <button class="tab" type="button" data-tab="tax" aria-selected="true">房地合一稅</button>
       <button class="tab" type="button" data-tab="buyer" aria-selected="false">買方費用</button>
       <button class="tab" type="button" data-tab="loan" aria-selected="false">貸款計算</button>
+      <button class="tab tab-young" type="button" data-tab="young" aria-selected="false">新青安貸款</button>
     </nav>
 
     <section class="workspace" data-panel="tax">
@@ -1165,6 +1425,101 @@
       </aside>
     </section>
 
+    <section class="workspace young-workspace hidden" data-panel="young">
+      <form class="panel young-form" id="youngForm">
+        <div class="young-hero">
+          <div class="young-kicker">現行新青安方案 · 利率補貼至 2026-07-31</div>
+          <h2>青年安心成家購屋優惠貸款</h2>
+          <p>申請人須成年，現行方案未設年齡上限；你提供的新青安 2.0 圖片屬研議方向，未納入正式計算。</p>
+          <div class="policy-stats" aria-label="新青安主要條件">
+            <div class="policy-stat"><span>最高額度</span><strong>1,000 萬</strong></div>
+            <div class="policy-stat"><span>貸款成數</span><strong>最高 8 成</strong></div>
+            <div class="policy-stat"><span>貸款年限</span><strong>最長 40 年</strong></div>
+            <div class="policy-stat"><span>寬限期</span><strong>最長 5 年</strong></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="eligibility-list" aria-label="資格條件">
+            <label class="eligibility-item">
+              <input id="youngNoHome" type="checkbox" checked>
+              <span><b>家庭名下無自有住宅</b><small>本人、配偶及未成年子女均無自有住宅。</small></span>
+            </label>
+            <label class="eligibility-item">
+              <input id="youngFirstUse" type="checkbox" checked>
+              <span><b>符合限貸一次規定</b><small>2023-08-01 後已核貸者，自 2024-06-27 起不得再次申貸。</small></span>
+            </label>
+            <label class="eligibility-item">
+              <input id="youngOwnerOccupied" type="checkbox" checked>
+              <span><b>購置成屋並作自住使用</b><small>不得以人頭戶、投資或貸後轉租方式使用優惠。</small></span>
+            </label>
+          </div>
+
+          <div class="form-grid young-fields">
+            <div class="field">
+              <label for="youngPurchasePrice">房屋成交總價</label>
+              <div class="control">
+                <input id="youngPurchasePrice" type="number" min="0" step="10000" value="12000000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="youngLoanRatio">預估貸款成數</label>
+              <div class="control">
+                <input id="youngLoanRatio" type="number" min="0" max="80" step="1" value="80">
+                <span class="unit">%</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="youngLoanYears">貸款年限</label>
+              <div class="control">
+                <input id="youngLoanYears" type="number" min="1" max="40" step="1" value="40">
+                <span class="unit">年</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="youngGraceYears">寬限期</label>
+              <div class="control">
+                <input id="youngGraceYears" type="number" min="0" max="5" step="1" value="5">
+                <span class="unit">年</span>
+              </div>
+            </div>
+            <div class="field wide">
+              <label for="youngRateMode">官方利率方案</label>
+              <div class="control">
+                <select id="youngRateMode">
+                  <option value="oneStage">一段式機動利率：目前 1.775%</option>
+                  <option value="twoStage">二段式機動利率：前 2 年 1.565%，第 3 年起 1.865%</option>
+                  <option value="mixed">混合式：第 1 年 1.745%、第 2 年 1.845%、第 3 年起 1.865%</option>
+                </select>
+                <span class="unit">方案</span>
+              </div>
+            </div>
+            <div class="field wide">
+              <label for="youngMonthlyIncome">家庭每月可支配收入</label>
+              <div class="control">
+                <input id="youngMonthlyIncome" type="number" min="0" step="1000" value="100000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="primary young-primary" type="submit">重新計算</button>
+            <button class="secondary" type="button" data-reset="young">套用範例</button>
+          </div>
+        </div>
+      </form>
+
+      <aside class="panel young-result-panel">
+        <div class="panel-head">
+          <h2>新青安試算結果</h2>
+          <span class="note">銀行仍依鑑價與授信核定</span>
+        </div>
+        <div class="result-stack" id="youngResult"></div>
+      </aside>
+    </section>
+
     <section class="sources">
       <b>計算依據：</b>
       房地合一稅基與自住房地優惠參考
@@ -1174,7 +1529,11 @@
       契稅按契價計算與買賣稅率 6% 參考
       <a href="https://www.tycg.gov.tw/NewsPage_Content.aspx?n=7&s=1598159&sms=7882" target="_blank" rel="noreferrer">桃園市政府地方稅務局</a>；
       抵押權設定登記規費參考
-      <a href="https://land.kinmen.gov.tw/Service/faq_more?id=e747821184c841a9ab225bed07212a98" target="_blank" rel="noreferrer">金門縣地政局登記規費說明</a>。
+      <a href="https://land.kinmen.gov.tw/Service/faq_more?id=e747821184c841a9ab225bed07212a98" target="_blank" rel="noreferrer">金門縣地政局登記規費說明</a>；
+      新青安額度、年限、寬限期與現行利率參考
+      <a href="https://www.mof.gov.tw/singlehtml/384fb3077bb349ea973e7fc6f13b6974?cntId=53d6694072ee4bb6991738a1c35dced2" target="_blank" rel="noreferrer">財政部新青安方案說明</a>，
+      限貸一次與自住規定參考
+      <a href="https://www.mof.gov.tw/singlehtml/384fb3077bb349ea973e7fc6f13b6974?cntId=02f8bc302c5f40a0be3e302d69a9620d" target="_blank" rel="noreferrer">財政部貸款管理說明</a>。
     </section>
 
   </main>
@@ -1225,6 +1584,17 @@
         graceYears: 0,
         loanMode: "levelPayment",
         extraPayment: 0
+      },
+      young: {
+        youngPurchasePrice: 12000000,
+        youngLoanRatio: 80,
+        youngLoanYears: 40,
+        youngGraceYears: 5,
+        youngRateMode: "oneStage",
+        youngMonthlyIncome: 100000,
+        youngNoHome: true,
+        youngFirstUse: true,
+        youngOwnerOccupied: true
       }
     };
 
@@ -1475,6 +1845,147 @@
       `;
     }
 
+    function youngRateAtMonth(mode, month) {
+      if (mode === "twoStage") return month <= 24 ? 1.565 : 1.865;
+      if (mode === "mixed") {
+        if (month <= 12) return 1.745;
+        if (month <= 24) return 1.845;
+        return 1.865;
+      }
+      return 1.775;
+    }
+
+    function youngRateLabel(mode) {
+      if (mode === "twoStage") return "二段式機動：前 2 年 1.565%，第 3 年起 1.865%";
+      if (mode === "mixed") return "混合式：第 1 年 1.745%、第 2 年 1.845%、第 3 年起 1.865%";
+      return "一段式機動：目前 1.775%";
+    }
+
+    function calculateYoung() {
+      const purchasePrice = value("youngPurchasePrice");
+      const ratio = clamp(value("youngLoanRatio"), 0, 80);
+      const requestedLoan = purchasePrice * ratio / 100;
+      const principal = Math.min(requestedLoan, 10000000);
+      const downPayment = Math.max(0, purchasePrice - principal);
+      const capGap = Math.max(0, requestedLoan - principal);
+      const totalMonths = Math.max(12, Math.round(clamp(value("youngLoanYears"), 1, 40) * 12));
+      const graceMonths = Math.min(totalMonths - 1, Math.round(clamp(value("youngGraceYears"), 0, 5) * 12));
+      const rateMode = selectValue("youngRateMode");
+      const monthlyIncome = value("youngMonthlyIncome");
+      const eligible = value("youngNoHome") && value("youngFirstUse") && value("youngOwnerOccupied");
+      let balance = principal;
+      let totalInterest = 0;
+      let scheduledPayment = 0;
+      let previousRate = null;
+      let firstGracePayment = 0;
+      let firstNormalPayment = 0;
+      let highestPayment = 0;
+      const rows = [];
+
+      for (let month = 1; month <= totalMonths && balance > 0.5; month += 1) {
+        const annualRate = youngRateAtMonth(rateMode, month);
+        const monthlyRate = annualRate / 100 / 12;
+        const interest = balance * monthlyRate;
+        let principalPaid = 0;
+        let payment = 0;
+
+        if (month <= graceMonths) {
+          payment = interest;
+          if (month === 1) firstGracePayment = payment;
+        } else {
+          if (month === graceMonths + 1 || annualRate !== previousRate) {
+            scheduledPayment = monthlyPayment(balance, monthlyRate, totalMonths - month + 1);
+          }
+          payment = scheduledPayment;
+          principalPaid = Math.max(0, payment - interest);
+          if (!firstNormalPayment) firstNormalPayment = payment;
+        }
+
+        if (principalPaid > balance) {
+          payment -= principalPaid - balance;
+          principalPaid = balance;
+        }
+
+        balance = Math.max(0, balance - principalPaid);
+        totalInterest += interest;
+        highestPayment = Math.max(highestPayment, payment);
+
+        if (
+          month <= 3 ||
+          month === graceMonths ||
+          month === graceMonths + 1 ||
+          month % 12 === 0 ||
+          balance === 0
+        ) {
+          rows.push({ month, annualRate, payment, principalPaid, interest, balance });
+        }
+        previousRate = annualRate;
+      }
+
+      if (!firstNormalPayment) firstNormalPayment = highestPayment;
+      const debtRatio = monthlyIncome > 0 ? firstNormalPayment / monthlyIncome * 100 : 0;
+      const suggestedIncome = firstNormalPayment / 0.4;
+      const tableRows = rows.slice(0, 24).map(row => `
+        <tr>
+          <td>第 ${row.month} 期</td>
+          <td>${number.format(row.annualRate)}%</td>
+          <td>${money.format(Math.round(row.payment))}</td>
+          <td>${money.format(Math.round(row.principalPaid))}</td>
+          <td>${money.format(Math.round(row.balance))}</td>
+        </tr>
+      `).join("");
+
+      document.getElementById("youngResult").innerHTML = `
+        ${metric("政策上限內預估貸款", principal, "main young-main")}
+        <div class="eligibility-result ${eligible ? "good" : "bad"}">
+          ${eligible
+            ? "資格初步檢核：三項條件皆已勾選，仍須由承貸銀行審核。"
+            : "資格初步檢核：目前有條件未符合，可能無法使用新青安優惠。"}
+        </div>
+        <div class="metric">
+          <span>${graceMonths > 0 ? "寬限期首月月付" : "首期月付"}</span>
+          <strong>${money.format(Math.round(graceMonths > 0 ? firstGracePayment : firstNormalPayment))}</strong>
+          <div class="breakdown">
+            ${line("寬限期後首期月付", firstNormalPayment)}
+            ${line("預估自備款", downPayment)}
+            ${capGap > 0 ? line("因 1,000 萬上限增加的資金缺口", capGap) : ""}
+          </div>
+        </div>
+        <div class="metric">
+          <span>整體試算</span>
+          <div class="breakdown">
+            ${line("貸款本金", principal)}
+            ${line("預估總利息", totalInterest)}
+            ${line("本息合計", principal + totalInterest)}
+            ${line("建議家庭月收入（以月付 40%）", suggestedIncome)}
+          </div>
+          <div class="ratio-meter">
+            <div class="line"><span>月付占輸入收入</span><b>${number.format(debtRatio)}%</b></div>
+            <div class="ratio-meter-track"><div class="ratio-meter-fill" style="width:${Math.min(debtRatio, 100)}%"></div></div>
+          </div>
+        </div>
+        <div class="metric">
+          <span>採用利率方案</span>
+          <strong class="young-rate-title">${youngRateLabel(rateMode)}</strong>
+          <div class="policy-note">現行利率補貼至 2026-07-31；補貼期滿後利率與續辦方式應依政府及承貸銀行最新公告，長期總利息僅供比較。</div>
+        </div>
+        <div class="table-wrap">
+          <table class="amortization">
+            <thead>
+              <tr>
+                <th>期數</th>
+                <th>年利率</th>
+                <th>月付</th>
+                <th>本金</th>
+                <th>剩餘本金</th>
+              </tr>
+            </thead>
+            <tbody>${tableRows}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
     function resetGroup(group) {
       Object.entries(defaults[group]).forEach(([id, preset]) => {
         const el = document.getElementById(id);
@@ -1492,6 +2003,7 @@
       calculateTax();
       calculateBuyer();
       calculateLoan();
+      calculateYoung();
     }
 
     document.querySelectorAll(".tab").forEach(tab => {
