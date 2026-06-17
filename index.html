@@ -923,6 +923,18 @@
       white-space: nowrap;
     }
 
+    .base-terms {
+      position: relative;
+      z-index: 1;
+      margin-top: 15px;
+      padding-top: 13px;
+      border-top: 1px dashed rgba(255, 255, 255, .22);
+      color: rgba(255, 255, 255, .74);
+      font-size: .82rem;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
     .eligibility-list {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1143,7 +1155,7 @@
       <button class="tab" type="button" data-tab="tax" aria-selected="true">房地合一稅</button>
       <button class="tab" type="button" data-tab="buyer" aria-selected="false">買方費用</button>
       <button class="tab" type="button" data-tab="loan" aria-selected="false">貸款計算</button>
-      <button class="tab tab-young" type="button" data-tab="young" aria-selected="false">新青安貸款</button>
+      <button class="tab tab-young" type="button" data-tab="young" aria-selected="false">新青安 2.0</button>
     </nav>
 
     <section class="workspace" data-panel="tax">
@@ -1428,15 +1440,16 @@
     <section class="workspace young-workspace hidden" data-panel="young">
       <form class="panel young-form" id="youngForm">
         <div class="young-hero">
-          <div class="young-kicker">現行新青安方案 · 利率補貼至 2026-07-31</div>
-          <h2>青年安心成家購屋優惠貸款</h2>
-          <p>申請人須成年，現行方案未設年齡上限；你提供的新青安 2.0 圖片屬研議方向，未納入正式計算。</p>
-          <div class="policy-stats" aria-label="新青安主要條件">
-            <div class="policy-stat"><span>最高額度</span><strong>1,000 萬</strong></div>
-            <div class="policy-stat"><span>貸款成數</span><strong>最高 8 成</strong></div>
-            <div class="policy-stat"><span>貸款年限</span><strong>最長 40 年</strong></div>
-            <div class="policy-stat"><span>寬限期</span><strong>最長 5 年</strong></div>
+          <div class="young-kicker">新青安 2.0 · 研議規則情境試算</div>
+          <h2>新青安貸款 2.0</h2>
+          <p>依目前公開的五項研議方向建立情境模型；正式門檻與利率仍須以行政院核定版本為準。</p>
+          <div class="policy-stats" aria-label="新青安2.0主要條件">
+            <div class="policy-stat"><span>利息補貼</span><strong>前 3 年 2 碼</strong></div>
+            <div class="policy-stat"><span>階梯退場</span><strong>第 4 至 7 年</strong></div>
+            <div class="policy-stat"><span>年齡限制</span><strong>80 條款</strong></div>
+            <div class="policy-stat"><span>所得上限</span><strong>200 萬元</strong></div>
           </div>
+          <div class="base-terms">額度最高 1,000 萬 · 成數最高 8 成 · 年限最長 40 年 · 寬限期最長 5 年</div>
         </div>
 
         <div class="section">
@@ -1484,18 +1497,46 @@
                 <span class="unit">年</span>
               </div>
             </div>
-            <div class="field wide">
-              <label for="youngRateMode">官方利率方案</label>
+            <div class="field">
+              <label for="youngAge">申貸人年齡</label>
               <div class="control">
-                <select id="youngRateMode">
-                  <option value="oneStage">一段式機動利率：目前 1.775%</option>
-                  <option value="twoStage">二段式機動利率：前 2 年 1.565%，第 3 年起 1.865%</option>
-                  <option value="mixed">混合式：第 1 年 1.745%、第 2 年 1.845%、第 3 年起 1.865%</option>
-                </select>
-                <span class="unit">方案</span>
+                <input id="youngAge" type="number" min="18" max="99" step="1" value="35">
+                <span class="unit">歲</span>
               </div>
             </div>
-            <div class="field wide">
+            <div class="field">
+              <label for="youngAnnualIncome">申貸人年收入</label>
+              <div class="control">
+                <input id="youngAnnualIncome" type="number" min="0" step="10000" value="1200000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="youngPriceTier">房價級距</label>
+              <div class="control">
+                <select id="youngPriceTier">
+                  <option value="taipei">台北市（研議 3,500 萬）</option>
+                  <option value="newtaipei">新北市（門檻待公布）</option>
+                  <option value="other" selected>其他縣市（門檻待公布）</option>
+                </select>
+                <span class="unit">區域</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="youngPriceCap">房價上限（情境自訂）</label>
+              <div class="control">
+                <input id="youngPriceCap" type="number" min="0" step="100000" value="20000000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="youngBaseRate">未補貼基準試算利率</label>
+              <div class="control">
+                <input id="youngBaseRate" type="number" min="0" step="0.01" value="2.15">
+                <span class="unit">%</span>
+              </div>
+            </div>
+            <div class="field">
               <label for="youngMonthlyIncome">家庭每月可支配收入</label>
               <div class="control">
                 <input id="youngMonthlyIncome" type="number" min="0" step="1000" value="100000">
@@ -1513,8 +1554,8 @@
 
       <aside class="panel young-result-panel">
         <div class="panel-head">
-          <h2>新青安試算結果</h2>
-          <span class="note">銀行仍依鑑價與授信核定</span>
+          <h2>新青安 2.0 試算結果</h2>
+          <span class="note">研議情境 · 非正式核貸條件</span>
         </div>
         <div class="result-stack" id="youngResult"></div>
       </aside>
@@ -1533,7 +1574,9 @@
       新青安額度、年限、寬限期與現行利率參考
       <a href="https://www.mof.gov.tw/singlehtml/384fb3077bb349ea973e7fc6f13b6974?cntId=53d6694072ee4bb6991738a1c35dced2" target="_blank" rel="noreferrer">財政部新青安方案說明</a>，
       限貸一次與自住規定參考
-      <a href="https://www.mof.gov.tw/singlehtml/384fb3077bb349ea973e7fc6f13b6974?cntId=02f8bc302c5f40a0be3e302d69a9620d" target="_blank" rel="noreferrer">財政部貸款管理說明</a>。
+      <a href="https://www.mof.gov.tw/singlehtml/384fb3077bb349ea973e7fc6f13b6974?cntId=02f8bc302c5f40a0be3e302d69a9620d" target="_blank" rel="noreferrer">財政部貸款管理說明</a>；
+      新青安 2.0 五項研議方向參考
+      <a href="https://house.udn.com/house/story/123589/9537954" target="_blank" rel="noreferrer">經濟日報／udn 房地產報導</a>（尚待行政院核定）。
     </section>
 
   </main>
@@ -1590,7 +1633,11 @@
         youngLoanRatio: 80,
         youngLoanYears: 40,
         youngGraceYears: 5,
-        youngRateMode: "oneStage",
+        youngAge: 35,
+        youngAnnualIncome: 1200000,
+        youngPriceTier: "other",
+        youngPriceCap: 20000000,
+        youngBaseRate: 2.15,
         youngMonthlyIncome: 100000,
         youngNoHome: true,
         youngFirstUse: true,
@@ -1845,20 +1892,21 @@
       `;
     }
 
-    function youngRateAtMonth(mode, month) {
-      if (mode === "twoStage") return month <= 24 ? 1.565 : 1.865;
-      if (mode === "mixed") {
-        if (month <= 12) return 1.745;
-        if (month <= 24) return 1.845;
-        return 1.865;
-      }
-      return 1.775;
+    function youngSubsidyAtMonth(month) {
+      if (month <= 36) return 0.5;
+      if (month <= 48) return 0.375;
+      if (month <= 60) return 0.25;
+      if (month <= 72) return 0.125;
+      return 0;
     }
 
-    function youngRateLabel(mode) {
-      if (mode === "twoStage") return "二段式機動：前 2 年 1.565%，第 3 年起 1.865%";
-      if (mode === "mixed") return "混合式：第 1 年 1.745%、第 2 年 1.845%、第 3 年起 1.865%";
-      return "一段式機動：目前 1.775%";
+    function youngRateAtMonth(baseRate, month) {
+      return Math.max(0, baseRate - youngSubsidyAtMonth(month));
+    }
+
+    function youngRateLabel(baseRate) {
+      const fullSubsidyRate = Math.max(0, baseRate - 0.5);
+      return `基準 ${number.format(baseRate)}%；前 3 年 ${number.format(fullSubsidyRate)}%，第 4 至 7 年逐年退場`;
     }
 
     function calculateYoung() {
@@ -1870,9 +1918,23 @@
       const capGap = Math.max(0, requestedLoan - principal);
       const totalMonths = Math.max(12, Math.round(clamp(value("youngLoanYears"), 1, 40) * 12));
       const graceMonths = Math.min(totalMonths - 1, Math.round(clamp(value("youngGraceYears"), 0, 5) * 12));
-      const rateMode = selectValue("youngRateMode");
+      const age = Math.round(clamp(value("youngAge"), 18, 99));
+      const annualIncome = Math.max(0, value("youngAnnualIncome"));
+      const priceTier = selectValue("youngPriceTier");
+      const priceCap = Math.max(0, value("youngPriceCap"));
+      const baseRate = Math.max(0, value("youngBaseRate"));
       const monthlyIncome = value("youngMonthlyIncome");
-      const eligible = value("youngNoHome") && value("youngFirstUse") && value("youngOwnerOccupied");
+      const basicEligibility = value("youngNoHome") && value("youngFirstUse") && value("youngOwnerOccupied");
+      const ageEligible = age + totalMonths / 12 <= 80;
+      const incomeEligible = annualIncome <= 2000000;
+      const priceEligible = priceCap > 0 && purchasePrice <= priceCap;
+      const eligible = basicEligibility && ageEligible && incomeEligible && priceEligible;
+      const eligibilityChecks = [
+        { passed: basicEligibility, text: "無自有住宅、限貸一次及自住條件" },
+        { passed: ageEligible, text: `80 條款：${age} 歲 + ${totalMonths / 12} 年 = ${age + totalMonths / 12}（須不超過 80）` },
+        { passed: incomeEligible, text: `年所得 ${money.format(annualIncome)}（須不超過 ${money.format(2000000)}）` },
+        { passed: priceEligible, text: `房價 ${money.format(purchasePrice)}（${priceTier === "taipei" ? "台北市" : priceTier === "newtaipei" ? "新北市" : "其他縣市"}情境上限 ${priceCap > 0 ? money.format(priceCap) : "未設定"}）` }
+      ];
       let balance = principal;
       let totalInterest = 0;
       let scheduledPayment = 0;
@@ -1883,7 +1945,7 @@
       const rows = [];
 
       for (let month = 1; month <= totalMonths && balance > 0.5; month += 1) {
-        const annualRate = youngRateAtMonth(rateMode, month);
+        const annualRate = youngRateAtMonth(baseRate, month);
         const monthlyRate = annualRate / 100 / 12;
         const interest = balance * monthlyRate;
         let principalPaid = 0;
@@ -1925,6 +1987,9 @@
       if (!firstNormalPayment) firstNormalPayment = highestPayment;
       const debtRatio = monthlyIncome > 0 ? firstNormalPayment / monthlyIncome * 100 : 0;
       const suggestedIncome = firstNormalPayment / 0.4;
+      const eligibilityDetails = eligibilityChecks.map(check => `
+        <div class="line"><span>${check.passed ? "符合" : "不符合"}｜${check.text}</span><b>${check.passed ? "OK" : "!"}</b></div>
+      `).join("");
       const tableRows = rows.slice(0, 24).map(row => `
         <tr>
           <td>第 ${row.month} 期</td>
@@ -1939,8 +2004,9 @@
         ${metric("政策上限內預估貸款", principal, "main young-main")}
         <div class="eligibility-result ${eligible ? "good" : "bad"}">
           ${eligible
-            ? "資格初步檢核：三項條件皆已勾選，仍須由承貸銀行審核。"
-            : "資格初步檢核：目前有條件未符合，可能無法使用新青安優惠。"}
+            ? "資格初步檢核：所有情境條件皆符合，仍須由承貸銀行審核。"
+            : "資格初步檢核：目前有條件未符合，可能無法使用新青安 2.0 優惠。"}
+          <div class="breakdown">${eligibilityDetails}</div>
         </div>
         <div class="metric">
           <span>${graceMonths > 0 ? "寬限期首月月付" : "首期月付"}</span>
@@ -1965,9 +2031,16 @@
           </div>
         </div>
         <div class="metric">
-          <span>採用利率方案</span>
-          <strong class="young-rate-title">${youngRateLabel(rateMode)}</strong>
-          <div class="policy-note">現行利率補貼至 2026-07-31；補貼期滿後利率與續辦方式應依政府及承貸銀行最新公告，長期總利息僅供比較。</div>
+          <span>2.0 情境利率路徑</span>
+          <strong class="young-rate-title">${youngRateLabel(baseRate)}</strong>
+          <div class="breakdown">
+            <div class="line"><span>前 3 年（補貼 0.5%）</span><b>${number.format(youngRateAtMonth(baseRate, 1))}%</b></div>
+            <div class="line"><span>第 4 年（補貼 0.375%）</span><b>${number.format(youngRateAtMonth(baseRate, 37))}%</b></div>
+            <div class="line"><span>第 5 年（補貼 0.25%）</span><b>${number.format(youngRateAtMonth(baseRate, 49))}%</b></div>
+            <div class="line"><span>第 6 年（補貼 0.125%）</span><b>${number.format(youngRateAtMonth(baseRate, 61))}%</b></div>
+            <div class="line"><span>第 7 年起（補貼退場）</span><b>${number.format(youngRateAtMonth(baseRate, 73))}%</b></div>
+          </div>
+          <div class="policy-note">此為研議規則情境模型，基準利率可自行調整；正式資格、房價門檻、補貼與退場方式應以政府核定公告為準。</div>
         </div>
         <div class="table-wrap">
           <table class="amortization">
@@ -2040,6 +2113,13 @@
       const purchasePrice = value("purchasePrice");
       const ratio = clamp(value("loanRatio"), 0, 100);
       document.getElementById("loanAmount").value = Math.round(purchasePrice * ratio / 100);
+    });
+
+    document.getElementById("youngPriceTier").addEventListener("change", event => {
+      if (event.target.value === "taipei") {
+        document.getElementById("youngPriceCap").value = 35000000;
+      }
+      calculateYoung();
     });
 
     calculateAll();
