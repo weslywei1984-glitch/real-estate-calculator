@@ -1183,17 +1183,17 @@
       position: relative;
       overflow: hidden;
       display: grid;
-      grid-template-columns: minmax(0, 1.42fr) minmax(220px, .72fr) minmax(260px, .76fr);
-      gap: 18px;
-      min-height: 360px;
+      grid-template-columns: minmax(0, 1.48fr) minmax(230px, .74fr) minmax(296px, .86fr);
+      gap: 14px;
+      min-height: 392px;
       align-items: stretch;
-      padding: 30px 30px 0;
-      border: 1px solid rgba(255, 250, 241, .18);
+      padding: 34px 30px 0;
+      border: 2px solid rgba(202, 161, 93, .72);
       border-radius: 28px;
       background:
-        linear-gradient(112deg, rgba(9, 36, 32, .98), rgba(13, 48, 43, .95) 58%, rgba(198, 157, 88, .18)),
+        linear-gradient(112deg, rgba(3, 35, 30, .99), rgba(8, 58, 49, .96) 58%, rgba(198, 157, 88, .22)),
         linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, 0));
-      box-shadow: 0 30px 90px rgba(4, 10, 8, .28);
+      box-shadow: 0 30px 90px rgba(4, 10, 8, .32), inset 0 0 0 1px rgba(255, 232, 168, .12);
       isolation: isolate;
     }
 
@@ -1203,15 +1203,16 @@
       inset: 0;
       z-index: -1;
       background:
-        radial-gradient(circle at 74% 20%, rgba(202, 161, 93, .24), transparent 26%),
-        linear-gradient(135deg, rgba(255, 250, 241, .08), transparent 38%);
+        radial-gradient(circle at 76% 16%, rgba(202, 161, 93, .28), transparent 24%),
+        radial-gradient(circle at 8% 70%, rgba(19, 177, 160, .12), transparent 28%),
+        linear-gradient(135deg, rgba(255, 250, 241, .06), transparent 38%);
     }
 
     .hero-copy {
       position: relative;
       z-index: 2;
       align-self: center;
-      padding-bottom: 34px;
+      padding-bottom: 30px;
     }
 
     header::after {
@@ -1225,38 +1226,70 @@
     h1 {
       max-width: none;
       color: #fffaf1;
-      font-size: clamp(2.45rem, 4.05vw, 3.95rem);
-      line-height: 1.04;
-      letter-spacing: -.035em;
+      font-size: clamp(3rem, 5.25vw, 5.55rem);
+      line-height: .94;
+      letter-spacing: -.05em;
       white-space: nowrap;
       text-shadow: 0 18px 34px rgba(0, 0, 0, .22);
+    }
+
+    .title-gold {
+      color: #f5d28e;
+      text-shadow: 0 0 18px rgba(245, 210, 142, .18);
     }
 
     .title-row {
       display: grid;
       align-items: start;
-      gap: 26px;
+      gap: 28px;
       margin-bottom: 28px;
     }
 
     .subtitle {
+      position: relative;
       display: grid;
-      gap: 8px;
+      gap: 10px;
       max-width: 680px;
-      margin-top: 22px;
-      padding-left: 26px;
-      border-left: 7px solid #f2c86d;
-      color: rgba(255, 250, 241, .82);
-      font-size: clamp(1.05rem, 1.5vw, 1.32rem);
-      line-height: 1.85;
+      margin-top: 30px;
+      padding-left: 44px;
+      color: rgba(255, 250, 241, .88);
+      font-size: clamp(1.12rem, 1.65vw, 1.52rem);
+      line-height: 1.9;
       text-shadow: 0 12px 28px rgba(0, 0, 0, .25);
     }
 
+    .subtitle::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 4px;
+      bottom: 5px;
+      width: 3px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #fff4be, #d8a14d 48%, #fff4be);
+      box-shadow: 0 0 14px rgba(245, 210, 142, .58);
+    }
+
+    .subtitle::after {
+      content: "";
+      position: absolute;
+      left: -5px;
+      top: 0;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #fff4be;
+      box-shadow:
+        0 calc(100% - 13px) 0 #fff4be,
+        0 0 14px rgba(245, 210, 142, .75),
+        0 calc(100% - 13px) 14px rgba(245, 210, 142, .75);
+    }
+
     .client-info {
-      width: min(100%, 500px);
+      width: min(100%, 520px);
       min-width: 0;
-      padding: 12px 24px 12px 13px;
-      border: 1px solid rgba(245, 210, 142, .38);
+      padding: 12px 26px 12px 14px;
+      border: 1.5px solid rgba(245, 210, 142, .62);
       border-radius: 999px;
       background:
         linear-gradient(135deg, rgba(255, 250, 241, .16), rgba(255, 250, 241, .06)),
@@ -1264,14 +1297,14 @@
       box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, .18),
         inset 0 -1px 0 rgba(245, 210, 142, .16),
-        0 20px 42px rgba(0, 0, 0, .22);
+        0 22px 46px rgba(0, 0, 0, .26);
       backdrop-filter: blur(14px);
     }
 
     .brand-mark {
       position: relative;
-      width: 62px;
-      height: 62px;
+      width: 70px;
+      height: 70px;
       border: 1px solid rgba(255, 232, 168, .82);
       border-radius: 50%;
       color: #12342d;
@@ -1284,7 +1317,7 @@
         0 12px 26px rgba(202, 161, 93, .30),
         0 0 0 7px rgba(245, 210, 142, .10),
         0 0 0 13px rgba(245, 210, 142, .04);
-      font-size: 1.45rem;
+      font-size: 1.55rem;
       text-shadow: 0 1px 0 rgba(255, 255, 255, .38);
     }
 
@@ -1313,13 +1346,13 @@
 
     .client-info .client-copy strong {
       color: #fffaf1;
-      font-size: 1.06rem;
+      font-size: 1.14rem;
       letter-spacing: -.01em;
     }
 
     .client-info .client-copy span {
       color: #f5d28e;
-      font-size: 1.08rem;
+      font-size: 1.2rem;
       letter-spacing: .015em;
     }
 
@@ -1328,8 +1361,8 @@
       z-index: 1;
       align-self: end;
       justify-self: center;
-      width: min(100%, 390px);
-      max-height: 430px;
+      width: min(110%, 430px);
+      max-height: 470px;
       object-fit: contain;
       object-position: center bottom;
       filter: drop-shadow(0 28px 42px rgba(0, 0, 0, .38));
@@ -1347,10 +1380,10 @@
     .hero-person-wrap::before {
       content: "";
       position: absolute;
-      width: min(92%, 420px);
+      width: min(112%, 510px);
       aspect-ratio: 1;
-      bottom: -74px;
-      border: 1px solid rgba(202, 161, 93, .34);
+      bottom: -96px;
+      border: 1.5px solid rgba(202, 161, 93, .46);
       border-radius: 50%;
       background: radial-gradient(circle, rgba(202, 161, 93, .13), transparent 62%);
     }
@@ -1358,7 +1391,7 @@
     .hero-card {
       display: grid;
       grid-template-rows: auto 1fr;
-      gap: 14px;
+      gap: 18px;
       width: 100%;
       min-width: 0;
       z-index: 2;
@@ -1369,17 +1402,19 @@
     .status {
       position: relative;
       display: grid;
-      grid-template-columns: 58px minmax(0, 1fr);
-      column-gap: 14px;
+      grid-template-columns: 62px minmax(0, 1fr);
+      column-gap: 16px;
       row-gap: 4px;
       align-items: center;
       min-width: 0;
-      min-height: 76px;
-      padding: 12px 18px;
-      border: 1px solid rgba(245, 210, 142, .38);
+      min-height: 88px;
+      padding: 14px 18px;
+      border: 1.5px solid rgba(245, 210, 142, .68);
       border-radius: 20px;
-      background: rgba(255, 250, 241, .12);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14);
+      background:
+        linear-gradient(135deg, rgba(255, 250, 241, .14), rgba(255, 250, 241, .06)),
+        rgba(12, 38, 35, .52);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), 0 18px 36px rgba(0, 0, 0, .22);
     }
 
     .status::before {
@@ -1387,21 +1422,21 @@
       grid-row: 1 / 3;
       display: grid;
       place-items: center;
-      width: 50px;
-      height: 50px;
-      border: 1px solid rgba(245, 210, 142, .34);
+      width: 56px;
+      height: 56px;
+      border: 1.5px solid rgba(245, 210, 142, .56);
       border-radius: 50%;
       color: #f5d28e;
-      font-size: 1.28rem;
+      font-size: 1.54rem;
       font-weight: 900;
     }
 
     .status::after {
       content: "";
       position: absolute;
-      left: 72px;
-      top: 16px;
-      bottom: 16px;
+      left: 86px;
+      top: 20px;
+      bottom: 20px;
       width: 1px;
       background: rgba(245, 210, 142, .26);
     }
@@ -1409,55 +1444,56 @@
     .status span {
       grid-column: 2;
       color: rgba(255, 250, 241, .62);
-      font-size: .9rem;
+      font-size: 1.02rem;
       font-weight: 700;
     }
 
     .status strong {
       grid-column: 2;
       color: #fffaf1;
-      font-size: 1.22rem;
+      font-size: 1.46rem;
+      white-space: nowrap;
     }
 
     .image2-visual {
       position: relative;
-      min-height: 210px;
+      min-height: 218px;
       overflow: hidden;
-      border: 1px solid rgba(245, 210, 142, .28);
-      border-radius: 20px;
+      border: 1.5px solid rgba(245, 210, 142, .72);
+      border-radius: 22px;
       background:
         radial-gradient(circle at 70% 18%, rgba(245, 210, 142, .38), transparent 24%),
         linear-gradient(180deg, rgba(255, 250, 241, .16), rgba(255, 250, 241, .04)),
         linear-gradient(140deg, rgba(11, 86, 78, .88), rgba(18, 35, 38, .92));
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 22px 46px rgba(0, 0, 0, .22);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 22px 46px rgba(0, 0, 0, .24);
     }
 
     .image2-visual::before {
       content: "";
       position: absolute;
-      inset: 14px;
+      inset: 18px;
       border: 1px solid rgba(255, 250, 241, .12);
-      border-radius: 15px;
+      border-radius: 17px;
     }
 
     .image2-visual strong {
       position: absolute;
       left: 50%;
-      bottom: 18px;
+      bottom: 22px;
       transform: translateX(-50%);
       z-index: 2;
       width: max-content;
       color: #f5d28e;
-      font-size: .76rem;
+      font-size: .82rem;
       letter-spacing: .22em;
     }
 
     .visual-sun {
       position: absolute;
-      top: 30px;
-      right: 38px;
-      width: 42px;
-      height: 42px;
+      top: 38px;
+      right: 44px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       background: linear-gradient(145deg, #ffe8a8, #d0a15a);
       box-shadow: 0 0 34px rgba(245, 210, 142, .34);
@@ -1465,10 +1501,10 @@
 
     .visual-house {
       position: absolute;
-      left: 52px;
-      bottom: 60px;
-      width: 118px;
-      height: 84px;
+      left: 58px;
+      bottom: 68px;
+      width: 132px;
+      height: 90px;
       border-radius: 8px 8px 0 0;
       background: linear-gradient(180deg, rgba(255, 241, 197, .92), rgba(184, 140, 70, .86));
       box-shadow: 0 18px 28px rgba(0, 0, 0, .24);
@@ -1477,10 +1513,10 @@
     .visual-house::before {
       content: "";
       position: absolute;
-      left: -16px;
-      top: -48px;
-      width: 150px;
-      height: 66px;
+      left: -22px;
+      top: -58px;
+      width: 176px;
+      height: 78px;
       clip-path: polygon(50% 0, 100% 100%, 0 100%);
       background: linear-gradient(145deg, #ffe8a8, #c99648);
     }
@@ -1488,18 +1524,18 @@
     .visual-house::after {
       content: "";
       position: absolute;
-      inset: 18px 20px;
+      inset: 20px 24px;
       background:
         linear-gradient(90deg, rgba(50, 54, 46, .26) 1px, transparent 1px),
         linear-gradient(rgba(50, 54, 46, .22) 1px, transparent 1px);
-      background-size: 21px 21px;
+      background-size: 25px 25px;
     }
 
     .visual-hill {
       position: absolute;
       left: -14px;
       right: -14px;
-      bottom: 52px;
+      bottom: 62px;
       height: 50px;
       border-top: 2px solid rgba(245, 210, 142, .72);
       border-radius: 50% 50% 0 0;
@@ -1511,7 +1547,7 @@
       position: absolute;
       left: 24px;
       right: 24px;
-      bottom: 34px;
+      bottom: 36px;
       height: 2px;
       background: linear-gradient(90deg, transparent, rgba(255, 250, 241, .65), transparent);
     }
@@ -1887,7 +1923,7 @@
     <header>
       <div class="hero-copy">
         <div class="title-row">
-          <h1>房地稅費與貸款試算</h1>
+          <h1>房地稅費<span class="title-gold">與</span>貸款試算</h1>
           <div class="client-info" aria-label="客戶專屬聯絡資訊">
             <span class="brand-mark" aria-hidden="true">魏</span>
             <span class="client-copy">
