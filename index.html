@@ -1944,9 +1944,15 @@
                 <select id="loanRatePreset">
                   <option value="common220" data-rate="2.20" selected>常用房貸試算 2.20%</option>
                   <option value="young215" data-rate="2.15">新青安 2.0 未補貼基準情境 2.15%</option>
-                  <option value="bot1751" data-rate="1.751">臺灣銀行定儲利率指數（月調）1.751%</option>
-                  <option value="land1720" data-rate="1.720">土地銀行指數型房貸指標（月調）1.720%</option>
-                  <option value="fubon1710" data-rate="1.710">台北富邦指數型房貸基準 1.710%</option>
+                  <option value="bot3370" data-rate="3.370">臺灣銀行一般房屋購置貸款 3.370% 起</option>
+                  <option value="land2575" data-rate="2.575">土地銀行一般購屋貸款 2.575% 起</option>
+                  <option value="tcb2998" data-rate="2.998">合作金庫線上房貸 2.998% 起</option>
+                  <option value="hncb2600" data-rate="2.60">華南銀行定儲利率指數房貸 2.60% 起</option>
+                  <option value="ctbc2680" data-rate="2.68">中國信託一般購屋房貸 2.68% 起</option>
+                  <option value="yuanta2400" data-rate="2.40">元大銀行指數型房貸 2.40% 起</option>
+                  <option value="first2700" data-rate="2.70">第一銀行購屋貸款 2.70% 起</option>
+                  <option value="esun2500" data-rate="2.50">玉山銀行指數型房貸 2.50% 起</option>
+                  <option value="fubon2650" data-rate="2.65">台北富邦購屋房貸 2.65% 起</option>
                   <option value="custom">手動輸入／銀行核貸利率</option>
                 </select>
                 <span class="unit">套用</span>
@@ -1993,12 +1999,18 @@
           </div>
           <div class="rate-advice" aria-label="房貸利率選項提醒">
             <b>利率選項提醒</b>
-            <span>上方選項可直接套用到年利率；其中銀行牌告指標通常未含個人加碼，實際核貸利率仍會依收入、信用、擔保品與銀行條件調整。</span>
+            <span>上方選項可直接套用到年利率；各銀行實際核貸利率仍會依收入、信用、擔保品、貸款成數、區域與銀行條件調整。</span>
             <div class="rate-links">
               <a href="https://cpx.cbc.gov.tw/BIRWEB/Range/IRangeSelect" target="_blank" rel="noreferrer">央行牌告利率資訊網</a>
-              <a href="https://cpx.cbc.gov.tw/api/OpenData/OAS?set_id=9464" target="_blank" rel="noreferrer">央行牌告利率 API</a>
               <a href="https://rate.bot.com.tw/twd?Lang=zh-TW" target="_blank" rel="noreferrer">臺灣銀行牌告利率</a>
               <a href="https://rate.landbank.com.tw/zh-TW/TWDInfo/TWDLendingRate?mid=24" target="_blank" rel="noreferrer">土地銀行放款利率</a>
+              <a href="https://www.tcb-bank.com.tw/personal-banking/loan/others/loan-rate" target="_blank" rel="noreferrer">合作金庫放款利率</a>
+              <a href="https://www.hncb.com.tw/wps/portal/HNCB/per_finance/loan/house/mortgage" target="_blank" rel="noreferrer">華南銀行房貸</a>
+              <a href="https://www.ctbcbank.com/content/twrbo/zh_tw/loan_index/house_loan/house_loan_product_house.html" target="_blank" rel="noreferrer">中國信託房貸</a>
+              <a href="https://www.firstbank.com.tw/sites/fcb/touch/1565687620701" target="_blank" rel="noreferrer">第一銀行購屋貸款</a>
+              <a href="https://www.yuantabank.com.tw/bank/loan/house/list01.do" target="_blank" rel="noreferrer">元大銀行房貸</a>
+              <a href="https://www.esunbank.com/zh-tw/personal/loan/house" target="_blank" rel="noreferrer">玉山銀行房貸</a>
+              <a href="https://www.fubon.com/banking/event/mortgage/20210811A/index.html" target="_blank" rel="noreferrer">台北富邦房貸</a>
             </div>
           </div>
           <div class="actions">
@@ -2124,9 +2136,15 @@
                 <select id="youngRatePreset">
                   <option value="young215" data-rate="2.15" selected>新青安 2.0 情境基準 2.15%</option>
                   <option value="common220" data-rate="2.20">常用房貸試算 2.20%</option>
-                  <option value="bot1751" data-rate="1.751">臺灣銀行定儲利率指數（月調）1.751%</option>
-                  <option value="land1720" data-rate="1.720">土地銀行指數型房貸指標（月調）1.720%</option>
-                  <option value="fubon1710" data-rate="1.710">台北富邦指數型房貸基準 1.710%</option>
+                  <option value="bot3370" data-rate="3.370">臺灣銀行一般房屋購置貸款 3.370% 起</option>
+                  <option value="land2575" data-rate="2.575">土地銀行一般購屋貸款 2.575% 起</option>
+                  <option value="tcb2998" data-rate="2.998">合作金庫線上房貸 2.998% 起</option>
+                  <option value="hncb2600" data-rate="2.60">華南銀行定儲利率指數房貸 2.60% 起</option>
+                  <option value="ctbc2680" data-rate="2.68">中國信託一般購屋房貸 2.68% 起</option>
+                  <option value="yuanta2400" data-rate="2.40">元大銀行指數型房貸 2.40% 起</option>
+                  <option value="first2700" data-rate="2.70">第一銀行購屋貸款 2.70% 起</option>
+                  <option value="esun2500" data-rate="2.50">玉山銀行指數型房貸 2.50% 起</option>
+                  <option value="fubon2650" data-rate="2.65">台北富邦購屋房貸 2.65% 起</option>
                   <option value="custom">手動輸入／銀行核貸利率</option>
                 </select>
                 <span class="unit">套用</span>
