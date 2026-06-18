@@ -1939,17 +1939,6 @@
               </div>
             </div>
             <div class="field">
-              <label for="loanRatePreset">房貸利率選項</label>
-              <div class="control">
-                <select id="loanRatePreset">
-                  <option value="common220" data-rate="2.20" selected>常用房貸試算 2.20%</option>
-                  <option value="young215" data-rate="2.15">新青安 2.0 未補貼基準情境 2.15%</option>
-                  <option value="custom">手動輸入／銀行核貸利率</option>
-                </select>
-                <span class="unit">套用</span>
-              </div>
-            </div>
-            <div class="field">
               <label for="annualRate">年利率</label>
               <div class="control">
                 <input id="annualRate" type="number" min="0" step="0.01" value="2.2">
@@ -1987,10 +1976,6 @@
                 <span class="unit">元</span>
               </div>
             </div>
-          </div>
-          <div class="rate-advice" aria-label="房貸利率選項提醒">
-            <b>利率選項提醒</b>
-            <span>可先用常用利率快速試算；若已有銀行提供的核貸利率，請改選手動輸入並填入實際年利率。</span>
           </div>
           <div class="actions">
             <button class="primary" type="submit">重新計算</button>
@@ -2110,17 +2095,6 @@
               </div>
             </div>
             <div class="field">
-              <label for="youngRatePreset">未補貼基準利率選項</label>
-              <div class="control">
-                <select id="youngRatePreset">
-                  <option value="young215" data-rate="2.15" selected>新青安 2.0 情境基準 2.15%</option>
-                  <option value="common220" data-rate="2.20">常用房貸試算 2.20%</option>
-                  <option value="custom">手動輸入／銀行核貸利率</option>
-                </select>
-                <span class="unit">套用</span>
-              </div>
-            </div>
-            <div class="field">
               <label for="youngBaseRate">未補貼基準試算利率</label>
               <div class="control">
                 <input id="youngBaseRate" type="number" min="0" step="0.01" value="2.15">
@@ -2214,7 +2188,6 @@
       loan: {
         loanPurchasePrice: 15000000,
         loanLtvRatio: 80,
-        loanRatePreset: "common220",
         loanAmount: 12000000,
         annualRate: 2.2,
         loanYears: 30,
@@ -2232,7 +2205,6 @@
         youngAnnualIncome: 1200000,
         youngPriceTier: "other",
         youngPriceCap: 20000000,
-        youngRatePreset: "young215",
         youngBaseRate: 2.15,
         youngMonthlyIncome: 100000,
         youngNoHome: true,
@@ -2248,15 +2220,6 @@
 
     function selectValue(id) {
       return document.getElementById(id).value;
-    }
-
-    function applyRatePreset(selectId, inputId) {
-      const select = document.getElementById(selectId);
-      const selected = select.options[select.selectedIndex];
-      const rate = selected?.dataset.rate;
-      if (rate) {
-        document.getElementById(inputId).value = rate;
-      }
     }
 
     function clamp(value, min, max) {
@@ -2761,21 +2724,8 @@
     document.getElementById("loanPurchasePrice").addEventListener("input", syncLoanAmountFromPrice);
     document.getElementById("loanLtvRatio").addEventListener("input", syncLoanAmountFromPrice);
     document.getElementById("loanAmount").addEventListener("input", syncLoanRatioFromAmount);
-    document.getElementById("loanRatePreset").addEventListener("change", () => {
-      applyRatePreset("loanRatePreset", "annualRate");
-      calculateLoan();
-    });
-    document.getElementById("annualRate").addEventListener("input", () => {
-      document.getElementById("loanRatePreset").value = "custom";
-    });
-
-    document.getElementById("youngRatePreset").addEventListener("change", () => {
-      applyRatePreset("youngRatePreset", "youngBaseRate");
-      calculateYoung();
-    });
-    document.getElementById("youngBaseRate").addEventListener("input", () => {
-      document.getElementById("youngRatePreset").value = "custom";
-    });
+    document.getElementById("annualRate").addEventListener("input", calculateLoan);
+    document.getElementById("youngBaseRate").addEventListener("input", calculateYoung);
 
     document.getElementById("youngPriceTier").addEventListener("change", event => {
       if (event.target.value === "taipei") {
