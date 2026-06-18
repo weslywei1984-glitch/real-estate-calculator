@@ -1446,25 +1446,25 @@
           <div class="policy-stats" aria-label="新青安2.0主要條件">
             <div class="policy-stat"><span>利息補貼</span><strong>前 3 年 2 碼</strong></div>
             <div class="policy-stat"><span>階梯退場</span><strong>第 4 至 7 年</strong></div>
-            <div class="policy-stat"><span>年齡限制</span><strong>80 條款</strong></div>
-            <div class="policy-stat"><span>所得上限</span><strong>200 萬元</strong></div>
+            <div class="policy-stat"><span>年齡限制</span><strong>50 歲與 80 條款</strong></div>
+            <div class="policy-stat"><span>所得限制</span><strong>未滿 200 萬</strong></div>
           </div>
-          <div class="base-terms">額度最高 1,000 萬 · 成數最高 8 成 · 年限最長 40 年 · 寬限期最長 5 年</div>
+          <div class="base-terms">一般首購最高 1,000 萬 · 新婚／婚育家庭最高 1,500 萬 · 成數最高 8 成 · 年限最長 40 年 · 寬限期預估最長 3 年</div>
         </div>
 
         <div class="section">
           <div class="eligibility-list" aria-label="資格條件">
             <label class="eligibility-item">
               <input id="youngNoHome" type="checkbox" checked>
-              <span><b>家庭名下無自有住宅</b><small>本人、配偶及未成年子女均無自有住宅。</small></span>
+              <span><b>首購自住</b><small>申貸當下本人、配偶及未成年子女名下沒有自有住宅，並作自住使用。</small></span>
             </label>
             <label class="eligibility-item">
               <input id="youngFirstUse" type="checkbox" checked>
-              <span><b>符合限貸一次規定</b><small>2023-08-01 後已核貸者，自 2024-06-27 起不得再次申貸。</small></span>
+              <span><b>限貸一次</b><small>每人原則上只能使用一次新青安優惠，不能重複申請。</small></span>
             </label>
             <label class="eligibility-item">
-              <input id="youngOwnerOccupied" type="checkbox" checked>
-              <span><b>購置成屋並作自住使用</b><small>不得以人頭戶、投資或貸後轉租方式使用優惠。</small></span>
+              <input id="youngNationality" type="checkbox" checked>
+              <span><b>中華民國國籍</b><small>申貸人須具備中華民國國籍。</small></span>
             </label>
           </div>
 
@@ -1484,6 +1484,16 @@
               </div>
             </div>
             <div class="field">
+              <label for="youngApplicantType">申請身分類型</label>
+              <div class="control">
+                <select id="youngApplicantType">
+                  <option value="general" selected>一般首購（最高 1,000 萬）</option>
+                  <option value="family">新婚／婚育家庭（最高 1,500 萬）</option>
+                </select>
+                <span class="unit">類型</span>
+              </div>
+            </div>
+            <div class="field">
               <label for="youngLoanYears">貸款年限</label>
               <div class="control">
                 <input id="youngLoanYears" type="number" min="1" max="40" step="1" value="40">
@@ -1493,7 +1503,7 @@
             <div class="field">
               <label for="youngGraceYears">寬限期</label>
               <div class="control">
-                <input id="youngGraceYears" type="number" min="0" max="5" step="1" value="5">
+                <input id="youngGraceYears" type="number" min="0" max="3" step="1" value="3">
                 <span class="unit">年</span>
               </div>
             </div>
@@ -1632,7 +1642,8 @@
         youngPurchasePrice: 12000000,
         youngLoanRatio: 80,
         youngLoanYears: 40,
-        youngGraceYears: 5,
+        youngGraceYears: 3,
+        youngApplicantType: "general",
         youngAge: 35,
         youngAnnualIncome: 1200000,
         youngPriceTier: "other",
@@ -1641,7 +1652,7 @@
         youngMonthlyIncome: 100000,
         youngNoHome: true,
         youngFirstUse: true,
-        youngOwnerOccupied: true
+        youngNationality: true
       }
     };
 
@@ -1896,7 +1907,7 @@
       if (month <= 36) return 0.5;
       if (month <= 48) return 0.375;
       if (month <= 60) return 0.25;
-      if (month <= 72) return 0.125;
+      if (month <= 84) return 0.125;
       return 0;
     }
 
@@ -1906,33 +1917,40 @@
 
     function youngRateLabel(baseRate) {
       const fullSubsidyRate = Math.max(0, baseRate - 0.5);
-      return `基準 ${number.format(baseRate)}%；前 3 年 ${number.format(fullSubsidyRate)}%，第 4 至 7 年逐年退場`;
+      return `基準 ${number.format(baseRate)}%；前 3 年 ${number.format(fullSubsidyRate)}%，第 4 至 7 年階梯退場`;
     }
 
     function calculateYoung() {
       const purchasePrice = value("youngPurchasePrice");
       const ratio = clamp(value("youngLoanRatio"), 0, 80);
       const requestedLoan = purchasePrice * ratio / 100;
-      const principal = Math.min(requestedLoan, 10000000);
+      const applicantType = selectValue("youngApplicantType");
+      const loanLimit = applicantType === "family" ? 15000000 : 10000000;
+      const applicantTypeLabel = applicantType === "family" ? "新婚／婚育家庭" : "一般首購";
+      const principal = Math.min(requestedLoan, loanLimit);
       const downPayment = Math.max(0, purchasePrice - principal);
       const capGap = Math.max(0, requestedLoan - principal);
       const totalMonths = Math.max(12, Math.round(clamp(value("youngLoanYears"), 1, 40) * 12));
-      const graceMonths = Math.min(totalMonths - 1, Math.round(clamp(value("youngGraceYears"), 0, 5) * 12));
+      const graceMonths = Math.min(totalMonths - 1, Math.round(clamp(value("youngGraceYears"), 0, 3) * 12));
       const age = Math.round(clamp(value("youngAge"), 18, 99));
       const annualIncome = Math.max(0, value("youngAnnualIncome"));
       const priceTier = selectValue("youngPriceTier");
       const priceCap = Math.max(0, value("youngPriceCap"));
       const baseRate = Math.max(0, value("youngBaseRate"));
       const monthlyIncome = value("youngMonthlyIncome");
-      const basicEligibility = value("youngNoHome") && value("youngFirstUse") && value("youngOwnerOccupied");
-      const ageEligible = age + totalMonths / 12 <= 80;
-      const incomeEligible = annualIncome <= 2000000;
+      const basicEligibility = value("youngNoHome") && value("youngFirstUse") && value("youngNationality");
+      const ageLimitEligible = age <= 50;
+      const ageTermEligible = age + totalMonths / 12 <= 80;
+      const incomeEligible = annualIncome < 2000000;
       const priceEligible = priceCap > 0 && purchasePrice <= priceCap;
-      const eligible = basicEligibility && ageEligible && incomeEligible && priceEligible;
+      const eligible = basicEligibility && ageLimitEligible && ageTermEligible && incomeEligible && priceEligible;
       const eligibilityChecks = [
-        { passed: basicEligibility, text: "無自有住宅、限貸一次及自住條件" },
-        { passed: ageEligible, text: `80 條款：${age} 歲 + ${totalMonths / 12} 年 = ${age + totalMonths / 12}（須不超過 80）` },
-        { passed: incomeEligible, text: `年所得 ${money.format(annualIncome)}（須不超過 ${money.format(2000000)}）` },
+        { passed: value("youngNoHome"), text: "首購自住：申貸當下本人、配偶及未成年子女名下沒有自有住宅，並作自住使用" },
+        { passed: value("youngNationality"), text: "申貸人具備中華民國國籍" },
+        { passed: value("youngFirstUse"), text: "限貸一次：每人原則上只能使用一次新青安優惠" },
+        { passed: ageLimitEligible, text: `申貸年齡 ${age} 歲（須不超過 50 歲）` },
+        { passed: ageTermEligible, text: `80 條款：${age} 歲 + ${totalMonths / 12} 年 = ${age + totalMonths / 12}（須不超過 80）` },
+        { passed: incomeEligible, text: `年所得 ${money.format(annualIncome)}（須低於 ${money.format(2000000)}）` },
         { passed: priceEligible, text: `房價 ${money.format(purchasePrice)}（${priceTier === "taipei" ? "台北市" : priceTier === "newtaipei" ? "新北市" : "其他縣市"}情境上限 ${priceCap > 0 ? money.format(priceCap) : "未設定"}）` }
       ];
       let balance = principal;
@@ -2014,7 +2032,8 @@
           <div class="breakdown">
             ${line("寬限期後首期月付", firstNormalPayment)}
             ${line("預估自備款", downPayment)}
-            ${capGap > 0 ? line("因 1,000 萬上限增加的資金缺口", capGap) : ""}
+            ${line(`${applicantTypeLabel}貸款額度上限`, loanLimit)}
+            ${capGap > 0 ? line(`因 ${money.format(loanLimit)} 上限增加的資金缺口`, capGap) : ""}
           </div>
         </div>
         <div class="metric">
@@ -2037,8 +2056,8 @@
             <div class="line"><span>前 3 年（補貼 0.5%）</span><b>${number.format(youngRateAtMonth(baseRate, 1))}%</b></div>
             <div class="line"><span>第 4 年（補貼 0.375%）</span><b>${number.format(youngRateAtMonth(baseRate, 37))}%</b></div>
             <div class="line"><span>第 5 年（補貼 0.25%）</span><b>${number.format(youngRateAtMonth(baseRate, 49))}%</b></div>
-            <div class="line"><span>第 6 年（補貼 0.125%）</span><b>${number.format(youngRateAtMonth(baseRate, 61))}%</b></div>
-            <div class="line"><span>第 7 年起（補貼退場）</span><b>${number.format(youngRateAtMonth(baseRate, 73))}%</b></div>
+            <div class="line"><span>第 6～7 年（補貼 0.125%）</span><b>${number.format(youngRateAtMonth(baseRate, 61))}%</b></div>
+            <div class="line"><span>第 8 年起（補貼退場）</span><b>${number.format(youngRateAtMonth(baseRate, 85))}%</b></div>
           </div>
           <div class="policy-note">此為研議規則情境模型，基準利率可自行調整；正式資格、房價門檻、補貼與退場方式應以政府核定公告為準。</div>
         </div>
