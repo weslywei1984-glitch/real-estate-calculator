@@ -1553,6 +1553,54 @@
       color: #f5d28e;
     }
 
+    .rate-advice {
+      display: grid;
+      gap: 9px;
+      margin-top: 18px;
+      padding: 16px;
+      border: 1px solid rgba(202, 161, 93, .24);
+      border-radius: 18px;
+      color: #4b4639;
+      background:
+        linear-gradient(135deg, rgba(255, 246, 223, .88), rgba(255, 255, 255, .72)),
+        radial-gradient(circle at 100% 0, rgba(202, 161, 93, .22), transparent 32%);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .rate-advice b {
+      color: #20352f;
+      font-size: .95rem;
+    }
+
+    .rate-advice span {
+      color: #625b4e;
+      font-size: .86rem;
+      line-height: 1.7;
+    }
+
+    .rate-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .rate-links a {
+      padding: 6px 10px;
+      border: 1px solid rgba(15, 95, 85, .16);
+      border-radius: 999px;
+      color: #0f5f55;
+      background: rgba(255, 255, 255, .62);
+      font-size: .8rem;
+      font-weight: 850;
+      text-decoration: none;
+    }
+
+    .rate-links a:hover {
+      color: #17211d;
+      border-color: rgba(202, 161, 93, .4);
+      background: #fffaf1;
+    }
+
     @media (max-width: 900px) {
       header {
         grid-template-columns: 1fr;
@@ -1870,6 +1918,20 @@
         <div class="section">
           <div class="form-grid">
             <div class="field">
+              <label for="loanPurchasePrice">房屋成交總價</label>
+              <div class="control">
+                <input id="loanPurchasePrice" type="number" min="0" step="10000" value="15000000">
+                <span class="unit">元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="loanLtvRatio">預估貸款成數</label>
+              <div class="control">
+                <input id="loanLtvRatio" type="number" min="0" max="100" step="1" value="80">
+                <span class="unit">%</span>
+              </div>
+            </div>
+            <div class="field">
               <label for="loanAmount">貸款本金</label>
               <div class="control">
                 <input id="loanAmount" type="number" min="0" step="10000" value="12000000">
@@ -1913,6 +1975,16 @@
                 <input id="extraPayment" type="number" min="0" step="1000" value="0">
                 <span class="unit">元</span>
               </div>
+            </div>
+          </div>
+          <div class="rate-advice" aria-label="牌告利率查詢建議">
+            <b>利率查詢建議</b>
+            <span>各銀行牌告利率可用「銀行名稱＋房貸指標利率」或央行牌告利率資料查詢；實際核貸利率仍會依收入、信用、擔保品與銀行加碼調整。</span>
+            <div class="rate-links">
+              <a href="https://cpx.cbc.gov.tw/BIRWEB/Range/IRangeSelect" target="_blank" rel="noreferrer">央行牌告利率資訊網</a>
+              <a href="https://cpx.cbc.gov.tw/api/OpenData/OAS?set_id=9464" target="_blank" rel="noreferrer">央行牌告利率 API</a>
+              <a href="https://rate.bot.com.tw/twd?Lang=zh-TW" target="_blank" rel="noreferrer">臺灣銀行牌告利率</a>
+              <a href="https://rate.landbank.com.tw/zh-TW/TWDInfo/TWDLendingRate?mid=24" target="_blank" rel="noreferrer">土地銀行放款利率</a>
             </div>
           </div>
           <div class="actions">
@@ -2124,6 +2196,8 @@
         certificateCount: 2
       },
       loan: {
+        loanPurchasePrice: 15000000,
+        loanLtvRatio: 80,
         loanAmount: 12000000,
         annualRate: 2.2,
         loanYears: 30,
@@ -2294,7 +2368,11 @@
     }
 
     function calculateLoan() {
+      const purchasePrice = value("loanPurchasePrice");
       const principal = value("loanAmount");
+      const actualLoanRatio = purchasePrice > 0 ? principal / purchasePrice * 100 : 0;
+      const downPayment = Math.max(0, purchasePrice - principal);
+      const overLoanAmount = Math.max(0, principal - purchasePrice);
       const monthlyRate = value("annualRate") / 100 / 12;
       const totalMonths = Math.max(1, Math.round(value("loanYears") * 12));
       const graceMonths = Math.min(totalMonths - 1, Math.round(value("graceYears") * 12));
@@ -2364,6 +2442,16 @@
 
       document.getElementById("loanResult").innerHTML = `
         ${metric("首期月付", firstNormalMonth ? firstNormalMonth.payment : 0, "main")}
+        <div class="metric">
+          <span>自備款</span>
+          <strong>${money.format(Math.round(downPayment))}</strong>
+          <div class="breakdown">
+            ${line("房屋成交總價", purchasePrice)}
+            ${line("貸款本金", principal)}
+            <div class="line"><span>實際貸款成數</span><b>${number.format(actualLoanRatio)}%</b></div>
+            ${overLoanAmount > 0 ? line("貸款超過房價金額", overLoanAmount) : ""}
+          </div>
+        </div>
         <div class="metric">
           <span>總利息</span>
           <strong>${money.format(Math.round(totalInterest))}</strong>
@@ -2513,6 +2601,7 @@
 
       document.getElementById("youngResult").innerHTML = `
         ${metric("政策上限內預估貸款", principal, "main young-main")}
+        ${metric("預估自備款", downPayment)}
         <div class="eligibility-result ${eligible ? "good" : "bad"}">
           ${eligible
             ? "資格初步檢核：所有情境條件皆符合，仍須由承貸銀行審核。"
@@ -2524,7 +2613,6 @@
           <strong>${money.format(Math.round(graceMonths > 0 ? firstGracePayment : firstNormalPayment))}</strong>
           <div class="breakdown">
             ${line("寬限期後首期月付", firstNormalPayment)}
-            ${line("預估自備款", downPayment)}
             ${line(`${applicantTypeLabel}貸款額度上限`, loanLimit)}
             ${capGap > 0 ? line(`因 ${money.format(loanLimit)} 上限增加的資金缺口`, capGap) : ""}
           </div>
@@ -2626,6 +2714,26 @@
       const ratio = clamp(value("loanRatio"), 0, 100);
       document.getElementById("loanAmount").value = Math.round(purchasePrice * ratio / 100);
     });
+
+    function syncLoanAmountFromPrice() {
+      const purchasePrice = value("loanPurchasePrice");
+      const ratio = clamp(value("loanLtvRatio"), 0, 100);
+      document.getElementById("loanAmount").value = Math.round(purchasePrice * ratio / 100);
+      calculateLoan();
+    }
+
+    function syncLoanRatioFromAmount() {
+      const purchasePrice = value("loanPurchasePrice");
+      const principal = value("loanAmount");
+      if (purchasePrice > 0) {
+        document.getElementById("loanLtvRatio").value = number.format(principal / purchasePrice * 100);
+      }
+      calculateLoan();
+    }
+
+    document.getElementById("loanPurchasePrice").addEventListener("input", syncLoanAmountFromPrice);
+    document.getElementById("loanLtvRatio").addEventListener("input", syncLoanAmountFromPrice);
+    document.getElementById("loanAmount").addEventListener("input", syncLoanRatioFromAmount);
 
     document.getElementById("youngPriceTier").addEventListener("change", event => {
       if (event.target.value === "taipei") {
