@@ -1939,6 +1939,20 @@
               </div>
             </div>
             <div class="field">
+              <label for="loanRatePreset">房貸利率選項</label>
+              <div class="control">
+                <select id="loanRatePreset">
+                  <option value="common220" data-rate="2.20" selected>常用房貸試算 2.20%</option>
+                  <option value="young215" data-rate="2.15">新青安 2.0 未補貼基準情境 2.15%</option>
+                  <option value="bot1751" data-rate="1.751">臺灣銀行定儲利率指數（月調）1.751%</option>
+                  <option value="land1720" data-rate="1.720">土地銀行指數型房貸指標（月調）1.720%</option>
+                  <option value="fubon1710" data-rate="1.710">台北富邦指數型房貸基準 1.710%</option>
+                  <option value="custom">手動輸入／銀行核貸利率</option>
+                </select>
+                <span class="unit">套用</span>
+              </div>
+            </div>
+            <div class="field">
               <label for="annualRate">年利率</label>
               <div class="control">
                 <input id="annualRate" type="number" min="0" step="0.01" value="2.2">
@@ -1977,9 +1991,9 @@
               </div>
             </div>
           </div>
-          <div class="rate-advice" aria-label="牌告利率查詢建議">
-            <b>利率查詢建議</b>
-            <span>各銀行牌告利率可用「銀行名稱＋房貸指標利率」或央行牌告利率資料查詢；實際核貸利率仍會依收入、信用、擔保品與銀行加碼調整。</span>
+          <div class="rate-advice" aria-label="房貸利率選項提醒">
+            <b>利率選項提醒</b>
+            <span>上方選項可直接套用到年利率；其中銀行牌告指標通常未含個人加碼，實際核貸利率仍會依收入、信用、擔保品與銀行條件調整。</span>
             <div class="rate-links">
               <a href="https://cpx.cbc.gov.tw/BIRWEB/Range/IRangeSelect" target="_blank" rel="noreferrer">央行牌告利率資訊網</a>
               <a href="https://cpx.cbc.gov.tw/api/OpenData/OAS?set_id=9464" target="_blank" rel="noreferrer">央行牌告利率 API</a>
@@ -2105,6 +2119,20 @@
               </div>
             </div>
             <div class="field">
+              <label for="youngRatePreset">未補貼基準利率選項</label>
+              <div class="control">
+                <select id="youngRatePreset">
+                  <option value="young215" data-rate="2.15" selected>新青安 2.0 情境基準 2.15%</option>
+                  <option value="common220" data-rate="2.20">常用房貸試算 2.20%</option>
+                  <option value="bot1751" data-rate="1.751">臺灣銀行定儲利率指數（月調）1.751%</option>
+                  <option value="land1720" data-rate="1.720">土地銀行指數型房貸指標（月調）1.720%</option>
+                  <option value="fubon1710" data-rate="1.710">台北富邦指數型房貸基準 1.710%</option>
+                  <option value="custom">手動輸入／銀行核貸利率</option>
+                </select>
+                <span class="unit">套用</span>
+              </div>
+            </div>
+            <div class="field">
               <label for="youngBaseRate">未補貼基準試算利率</label>
               <div class="control">
                 <input id="youngBaseRate" type="number" min="0" step="0.01" value="2.15">
@@ -2198,6 +2226,7 @@
       loan: {
         loanPurchasePrice: 15000000,
         loanLtvRatio: 80,
+        loanRatePreset: "common220",
         loanAmount: 12000000,
         annualRate: 2.2,
         loanYears: 30,
@@ -2215,6 +2244,7 @@
         youngAnnualIncome: 1200000,
         youngPriceTier: "other",
         youngPriceCap: 20000000,
+        youngRatePreset: "young215",
         youngBaseRate: 2.15,
         youngMonthlyIncome: 100000,
         youngNoHome: true,
@@ -2230,6 +2260,15 @@
 
     function selectValue(id) {
       return document.getElementById(id).value;
+    }
+
+    function applyRatePreset(selectId, inputId) {
+      const select = document.getElementById(selectId);
+      const selected = select.options[select.selectedIndex];
+      const rate = selected?.dataset.rate;
+      if (rate) {
+        document.getElementById(inputId).value = rate;
+      }
     }
 
     function clamp(value, min, max) {
@@ -2734,6 +2773,21 @@
     document.getElementById("loanPurchasePrice").addEventListener("input", syncLoanAmountFromPrice);
     document.getElementById("loanLtvRatio").addEventListener("input", syncLoanAmountFromPrice);
     document.getElementById("loanAmount").addEventListener("input", syncLoanRatioFromAmount);
+    document.getElementById("loanRatePreset").addEventListener("change", () => {
+      applyRatePreset("loanRatePreset", "annualRate");
+      calculateLoan();
+    });
+    document.getElementById("annualRate").addEventListener("input", () => {
+      document.getElementById("loanRatePreset").value = "custom";
+    });
+
+    document.getElementById("youngRatePreset").addEventListener("change", () => {
+      applyRatePreset("youngRatePreset", "youngBaseRate");
+      calculateYoung();
+    });
+    document.getElementById("youngBaseRate").addEventListener("input", () => {
+      document.getElementById("youngRatePreset").value = "custom";
+    });
 
     document.getElementById("youngPriceTier").addEventListener("change", event => {
       if (event.target.value === "taipei") {
