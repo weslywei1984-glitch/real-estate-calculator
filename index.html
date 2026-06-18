@@ -1809,6 +1809,13 @@
                 <span class="unit">%</span>
               </div>
             </div>
+            <div class="field wide down-payment-field">
+              <label for="buyerDownPayment">自備款</label>
+              <div class="control">
+                <input id="buyerDownPayment" type="number" min="0" step="10000" value="3000000">
+                <span class="unit">元</span>
+              </div>
+            </div>
             <div class="field">
               <label for="mortgageSettingRatio">抵押權設定金額倍率</label>
               <div class="control">
@@ -2192,6 +2199,7 @@
       buyer: {
         purchasePrice: 15000000,
         loanRatio: 80,
+        buyerDownPayment: 3000000,
         mortgageSettingRatio: 1.2,
         buildingValue: 1000000,
         publicContractPrice: 2500000,
@@ -2324,10 +2332,10 @@
 
     function calculateBuyer() {
       const purchasePrice = value("purchasePrice");
-      const ratio = clamp(value("loanRatio"), 0, 100);
-      const loanAmount = purchasePrice * ratio / 100;
+      const downPayment = clamp(value("buyerDownPayment"), 0, purchasePrice);
+      const loanAmount = Math.max(0, purchasePrice - downPayment);
+      const actualLoanRatio = purchasePrice > 0 ? loanAmount / purchasePrice * 100 : 0;
       const mortgageSettingValue = loanAmount * value("mortgageSettingRatio");
-      const downPayment = Math.max(0, purchasePrice - loanAmount);
       const buildingValue = value("buildingValue");
       const publicContractPrice = value("publicContractPrice");
       const landDeclaredValue = value("landDeclaredValue");
@@ -2368,6 +2376,9 @@
         <div class="metric">
           <span>預估貸款金額</span>
           <strong>${money.format(Math.round(loanAmount))}</strong>
+          <div class="breakdown">
+            <div class="line"><span>反推貸款成數</span><b>${number.format(actualLoanRatio)}%</b></div>
+          </div>
           <div class="note">可到「貸款計算」分頁輸入此金額估算月付。</div>
         </div>
       `;
@@ -2716,17 +2727,29 @@
       button.addEventListener("click", () => resetGroup(button.dataset.reset));
     });
 
-    document.getElementById("purchasePrice").addEventListener("input", () => {
+    function syncBuyerDownPaymentFromRatio() {
       const purchasePrice = value("purchasePrice");
       const ratio = clamp(value("loanRatio"), 0, 100);
-      document.getElementById("loanAmount").value = Math.round(purchasePrice * ratio / 100);
-    });
+      const loanAmount = purchasePrice * ratio / 100;
+      document.getElementById("loanRatio").value = number.format(ratio);
+      document.getElementById("buyerDownPayment").value = Math.max(0, Math.round(purchasePrice - loanAmount));
+      calculateBuyer();
+    }
 
-    document.getElementById("loanRatio").addEventListener("input", () => {
+    function syncBuyerRatioFromDownPayment() {
       const purchasePrice = value("purchasePrice");
-      const ratio = clamp(value("loanRatio"), 0, 100);
-      document.getElementById("loanAmount").value = Math.round(purchasePrice * ratio / 100);
-    });
+      const downPayment = clamp(value("buyerDownPayment"), 0, purchasePrice);
+      const loanAmount = Math.max(0, purchasePrice - downPayment);
+      document.getElementById("buyerDownPayment").value = Math.round(downPayment);
+      if (purchasePrice > 0) {
+        document.getElementById("loanRatio").value = number.format(loanAmount / purchasePrice * 100);
+      }
+      calculateBuyer();
+    }
+
+    document.getElementById("purchasePrice").addEventListener("input", syncBuyerDownPaymentFromRatio);
+    document.getElementById("loanRatio").addEventListener("input", syncBuyerDownPaymentFromRatio);
+    document.getElementById("buyerDownPayment").addEventListener("input", syncBuyerRatioFromDownPayment);
 
     function syncLoanAmountFromPrice() {
       const purchasePrice = value("loanPurchasePrice");
