@@ -1286,13 +1286,13 @@
 
     .image2-visual {
       position: relative;
-      min-height: 188px;
+      min-height: 268px;
       overflow: hidden;
       border: 1px solid rgba(245, 210, 142, .28);
       border-radius: 24px;
       background:
+        radial-gradient(circle at 70% 18%, rgba(245, 210, 142, .38), transparent 24%),
         linear-gradient(180deg, rgba(255, 250, 241, .16), rgba(255, 250, 241, .04)),
-        radial-gradient(circle at 78% 20%, rgba(245, 210, 142, .34), transparent 22%),
         linear-gradient(140deg, rgba(11, 86, 78, .88), rgba(18, 35, 38, .92));
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 22px 46px rgba(0, 0, 0, .22);
     }
@@ -1309,62 +1309,21 @@
       position: absolute;
       left: 20px;
       bottom: 16px;
+      z-index: 2;
       color: rgba(255, 250, 241, .7);
       font-size: .72rem;
       letter-spacing: .18em;
     }
 
-    .visual-sun {
+    .hero-portrait {
       position: absolute;
-      top: 24px;
-      right: 30px;
-      width: 54px;
-      height: 54px;
-      border-radius: 50%;
-      background: linear-gradient(145deg, #fff3c9, #d6a958);
-      box-shadow: 0 0 44px rgba(245, 210, 142, .38);
-    }
-
-    .visual-building {
-      position: absolute;
-      bottom: 42px;
-      border-radius: 10px 10px 0 0;
-      background: linear-gradient(180deg, rgba(255, 250, 241, .88), rgba(215, 189, 139, .88));
-      box-shadow: 0 18px 30px rgba(0, 0, 0, .18);
-    }
-
-    .visual-building-main {
-      left: 54px;
-      width: 86px;
-      height: 102px;
-    }
-
-    .visual-building-sub {
-      left: 132px;
-      width: 64px;
-      height: 78px;
-      opacity: .9;
-    }
-
-    .visual-building::after {
-      content: "";
-      position: absolute;
-      inset: 15px 14px;
-      background:
-        linear-gradient(90deg, rgba(16, 35, 38, .24) 1px, transparent 1px),
-        linear-gradient(rgba(16, 35, 38, .22) 1px, transparent 1px);
-      background-size: 18px 18px;
-    }
-
-    .visual-roof {
-      position: absolute;
-      left: 42px;
-      bottom: 138px;
-      width: 114px;
-      height: 62px;
-      clip-path: polygon(50% 0, 100% 100%, 0 100%);
-      background: linear-gradient(145deg, #d6a958, #fff0c5);
-      filter: drop-shadow(0 14px 20px rgba(0, 0, 0, .22));
+      right: -8px;
+      bottom: -48px;
+      width: min(88%, 330px);
+      max-height: 360px;
+      object-fit: contain;
+      object-position: right bottom;
+      filter: drop-shadow(0 24px 34px rgba(0, 0, 0, .34));
     }
 
     .visual-line {
@@ -1619,7 +1578,13 @@
       }
 
       .image2-visual {
-        min-height: 150px;
+        min-height: 240px;
+      }
+
+      .hero-portrait {
+        right: 6px;
+        bottom: -54px;
+        width: min(72%, 280px);
       }
     }
 
@@ -1689,10 +1654,7 @@
           <strong>2026-06-17</strong>
         </div>
         <div class="image2-visual" aria-hidden="true">
-          <span class="visual-sun"></span>
-          <span class="visual-building visual-building-main"></span>
-          <span class="visual-building visual-building-sub"></span>
-          <span class="visual-roof"></span>
+          <img class="hero-portrait" src="assets/xiaowei-profile.png" alt="">
           <span class="visual-line"></span>
           <strong>TAINAN REAL ESTATE</strong>
         </div>
