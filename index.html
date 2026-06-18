@@ -1552,6 +1552,41 @@
       background: linear-gradient(90deg, transparent, rgba(255, 250, 241, .65), transparent);
     }
 
+    .hero-image-stage {
+      display: block;
+      min-height: 0;
+      padding: 0;
+      border: 0;
+      border-radius: 28px;
+      background: transparent;
+      box-shadow: 0 30px 90px rgba(4, 10, 8, .32);
+      isolation: auto;
+    }
+
+    .hero-image-stage::before,
+    .hero-image-stage::after {
+      display: none;
+    }
+
+    .hero-art {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: inherit;
+    }
+
+    .hero-image-stage .hero-copy,
+    .hero-image-stage .hero-person-wrap,
+    .hero-image-stage .hero-card {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
     .tabs {
       margin: 22px 0;
       padding: 8px;
@@ -1920,7 +1955,8 @@
 </head>
 <body>
   <main class="shell">
-    <header>
+    <header class="hero-image-stage">
+      <img class="hero-art" src="assets/hero-reference.png" alt="房地稅費與貸款試算，台南小魏買厝作伙，魏泉承 0927-617-207">
       <div class="hero-copy">
         <div class="title-row">
           <h1>房地稅費<span class="title-gold">與</span>貸款試算</h1>
