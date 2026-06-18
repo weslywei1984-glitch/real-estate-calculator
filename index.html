@@ -209,6 +209,13 @@
       grid-column: 1 / -1;
     }
 
+    .down-payment-field {
+      padding: 14px;
+      border: 1px solid rgba(15, 118, 110, .22);
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(204, 251, 241, .65), rgba(255, 255, 255, .9));
+    }
+
     label {
       color: #334155;
       font-size: .92rem;
@@ -1938,6 +1945,13 @@
                 <span class="unit">元</span>
               </div>
             </div>
+            <div class="field wide down-payment-field">
+              <label for="loanDownPayment">自備款</label>
+              <div class="control">
+                <input id="loanDownPayment" type="number" min="0" step="10000" value="3000000">
+                <span class="unit">元</span>
+              </div>
+            </div>
             <div class="field">
               <label for="annualRate">年利率</label>
               <div class="control">
@@ -2036,6 +2050,13 @@
               <div class="control">
                 <input id="youngLoanRatio" type="number" min="0" max="80" step="1" value="80">
                 <span class="unit">%</span>
+              </div>
+            </div>
+            <div class="field wide down-payment-field">
+              <label for="youngDownPayment">自備款</label>
+              <div class="control">
+                <input id="youngDownPayment" type="number" min="0" step="10000" value="2400000">
+                <span class="unit">元</span>
               </div>
             </div>
             <div class="field">
@@ -2189,6 +2210,7 @@
         loanPurchasePrice: 15000000,
         loanLtvRatio: 80,
         loanAmount: 12000000,
+        loanDownPayment: 3000000,
         annualRate: 2.2,
         loanYears: 30,
         graceYears: 0,
@@ -2198,6 +2220,7 @@
       young: {
         youngPurchasePrice: 12000000,
         youngLoanRatio: 80,
+        youngDownPayment: 2400000,
         youngLoanYears: 40,
         youngGraceYears: 3,
         youngApplicantType: "general",
@@ -2708,23 +2731,68 @@
     function syncLoanAmountFromPrice() {
       const purchasePrice = value("loanPurchasePrice");
       const ratio = clamp(value("loanLtvRatio"), 0, 100);
-      document.getElementById("loanAmount").value = Math.round(purchasePrice * ratio / 100);
+      const principal = Math.round(purchasePrice * ratio / 100);
+      document.getElementById("loanAmount").value = principal;
+      document.getElementById("loanDownPayment").value = Math.max(0, Math.round(purchasePrice - principal));
       calculateLoan();
     }
 
     function syncLoanRatioFromAmount() {
       const purchasePrice = value("loanPurchasePrice");
       const principal = value("loanAmount");
+      document.getElementById("loanDownPayment").value = Math.max(0, Math.round(purchasePrice - principal));
       if (purchasePrice > 0) {
         document.getElementById("loanLtvRatio").value = number.format(principal / purchasePrice * 100);
       }
       calculateLoan();
     }
 
+    function syncLoanAmountFromDownPayment() {
+      const purchasePrice = value("loanPurchasePrice");
+      const downPayment = clamp(value("loanDownPayment"), 0, purchasePrice);
+      const principal = Math.max(0, Math.round(purchasePrice - downPayment));
+      document.getElementById("loanDownPayment").value = Math.round(downPayment);
+      document.getElementById("loanAmount").value = principal;
+      if (purchasePrice > 0) {
+        document.getElementById("loanLtvRatio").value = number.format(principal / purchasePrice * 100);
+      }
+      calculateLoan();
+    }
+
+    function youngLoanLimit() {
+      return selectValue("youngApplicantType") === "family" ? 15000000 : 10000000;
+    }
+
+    function syncYoungDownPaymentFromLoanRatio() {
+      const purchasePrice = value("youngPurchasePrice");
+      const ratio = clamp(value("youngLoanRatio"), 0, 80);
+      const requestedLoan = purchasePrice * ratio / 100;
+      const principal = Math.min(requestedLoan, youngLoanLimit());
+      document.getElementById("youngLoanRatio").value = number.format(ratio);
+      document.getElementById("youngDownPayment").value = Math.max(0, Math.round(purchasePrice - principal));
+      calculateYoung();
+    }
+
+    function syncYoungLoanRatioFromDownPayment() {
+      const purchasePrice = value("youngPurchasePrice");
+      const downPayment = clamp(value("youngDownPayment"), 0, purchasePrice);
+      const requestedLoan = Math.max(0, purchasePrice - downPayment);
+      const ratio = purchasePrice > 0 ? clamp(requestedLoan / purchasePrice * 100, 0, 80) : 0;
+      const principal = Math.min(purchasePrice * ratio / 100, youngLoanLimit());
+      document.getElementById("youngLoanRatio").value = number.format(ratio);
+      document.getElementById("youngDownPayment").value = Math.max(0, Math.round(purchasePrice - principal));
+      calculateYoung();
+    }
+
     document.getElementById("loanPurchasePrice").addEventListener("input", syncLoanAmountFromPrice);
     document.getElementById("loanLtvRatio").addEventListener("input", syncLoanAmountFromPrice);
     document.getElementById("loanAmount").addEventListener("input", syncLoanRatioFromAmount);
+    document.getElementById("loanDownPayment").addEventListener("input", syncLoanAmountFromDownPayment);
     document.getElementById("annualRate").addEventListener("input", calculateLoan);
+    document.getElementById("youngPurchasePrice").addEventListener("input", syncYoungDownPaymentFromLoanRatio);
+    document.getElementById("youngLoanRatio").addEventListener("input", syncYoungDownPaymentFromLoanRatio);
+    document.getElementById("youngDownPayment").addEventListener("input", syncYoungLoanRatioFromDownPayment);
+    document.getElementById("youngApplicantType").addEventListener("change", syncYoungDownPaymentFromLoanRatio);
     document.getElementById("youngBaseRate").addEventListener("input", calculateYoung);
 
     document.getElementById("youngPriceTier").addEventListener("change", event => {
