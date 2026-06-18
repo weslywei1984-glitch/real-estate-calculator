@@ -1225,9 +1225,9 @@
     h1 {
       max-width: none;
       color: #fffaf1;
-      font-size: clamp(2.72rem, 4.55vw, 4.45rem);
+      font-size: clamp(2.45rem, 4.05vw, 3.95rem);
       line-height: 1.04;
-      letter-spacing: -.045em;
+      letter-spacing: -.035em;
       white-space: nowrap;
       text-shadow: 0 18px 34px rgba(0, 0, 0, .22);
     }
@@ -1253,51 +1253,59 @@
     }
 
     .client-info {
-      width: min(100%, 470px);
+      width: min(100%, 500px);
       min-width: 0;
-      padding: 14px 22px 14px 16px;
-      border: 1px solid rgba(245, 210, 142, .32);
-      border-radius: 24px;
-      background: rgba(255, 250, 241, .08);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), 0 18px 38px rgba(0, 0, 0, .18);
+      padding: 12px 24px 12px 13px;
+      border: 1px solid rgba(245, 210, 142, .38);
+      border-radius: 999px;
+      background:
+        linear-gradient(135deg, rgba(255, 250, 241, .16), rgba(255, 250, 241, .06)),
+        linear-gradient(180deg, rgba(8, 28, 25, .52), rgba(15, 38, 35, .76));
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .18),
+        inset 0 -1px 0 rgba(245, 210, 142, .16),
+        0 20px 42px rgba(0, 0, 0, .22);
+      backdrop-filter: blur(14px);
     }
 
     .brand-mark {
       position: relative;
-      width: 76px;
-      height: 76px;
-      border: 1px solid rgba(255, 232, 168, .68);
-      border-radius: 22px;
-      color: #10241f;
+      width: 62px;
+      height: 62px;
+      border: 1px solid rgba(255, 232, 168, .82);
+      border-radius: 50%;
+      color: #12342d;
       background:
-        linear-gradient(145deg, rgba(255, 244, 207, .98), rgba(217, 165, 78, .96) 52%, rgba(132, 95, 41, .98)),
+        linear-gradient(145deg, rgba(255, 239, 190, .98), rgba(217, 164, 75, .97) 58%, rgba(128, 91, 36, .98)),
         radial-gradient(circle at 24% 20%, rgba(255, 255, 255, .65), transparent 28%);
       box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, .62),
-        inset 0 -10px 22px rgba(90, 58, 21, .26),
-        0 16px 34px rgba(202, 161, 93, .32),
-        0 0 0 8px rgba(245, 210, 142, .08);
-      font-size: 1.72rem;
+        inset 0 -8px 18px rgba(90, 58, 21, .28),
+        0 12px 26px rgba(202, 161, 93, .30),
+        0 0 0 7px rgba(245, 210, 142, .10),
+        0 0 0 13px rgba(245, 210, 142, .04);
+      font-size: 1.45rem;
       text-shadow: 0 1px 0 rgba(255, 255, 255, .38);
-      transform: rotate(-4deg);
     }
 
     .brand-mark::before {
       content: "";
       position: absolute;
-      inset: 8px;
-      border: 1px solid rgba(50, 36, 16, .28);
-      border-radius: 17px;
-      box-shadow: inset 0 0 0 1px rgba(255, 244, 207, .3);
+      inset: 7px;
+      border: 1px solid rgba(53, 38, 16, .34);
+      border-radius: 50%;
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 244, 207, .24),
+        0 0 18px rgba(255, 232, 168, .22);
     }
 
     .brand-mark::after {
       content: "";
       position: absolute;
-      top: 10px;
-      left: 13px;
-      width: 28px;
-      height: 10px;
+      top: 9px;
+      left: 14px;
+      width: 24px;
+      height: 8px;
       border-radius: 999px;
       background: rgba(255, 255, 255, .38);
       filter: blur(1px);
@@ -1305,12 +1313,14 @@
 
     .client-info .client-copy strong {
       color: #fffaf1;
-      font-size: 1.15rem;
+      font-size: 1.06rem;
+      letter-spacing: -.01em;
     }
 
     .client-info .client-copy span {
       color: #f5d28e;
-      font-size: 1.18rem;
+      font-size: 1.08rem;
+      letter-spacing: .015em;
     }
 
     .hero-person {
@@ -1780,27 +1790,36 @@
       }
 
       h1 {
-        font-size: clamp(1.42rem, 8.6vw, 2.15rem);
+        font-size: clamp(1.35rem, 8.2vw, 2rem);
         line-height: 1.12;
         letter-spacing: -.055em;
         white-space: nowrap;
       }
 
       .client-info {
-        border-radius: 20px;
-        padding: 12px 14px;
+        border-radius: 999px;
+        padding: 10px 13px 10px 11px;
+        gap: 10px;
       }
 
       .brand-mark {
-        width: 58px;
-        height: 58px;
-        border-radius: 18px;
-        font-size: 1.35rem;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        font-size: 1.18rem;
       }
 
       .brand-mark::before {
-        inset: 7px;
-        border-radius: 13px;
+        inset: 6px;
+        border-radius: 50%;
+      }
+
+      .client-info .client-copy strong {
+        font-size: .9rem;
+      }
+
+      .client-info .client-copy span {
+        font-size: .95rem;
       }
 
       .hero-person-wrap {
