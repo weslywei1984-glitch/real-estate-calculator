@@ -1127,6 +1127,489 @@
         border-left: 0;
       }
     }
+
+    /* IMAGE2 premium visual refresh */
+    :root {
+      --bg: #111714;
+      --panel: #fffaf1;
+      --ink: #17211d;
+      --muted: #748071;
+      --line: rgba(39, 53, 46, .12);
+      --teal: #0f5f55;
+      --teal-2: #dff2eb;
+      --gold: #caa15d;
+      --gold-2: #fff1cc;
+      --blue: #365f79;
+      --navy: #122326;
+      --cyan: #167b80;
+      --coral: #c97855;
+      --cream: #fffaf1;
+      --charcoal: #101815;
+      --shadow: 0 30px 80px rgba(4, 10, 8, .18);
+      --shadow-soft: 0 14px 34px rgba(4, 10, 8, .10);
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 12% 4%, rgba(202, 161, 93, .18), transparent 28%),
+        radial-gradient(circle at 86% 12%, rgba(22, 123, 128, .22), transparent 32%),
+        linear-gradient(145deg, #101815 0%, #17261f 42%, #efe5d1 42%, #f8f1e5 100%);
+      color: var(--ink);
+    }
+
+    body::before {
+      opacity: .72;
+      background-image:
+        linear-gradient(rgba(255, 250, 241, .045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 250, 241, .035) 1px, transparent 1px),
+        radial-gradient(circle, rgba(202, 161, 93, .12) 1px, transparent 1px);
+      background-size: 52px 52px, 52px 52px, 18px 18px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, .82), transparent 70%);
+    }
+
+    .shell {
+      width: min(1280px, calc(100% - 44px));
+      padding: 34px 0 58px;
+    }
+
+    header {
+      position: relative;
+      overflow: hidden;
+      min-height: 270px;
+      align-items: stretch;
+      padding: 28px;
+      border: 1px solid rgba(255, 250, 241, .18);
+      border-radius: 28px;
+      background:
+        linear-gradient(110deg, rgba(17, 29, 25, .96), rgba(17, 36, 35, .92) 58%, rgba(198, 157, 88, .18)),
+        linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, 0));
+      box-shadow: 0 30px 90px rgba(4, 10, 8, .28);
+      isolation: isolate;
+    }
+
+    header::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background:
+        radial-gradient(circle at 74% 20%, rgba(202, 161, 93, .24), transparent 26%),
+        linear-gradient(135deg, rgba(255, 250, 241, .08), transparent 38%);
+    }
+
+    header::after {
+      right: 28px;
+      bottom: 0;
+      width: min(520px, 52%);
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #f5d28e, #1fb1a2);
+    }
+
+    h1 {
+      max-width: 760px;
+      color: #fffaf1;
+      font-size: clamp(2rem, 4.3vw, 3.85rem);
+      line-height: 1.16;
+      letter-spacing: -.04em;
+      text-shadow: 0 18px 34px rgba(0, 0, 0, .22);
+    }
+
+    .title-row {
+      align-items: start;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .subtitle {
+      max-width: 720px;
+      color: rgba(255, 250, 241, .76);
+      font-size: 1.05rem;
+      line-height: 1.9;
+    }
+
+    .client-info {
+      min-width: min(100%, 360px);
+      padding: 10px 14px 10px 10px;
+      border: 1px solid rgba(245, 210, 142, .32);
+      border-radius: 999px;
+      background: rgba(255, 250, 241, .10);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), 0 18px 38px rgba(0, 0, 0, .18);
+    }
+
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      color: #1b2a23;
+      background: linear-gradient(145deg, #fff0c5, #c99c54 62%, #815e2a);
+      box-shadow: 0 12px 26px rgba(202, 161, 93, .28);
+    }
+
+    .client-info .client-copy strong {
+      color: #fffaf1;
+    }
+
+    .client-info .client-copy span {
+      color: #f5d28e;
+    }
+
+    .hero-card {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 14px;
+      width: min(365px, 34vw);
+      min-width: 310px;
+    }
+
+    .status {
+      min-width: 0;
+      border: 1px solid rgba(255, 250, 241, .18);
+      border-radius: 18px;
+      background: rgba(255, 250, 241, .12);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14);
+    }
+
+    .status span {
+      color: rgba(255, 250, 241, .62);
+    }
+
+    .status strong {
+      color: #fffaf1;
+    }
+
+    .image2-visual {
+      position: relative;
+      min-height: 188px;
+      overflow: hidden;
+      border: 1px solid rgba(245, 210, 142, .28);
+      border-radius: 24px;
+      background:
+        linear-gradient(180deg, rgba(255, 250, 241, .16), rgba(255, 250, 241, .04)),
+        radial-gradient(circle at 78% 20%, rgba(245, 210, 142, .34), transparent 22%),
+        linear-gradient(140deg, rgba(11, 86, 78, .88), rgba(18, 35, 38, .92));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 22px 46px rgba(0, 0, 0, .22);
+    }
+
+    .image2-visual::before {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border: 1px solid rgba(255, 250, 241, .12);
+      border-radius: 18px;
+    }
+
+    .image2-visual strong {
+      position: absolute;
+      left: 20px;
+      bottom: 16px;
+      color: rgba(255, 250, 241, .7);
+      font-size: .72rem;
+      letter-spacing: .18em;
+    }
+
+    .visual-sun {
+      position: absolute;
+      top: 24px;
+      right: 30px;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #fff3c9, #d6a958);
+      box-shadow: 0 0 44px rgba(245, 210, 142, .38);
+    }
+
+    .visual-building {
+      position: absolute;
+      bottom: 42px;
+      border-radius: 10px 10px 0 0;
+      background: linear-gradient(180deg, rgba(255, 250, 241, .88), rgba(215, 189, 139, .88));
+      box-shadow: 0 18px 30px rgba(0, 0, 0, .18);
+    }
+
+    .visual-building-main {
+      left: 54px;
+      width: 86px;
+      height: 102px;
+    }
+
+    .visual-building-sub {
+      left: 132px;
+      width: 64px;
+      height: 78px;
+      opacity: .9;
+    }
+
+    .visual-building::after {
+      content: "";
+      position: absolute;
+      inset: 15px 14px;
+      background:
+        linear-gradient(90deg, rgba(16, 35, 38, .24) 1px, transparent 1px),
+        linear-gradient(rgba(16, 35, 38, .22) 1px, transparent 1px);
+      background-size: 18px 18px;
+    }
+
+    .visual-roof {
+      position: absolute;
+      left: 42px;
+      bottom: 138px;
+      width: 114px;
+      height: 62px;
+      clip-path: polygon(50% 0, 100% 100%, 0 100%);
+      background: linear-gradient(145deg, #d6a958, #fff0c5);
+      filter: drop-shadow(0 14px 20px rgba(0, 0, 0, .22));
+    }
+
+    .visual-line {
+      position: absolute;
+      left: 24px;
+      right: 24px;
+      bottom: 40px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255, 250, 241, .65), transparent);
+    }
+
+    .tabs {
+      margin: 22px 0;
+      padding: 8px;
+      border: 1px solid rgba(255, 250, 241, .16);
+      border-radius: 22px;
+      background: rgba(17, 24, 21, .62);
+      box-shadow: 0 20px 54px rgba(0, 0, 0, .18);
+    }
+
+    .tab {
+      border-radius: 16px;
+      color: rgba(255, 250, 241, .68);
+      font-weight: 850;
+    }
+
+    .tab:hover {
+      color: #fffaf1;
+      background: rgba(255, 250, 241, .10);
+    }
+
+    .tab[aria-selected="true"],
+    .tab[data-tab="buyer"][aria-selected="true"],
+    .tab[data-tab="loan"][aria-selected="true"],
+    .tab-young[aria-selected="true"] {
+      color: #17211d;
+      background: linear-gradient(145deg, #fff5d6, #d1a258 72%, #9b7334);
+      box-shadow: 0 14px 32px rgba(202, 161, 93, .26);
+    }
+
+    .panel {
+      overflow: hidden;
+      border: 1px solid rgba(39, 53, 46, .10);
+      border-radius: 26px;
+      background: rgba(255, 250, 241, .94);
+      box-shadow: var(--shadow);
+    }
+
+    .panel-head {
+      padding: 22px 24px;
+      background:
+        linear-gradient(90deg, rgba(255, 250, 241, .98), rgba(238, 226, 203, .72)),
+        radial-gradient(circle at 100% 0, rgba(202, 161, 93, .22), transparent 26%);
+    }
+
+    h2 {
+      letter-spacing: -.015em;
+    }
+
+    .note {
+      padding: 6px 10px;
+      border: 1px solid rgba(202, 161, 93, .28);
+      border-radius: 999px;
+      color: #7b5a27;
+      background: rgba(255, 246, 223, .75);
+      font-weight: 800;
+    }
+
+    .section {
+      padding: 24px;
+    }
+
+    .control {
+      min-height: 52px;
+      border: 1px solid rgba(33, 49, 42, .13);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff, #fbf7ef);
+    }
+
+    .control:hover,
+    .control:focus-within {
+      border-color: rgba(15, 95, 85, .42);
+      box-shadow: 0 0 0 4px rgba(15, 95, 85, .10), inset 0 1px 0 rgba(255, 255, 255, .9);
+    }
+
+    input,
+    select {
+      color: #17211d;
+    }
+
+    input[type="checkbox"] {
+      accent-color: var(--teal);
+    }
+
+    .primary,
+    .secondary {
+      min-height: 48px;
+      border-radius: 999px;
+      font-weight: 850;
+    }
+
+    .primary,
+    .young-primary {
+      color: #17211d;
+      background: linear-gradient(145deg, #fff0c5, #d0a15a 72%, #8d6731);
+      box-shadow: 0 16px 34px rgba(202, 161, 93, .26);
+    }
+
+    .secondary {
+      color: #24433c;
+      border-color: rgba(15, 95, 85, .18);
+      background: rgba(255, 255, 255, .72);
+    }
+
+    .metric {
+      border-radius: 20px;
+      background: linear-gradient(180deg, #fffdf8, #ffffff);
+    }
+
+    .metric.main,
+    .metric.young-main {
+      border-color: rgba(15, 95, 85, .22);
+      background:
+        linear-gradient(145deg, rgba(223, 242, 235, .94), rgba(255, 255, 255, .96) 70%),
+        radial-gradient(circle at 100% 0, rgba(202, 161, 93, .22), transparent 26%);
+    }
+
+    .metric.main::before,
+    .metric.young-main::before {
+      height: 5px;
+      background: linear-gradient(90deg, #0f5f55, #caa15d, #e7c98b);
+    }
+
+    .young-hero {
+      padding: 30px 28px 26px;
+      background:
+        radial-gradient(circle at 88% 16%, rgba(245, 210, 142, .36), transparent 24%),
+        linear-gradient(135deg, rgba(255, 255, 255, .08), transparent 46%),
+        linear-gradient(125deg, #102326, #0d574f 68%, #1d7f78);
+    }
+
+    .young-hero::before {
+      content: "";
+      position: absolute;
+      right: 34px;
+      top: 32px;
+      width: 110px;
+      height: 110px;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 250, 241, .20);
+      transform: rotate(12deg);
+      background: linear-gradient(145deg, rgba(255, 250, 241, .14), rgba(255, 250, 241, .03));
+    }
+
+    .young-kicker {
+      border-radius: 999px;
+      color: #fff0c5;
+      border-color: rgba(255, 240, 197, .34);
+    }
+
+    .policy-stat strong {
+      color: #fffaf1;
+    }
+
+    .eligibility-list {
+      border-color: rgba(15, 95, 85, .14);
+      background: linear-gradient(180deg, rgba(223, 242, 235, .34), transparent);
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .eligibility-item {
+      padding: 0 16px;
+    }
+
+    .table-wrap {
+      border-radius: 18px;
+    }
+
+    th {
+      color: #385149;
+      background: #efe6d3;
+    }
+
+    .sources {
+      border-radius: 22px;
+      color: rgba(255, 250, 241, .72);
+      border-color: rgba(255, 250, 241, .14);
+      background: rgba(16, 24, 21, .78);
+    }
+
+    .sources a {
+      color: #f5d28e;
+    }
+
+    @media (max-width: 900px) {
+      header {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-card {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .image2-visual {
+        min-height: 150px;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .shell {
+        width: min(100% - 22px, 1280px);
+      }
+
+      header {
+        padding: 32px 22px 22px;
+        border-radius: 22px;
+      }
+
+      h1 {
+        font-size: clamp(1.9rem, 11vw, 2.75rem);
+        line-height: 1.24;
+      }
+
+      .client-info {
+        border-radius: 20px;
+      }
+
+      .tabs {
+        background: rgba(17, 24, 21, .86);
+      }
+
+      .panel {
+        border-radius: 22px;
+      }
+
+      .policy-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .policy-stat,
+      .policy-stat:nth-child(3) {
+        padding: 10px 0;
+        border-left: 0;
+        border-top: 1px solid rgba(255, 255, 255, .14);
+      }
+
+      .policy-stat:first-child {
+        border-top: 0;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1145,10 +1628,20 @@
         </div>
         <p class="subtitle">以新臺幣輸入金額，快速估算出售時房地合一稅、買方準備現金與房貸月付。正式申報仍以稅捐機關、地政士、銀行核定為準。</p>
       </div>
-      <div class="status" aria-label="資料版本">
-        <span>資料基準</span>
-        <strong>2026-06-17</strong>
-      </div>
+      <aside class="hero-card" aria-label="品牌視覺與資料版本">
+        <div class="status" aria-label="資料版本">
+          <span>資料基準</span>
+          <strong>2026-06-17</strong>
+        </div>
+        <div class="image2-visual" aria-hidden="true">
+          <span class="visual-sun"></span>
+          <span class="visual-building visual-building-main"></span>
+          <span class="visual-building visual-building-sub"></span>
+          <span class="visual-roof"></span>
+          <span class="visual-line"></span>
+          <strong>TAINAN REAL ESTATE</strong>
+        </div>
+      </aside>
     </header>
 
     <nav class="tabs" aria-label="計算器">
