@@ -2055,8 +2055,20 @@
 
           <div class="checks">
             <label class="check-row">
-              <input id="selfUse" type="checkbox">
-              <span><b>符合自住房地優惠</b><span>持有並設籍滿 6 年等條件：課稅所得 400 萬元以內免稅，超過部分 10%。</span></span>
+              <input id="selfUseRegistered" type="checkbox">
+              <span><b>本人、配偶或未成年子女設籍</b><span>出售前已在該房地辦竣戶籍登記，且不是只拿來投資或掛名。</span></span>
+            </label>
+            <label class="check-row">
+              <input id="selfUseSixYears" type="checkbox">
+              <span><b>持有並實際自住連續滿 6 年</b><span>持有期間與設籍／居住條件要連續符合，少一天都先不要套自住優惠。</span></span>
+            </label>
+            <label class="check-row">
+              <input id="selfUseNoRentalBusiness" type="checkbox">
+              <span><b>沒有出租、營業登記或執行業務使用</b><span>有營登、出租、作事務所或其他營業使用，就不要套自住房地優惠。</span></span>
+            </label>
+            <label class="check-row">
+              <input id="selfUseNoPriorClaim" type="checkbox">
+              <span><b>本人、配偶及未成年子女近 6 年未用過自住優惠</b><span>同一家庭成員近期已用過自住優惠，原則上不能重複適用。</span></span>
             </label>
             <label class="check-row">
               <input id="specialRate" type="checkbox">
@@ -2199,6 +2211,16 @@
                 <span class="unit">張</span>
               </div>
             </div>
+          </div>
+          <div class="checks">
+            <label class="check-row">
+              <input id="buyerReplacementReminder" type="checkbox" checked>
+              <span><b>提醒重購退稅</b><span>若賣舊屋後重購自住房地，或先買後賣，可能可評估房地合一稅／土地增值稅重購退稅條件。</span></span>
+            </label>
+            <label class="check-row">
+              <input id="buyerOldPropertyTax" type="checkbox">
+              <span><b>可能適用舊制財產交易所得</b><span>持有較久、非房地合一新制案件，後續做個人綜所稅時可能要把財產交易所得列入檢查。</span></span>
+            </label>
           </div>
           <div class="actions">
             <button class="primary" type="submit">重新計算</button>
@@ -2485,7 +2507,10 @@
         landGain: 150000,
         holdingYears: 5.5,
         residentType: "resident",
-        selfUse: false,
+        selfUseRegistered: false,
+        selfUseSixYears: false,
+        selfUseNoRentalBusiness: false,
+        selfUseNoPriorClaim: false,
         specialRate: false
       },
       buyer: {
@@ -2504,7 +2529,9 @@
         insuranceFee: 5000,
         settlementFee: 10000,
         transcriptCount: 2,
-        certificateCount: 2
+        certificateCount: 2,
+        buyerReplacementReminder: true,
+        buyerOldPropertyTax: false
       },
       loan: {
         loanPurchasePrice: 15000000,
@@ -2563,7 +2590,7 @@
     }
 
     function taxRate({ years, resident, selfUse, special }) {
-      if (selfUse) return { rate: 0.10, label: "自住房地優惠 10%" };
+      if (selfUse) return { rate: 0.10, label: "自住房地優惠：超過 400 萬部分 10%" };
       if (special) return { rate: 0.20, label: "特別情形 20%" };
       if (resident === "nonresident") {
         return years <= 2
@@ -2582,7 +2609,14 @@
       const sellExpense = value("sellExpense");
       const landGain = value("landGain");
       const holdingYears = value("holdingYears");
-      const selfUse = value("selfUse");
+      const selfUseChecks = [
+        { id: "selfUseRegistered", label: "本人、配偶或未成年子女已設籍" },
+        { id: "selfUseSixYears", label: "持有並實際自住連續滿 6 年" },
+        { id: "selfUseNoRentalBusiness", label: "沒有出租、營業登記或執行業務使用" },
+        { id: "selfUseNoPriorClaim", label: "本人、配偶及未成年子女近 6 年未用過自住優惠" }
+      ];
+      const selfUsePassed = selfUseChecks.map(item => ({ ...item, passed: value(item.id) }));
+      const selfUse = selfUsePassed.every(item => item.passed);
       const specialRate = value("specialRate");
       const grossIncome = Math.max(0, salePrice - buyCost - sellExpense - landGain);
       const exemption = selfUse ? Math.min(grossIncome, 4000000) : 0;
@@ -2595,6 +2629,9 @@
       });
       const tax = taxableIncome * rate.rate;
       const netAfterTax = grossIncome - tax;
+      const selfUseDetails = selfUsePassed.map(item => `
+        <div class="line"><span>${item.passed ? "已勾選" : "未勾選"}：${item.label}</span><b>${item.passed ? "OK" : "未符合"}</b></div>
+      `).join("");
       document.getElementById("taxResult").innerHTML = `
         ${metric("預估應納房地合一稅", tax, "main")}
         <div class="metric">
@@ -2615,9 +2652,15 @@
             ${line("稅後所得", netAfterTax)}
           </div>
         </div>
+        <div class="metric ${selfUse ? "" : "warn"}">
+          <span>自住優惠檢核</span>
+          <strong>${selfUse ? "已套用" : "未套用"}</strong>
+          <div class="breakdown">${selfUseDetails}</div>
+          <div class="note">四項都勾選才會套用自住房地優惠；只要有出租、營登或執行業務使用，就不要套。</div>
+        </div>
         <div class="metric warn">
           <span>提醒</span>
-          <div class="note">若無合法支出憑證，相關費用可能按成交價額 3% 推計且以 30 萬元為限；自住優惠需逐項符合設籍、持有與使用條件。</div>
+          <div class="note">若無合法支出憑證，相關費用可能按成交價額 3% 推計且以 30 萬元為限；正式申報仍以稅務機關認定為準。</div>
         </div>
       `;
     }
@@ -2649,6 +2692,8 @@
       const statutoryFees = deedTax + stampTax + registrationFee + mortgageRegistrationFee;
       const totalFees = statutoryFees + brokerFee + serviceFees;
       const cashNeeded = downPayment + totalFees;
+      const replacementReminder = value("buyerReplacementReminder");
+      const oldPropertyTax = value("buyerOldPropertyTax");
       document.getElementById("buyerResult").innerHTML = `
         ${metric("預估買方需準備現金", cashNeeded, "main")}
         <div class="metric">
@@ -2672,6 +2717,14 @@
             <div class="line"><span>反推貸款成數</span><b>${number.format(actualLoanRatio)}%</b></div>
           </div>
           <div class="note">可到「貸款計算」分頁輸入此金額估算月付。</div>
+        </div>
+        <div class="metric warn">
+          <span>稅務提醒</span>
+          <div class="breakdown">
+            <div class="line"><span>重購退稅提醒</span><b>${replacementReminder ? "已提醒" : "未勾選"}</b></div>
+            <div class="line"><span>舊制財產交易所得</span><b>${oldPropertyTax ? "後續個綜需檢查" : "目前未標記"}</b></div>
+          </div>
+          <div class="note">重購自住房地可能涉及房地合一稅或土地增值稅重購退稅；持有較久或舊制案件，後續做個人綜合所得稅時要另外檢查財產交易所得。</div>
         </div>
       `;
     }
@@ -2733,31 +2786,49 @@
         maxPayment = Math.max(maxPayment, payment);
         minPayment = Math.min(minPayment, payment);
 
-        if (month <= 12 || month % 12 === 0 || balance === 0) {
-          rows.push({
-            month,
-            payment,
-            principalPaid,
-            interest,
-            balance
-          });
-        }
+        rows.push({
+          month,
+          payment,
+          principalPaid,
+          interest,
+          balance
+        });
       }
 
       const firstNormalMonth = rows.find(row => row.month > graceMonths) || rows[0];
+      const firstNormalPayment = firstNormalMonth ? firstNormalMonth.payment : 0;
+      const firstGracePayment = graceMonths > 0 && rows[0] ? rows[0].payment : firstNormalPayment;
       const paidMonths = rows.length ? rows[rows.length - 1].month : 0;
-      const tableRows = rows.slice(0, 24).map(row => `
-        <tr>
-          <td>第 ${row.month} 期</td>
-          <td>${money.format(Math.round(row.payment))}</td>
-          <td>${money.format(Math.round(row.principalPaid))}</td>
-          <td>${money.format(Math.round(row.interest))}</td>
-          <td>${money.format(Math.round(row.balance))}</td>
-        </tr>
-      `).join("");
+      const periodBreak = Math.min(36, totalMonths);
+      const summarizePeriod = (start, end, label) => {
+        const periodRows = rows.filter(row => row.month >= start && row.month <= end);
+        if (!periodRows.length) return "";
+        const periodMin = Math.min(...periodRows.map(row => row.payment));
+        const periodMax = Math.max(...periodRows.map(row => row.payment));
+        const paymentText = Math.round(periodMin) === Math.round(periodMax)
+          ? money.format(Math.round(periodMax))
+          : `${money.format(Math.round(periodMin))}～${money.format(Math.round(periodMax))}`;
+        const principalPaid = periodRows.reduce((sum, row) => sum + row.principalPaid, 0);
+        const interestPaid = periodRows.reduce((sum, row) => sum + row.interest, 0);
+        const endingBalance = periodRows[periodRows.length - 1].balance;
+        return `
+          <tr>
+            <td>${label}</td>
+            <td>${paymentText}</td>
+            <td>${money.format(Math.round(principalPaid))}</td>
+            <td>${money.format(Math.round(interestPaid))}</td>
+            <td>${money.format(Math.round(endingBalance))}</td>
+          </tr>
+        `;
+      };
+      const tableRows = [
+        summarizePeriod(1, periodBreak, `第 1～${periodBreak} 期`),
+        totalMonths > periodBreak ? summarizePeriod(periodBreak + 1, totalMonths, `第 ${periodBreak + 1}～${totalMonths} 期`) : ""
+      ].join("");
 
       document.getElementById("loanResult").innerHTML = `
-        ${metric("首期月付", firstNormalMonth ? firstNormalMonth.payment : 0, "main")}
+        ${metric("寬限期月付", firstGracePayment, "main")}
+        ${metric("寬限期後月付", firstNormalPayment)}
         <div class="metric">
           <span>自備款</span>
           <strong>${money.format(Math.round(downPayment))}</strong>
@@ -2769,7 +2840,7 @@
           </div>
         </div>
         <div class="metric">
-          <span>總利息</span>
+          <span>總利息與月付範圍</span>
           <strong>${money.format(Math.round(totalInterest))}</strong>
           <div class="breakdown">
             ${line("貸款本金", principal)}
@@ -2781,17 +2852,17 @@
         <div class="metric">
           <span>攤還期數</span>
           <strong>${paidMonths} 期</strong>
-          <div class="note">${graceMonths > 0 ? `前 ${graceMonths} 期為寬限期，只付利息。` : "未設定寬限期。"}</div>
+          <div class="note">${graceMonths > 0 ? `前 ${graceMonths} 期為寬限期，只付利息；寬限期後開始攤還本金。` : "未設定寬限期，所以兩個月付數字相同。"}</div>
         </div>
         <div class="table-wrap">
           <table class="amortization">
             <thead>
               <tr>
-                <th>期數</th>
-                <th>月付</th>
-                <th>本金</th>
-                <th>利息</th>
-                <th>剩餘本金</th>
+                <th>期數區間</th>
+                <th>月付範圍</th>
+                <th>償還本金</th>
+                <th>支付利息</th>
+                <th>期末本金餘額</th>
               </tr>
             </thead>
             <tbody>${tableRows}</tbody>
@@ -2887,15 +2958,7 @@
         totalInterest += interest;
         highestPayment = Math.max(highestPayment, payment);
 
-        if (
-          month <= 3 ||
-          month === graceMonths ||
-          month === graceMonths + 1 ||
-          month % 12 === 0 ||
-          balance === 0
-        ) {
-          rows.push({ month, annualRate, payment, principalPaid, interest, balance });
-        }
+        rows.push({ month, annualRate, payment, principalPaid, interest, balance });
         previousRate = annualRate;
       }
 
@@ -2905,15 +2968,34 @@
       const eligibilityDetails = eligibilityChecks.map(check => `
         <div class="line"><span>${check.passed ? "符合" : "不符合"}｜${check.text}</span><b>${check.passed ? "OK" : "!"}</b></div>
       `).join("");
-      const tableRows = rows.slice(0, 24).map(row => `
-        <tr>
-          <td>第 ${row.month} 期</td>
-          <td>${number.format(row.annualRate)}%</td>
-          <td>${money.format(Math.round(row.payment))}</td>
-          <td>${money.format(Math.round(row.principalPaid))}</td>
-          <td>${money.format(Math.round(row.balance))}</td>
-        </tr>
-      `).join("");
+      const youngStages = [
+        { start: 1, end: 36, label: "第 1～36 期" },
+        { start: 37, end: 48, label: "第 37～48 期" },
+        { start: 49, end: 60, label: "第 49～60 期" },
+        { start: 61, end: 84, label: "第 61～84 期" },
+        { start: 85, end: totalMonths, label: `第 85～${totalMonths} 期` }
+      ];
+      const tableRows = youngStages.map(stage => {
+        const stageRows = rows.filter(row => row.month >= stage.start && row.month <= Math.min(stage.end, totalMonths));
+        if (!stageRows.length) return "";
+        const stageMinPayment = Math.min(...stageRows.map(row => row.payment));
+        const stageMaxPayment = Math.max(...stageRows.map(row => row.payment));
+        const paymentText = Math.round(stageMinPayment) === Math.round(stageMaxPayment)
+          ? money.format(Math.round(stageMaxPayment))
+          : `${money.format(Math.round(stageMinPayment))}～${money.format(Math.round(stageMaxPayment))}`;
+        const interestPaid = stageRows.reduce((sum, row) => sum + row.interest, 0);
+        const endingBalance = stageRows[stageRows.length - 1].balance;
+        const annualRates = [...new Set(stageRows.map(row => number.format(row.annualRate)))];
+        return `
+          <tr>
+            <td>${stage.label}</td>
+            <td>${annualRates.join(" / ")}%</td>
+            <td>${paymentText}</td>
+            <td>${money.format(Math.round(interestPaid))}</td>
+            <td>${money.format(Math.round(endingBalance))}</td>
+          </tr>
+        `;
+      }).join("");
 
       document.getElementById("youngResult").innerHTML = `
         ${metric("政策上限內預估貸款", principal, "main young-main")}
@@ -2925,10 +3007,10 @@
           <div class="breakdown">${eligibilityDetails}</div>
         </div>
         <div class="metric">
-          <span>${graceMonths > 0 ? "寬限期首月月付" : "首期月付"}</span>
+          <span>寬限期月付</span>
           <strong>${money.format(Math.round(graceMonths > 0 ? firstGracePayment : firstNormalPayment))}</strong>
           <div class="breakdown">
-            ${line("寬限期後首期月付", firstNormalPayment)}
+            ${line("寬限期後月付", firstNormalPayment)}
             ${line(`${applicantTypeLabel}貸款額度上限`, loanLimit)}
             ${capGap > 0 ? line(`因 ${money.format(loanLimit)} 上限增加的資金缺口`, capGap) : ""}
           </div>
@@ -2947,26 +3029,18 @@
           </div>
         </div>
         <div class="metric">
-          <span>2.0 情境利率路徑</span>
-          <strong class="young-rate-title">${youngRateLabel(baseRate)}</strong>
-          <div class="breakdown">
-            <div class="line"><span>前 3 年（補貼 0.5%）</span><b>${number.format(youngRateAtMonth(baseRate, 1))}%</b></div>
-            <div class="line"><span>第 4 年（補貼 0.375%）</span><b>${number.format(youngRateAtMonth(baseRate, 37))}%</b></div>
-            <div class="line"><span>第 5 年（補貼 0.25%）</span><b>${number.format(youngRateAtMonth(baseRate, 49))}%</b></div>
-            <div class="line"><span>第 6～7 年（補貼 0.125%）</span><b>${number.format(youngRateAtMonth(baseRate, 61))}%</b></div>
-            <div class="line"><span>第 8 年起（補貼退場）</span><b>${number.format(youngRateAtMonth(baseRate, 85))}%</b></div>
-          </div>
-          <div class="policy-note">此為研議規則情境模型，基準利率可自行調整；正式資格、房價門檻、補貼與退場方式應以政府核定公告為準。</div>
+          <span>五階段利率與月付</span>
+          <div class="policy-note">利率會隨銀行機動調整，這裡用輸入的基準利率估大概；重點看月付是否負擔得起，以及總利息大約多少。</div>
         </div>
         <div class="table-wrap">
           <table class="amortization">
             <thead>
               <tr>
-                <th>期數</th>
+                <th>階段</th>
                 <th>年利率</th>
                 <th>月付</th>
-                <th>本金</th>
-                <th>剩餘本金</th>
+                <th>利息</th>
+                <th>本金餘額</th>
               </tr>
             </thead>
             <tbody>${tableRows}</tbody>
