@@ -357,6 +357,50 @@
       gap: 10px;
     }
 
+    .instant-total {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .instant-card {
+      display: grid;
+      gap: 5px;
+      min-height: 108px;
+      padding: 12px;
+      border: 1px solid rgba(37, 122, 92, .18);
+      border-radius: 8px;
+      background: linear-gradient(180deg, #f4fff5, #ffffff);
+    }
+
+    .instant-card.alt {
+      border-color: rgba(36, 87, 166, .18);
+      background: linear-gradient(180deg, #f1f7ff, #ffffff);
+    }
+
+    .instant-card span {
+      color: var(--muted);
+      font-size: .88rem;
+      font-weight: 900;
+    }
+
+    .instant-card strong {
+      color: var(--green-dark);
+      font-size: clamp(1.35rem, 4vw, 2rem);
+      line-height: 1.05;
+      overflow-wrap: anywhere;
+    }
+
+    .instant-card.alt strong {
+      color: var(--blue);
+    }
+
+    .instant-card small {
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
     .mode-block[hidden] {
       display: none;
     }
@@ -688,7 +732,8 @@
       }
 
       .two-col,
-      .deductions {
+      .deductions,
+      .instant-total {
         grid-template-columns: 1fr;
       }
 
@@ -813,14 +858,29 @@
 
             <div class="field-row">
               <div class="step-mark">2</div>
-              <div class="field-body two-col">
-                <div>
-                  <label for="currentUnit">這次每平方公尺公告土地現值</label>
-                  <input id="currentUnit" inputmode="decimal" autocomplete="off" placeholder="例如 160000">
+              <div class="field-body">
+                <div class="two-col">
+                  <div>
+                    <label for="currentUnit">這次每平方公尺公告土地現值</label>
+                    <input id="currentUnit" inputmode="decimal" autocomplete="off" placeholder="例如 160000">
+                  </div>
+                  <div>
+                    <label for="previousUnit">上次每平方公尺土地價格</label>
+                    <input id="previousUnit" inputmode="decimal" autocomplete="off" placeholder="例如 20000">
+                  </div>
                 </div>
-                <div>
-                  <label for="previousUnit">上次每平方公尺土地價格</label>
-                  <input id="previousUnit" inputmode="decimal" autocomplete="off" placeholder="例如 20000">
+
+                <div class="instant-total" aria-label="公告土地現值小計">
+                  <div class="instant-card">
+                    <span>公告土地現值總額</span>
+                    <strong id="assessedTotalOut">0 元</strong>
+                    <small>土地面積 × 這次每平方公尺公告土地現值</small>
+                  </div>
+                  <div class="instant-card alt">
+                    <span>上次土地價格總額</span>
+                    <strong id="previousBaseOut">0 元</strong>
+                    <small>土地面積 × 上次每平方公尺土地價格</small>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1004,6 +1064,8 @@
       const maxBar = Math.max(current, adjustedPrevious, deductions, increase, 1);
 
       els.increaseAmount.textContent = formatMoney(increase);
+      if (els.assessedTotalOut) els.assessedTotalOut.textContent = formatMoney(current);
+      if (els.previousBaseOut) els.previousBaseOut.textContent = formatMoney(previous);
       els.currentOut.textContent = formatMoney(current);
       els.adjustedOut.textContent = formatMoney(adjustedPrevious);
       els.deductionOut.textContent = formatMoney(deductions);
