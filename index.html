@@ -209,6 +209,36 @@
       grid-column: 1 / -1;
     }
 
+    .lookup-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid rgba(15, 118, 110, .16);
+      border-radius: 8px;
+      background: rgba(236, 253, 245, .65);
+    }
+
+    .lookup-links span {
+      color: var(--muted);
+      font-size: .88rem;
+      font-weight: 700;
+    }
+
+    .lookup-links a {
+      color: var(--teal);
+      font-size: .9rem;
+      font-weight: 800;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(15, 118, 110, .35);
+    }
+
+    .lookup-links a:hover {
+      color: #0b5f58;
+      border-bottom-color: currentColor;
+    }
+
     .down-payment-field {
       padding: 14px;
       border: 1px solid rgba(15, 118, 110, .22);
@@ -2034,6 +2064,11 @@
                 <span class="unit">元</span>
               </div>
             </div>
+            <div class="lookup-links field wide" aria-label="土地稅務查詢連結">
+              <span>查完資料後再回填：</span>
+              <a href="https://easymap.land.moi.gov.tw/" target="_blank" rel="noreferrer">查土地公告現值／公告地價</a>
+              <a href="https://www.etax.nat.gov.tw/etwmain/etw158w/51" target="_blank" rel="noreferrer">查漲價總額／土地增值稅試算</a>
+            </div>
             <div class="field">
               <label for="holdingYears">持有年數</label>
               <div class="control">
@@ -2135,18 +2170,16 @@
               </div>
             </div>
             <div class="field">
-              <label for="publicContractPrice">公契所載價格</label>
-              <div class="control">
-                <input id="publicContractPrice" type="number" min="0" step="1000" value="2500000">
-                <span class="unit">元</span>
-              </div>
-            </div>
-            <div class="field">
               <label for="landDeclaredValue">土地申報地價總額</label>
               <div class="control">
                 <input id="landDeclaredValue" type="number" min="0" step="1000" value="1800000">
                 <span class="unit">元</span>
               </div>
+            </div>
+            <div class="lookup-links field wide" aria-label="土地公告地價查詢連結">
+              <span>查完土地資料後再回填：</span>
+              <a href="https://easymap.land.moi.gov.tw/" target="_blank" rel="noreferrer">查土地公告現值／公告地價</a>
+              <a href="https://www.etax.nat.gov.tw/etwmain/etw158w/51" target="_blank" rel="noreferrer">查漲價總額／土地增值稅試算</a>
             </div>
             <div class="field">
               <label for="scrivenerTransfer">移轉登記地政士費</label>
@@ -2208,11 +2241,11 @@
           <div class="checks">
             <label class="check-row">
               <input id="buyerReplacementReminder" type="checkbox" checked>
-              <span><b>提醒重購退稅</b><span>若賣舊屋後重購自住房地，或先買後賣，可能可評估房地合一稅／土地增值稅重購退稅條件。</span></span>
+              <span><b>提醒重購退稅</b><span>若賣舊屋後重購自住房地，或先買後賣，可以評估房地合一稅／土地增值稅重購退稅條件。符合四個條件者，不論先買後賣或先賣後買，二年內皆可申請重購退稅。</span></span>
             </label>
             <label class="check-row">
               <input id="buyerOldPropertyTax" type="checkbox">
-              <span><b>可能適用舊制財產交易所得</b><span>持有較久、非房地合一新制案件，後續做個人綜所稅時可能要把財產交易所得列入檢查。</span></span>
+              <span><b>可能適用舊制財產交易所得</b><span>105 年前持有的房屋出售屬於舊制財產交易所得，隔年五月個人綜合所得稅申報時需申報財產交易所得。</span></span>
             </label>
           </div>
           <div class="actions">
@@ -2512,7 +2545,6 @@
         buyerDownPayment: 3000000,
         mortgageSettingRatio: 1.2,
         buildingValue: 1000000,
-        publicContractPrice: 2500000,
         landDeclaredValue: 1800000,
         scrivenerTransfer: 10000,
         scrivenerLoan: 4000,
@@ -2657,6 +2689,7 @@
         special: specialRate
       });
       const tax = taxableIncome * rate.rate;
+      const afterTaxProfit = Math.max(0, grossIncome - tax);
       const selfUseDetails = selfUsePassed.map(item => `
         <div class="line"><span>${item.passed ? "已勾選" : "未勾選"}：${item.label}</span><b>${item.passed ? "OK" : "未符合"}</b></div>
       `).join("");
@@ -2676,6 +2709,7 @@
             ${line("減：土地漲價總數額", -landGain)}
             ${line("課稅所得稅基", grossIncome)}
             ${selfUse ? line("自住房地免稅額", -exemption) : ""}
+            ${line("出售稅後淨利", afterTaxProfit)}
           </div>
         </div>
         <div class="metric ${selfUse ? "" : "warn"}">
@@ -2695,14 +2729,12 @@
       const purchasePrice = value("purchasePrice");
       const downPayment = clamp(value("buyerDownPayment"), 0, purchasePrice);
       const loanAmount = Math.max(0, purchasePrice - downPayment);
-      const actualLoanRatio = purchasePrice > 0 ? loanAmount / purchasePrice * 100 : 0;
       const mortgageSettingValue = loanAmount * value("mortgageSettingRatio");
       const buildingValue = value("buildingValue");
-      const publicContractPrice = value("publicContractPrice");
       const landDeclaredValue = value("landDeclaredValue");
       const brokerRate = 2;
       const deedTax = buildingValue * 0.06;
-      const stampTax = publicContractPrice * 0.001;
+      const stampTax = purchasePrice * 0.001;
       const registrationFee = (buildingValue + landDeclaredValue) * 0.001;
       const mortgageRegistrationFee = mortgageSettingValue * 0.001;
       const documentFee = value("transcriptCount") * 20 + value("certificateCount") * 80;
@@ -2728,7 +2760,7 @@
           <div class="breakdown">
             ${line("自備款", downPayment)}
             ${line("契稅：房屋契價 6%", deedTax)}
-            ${line("印花稅：公契價格 0.1%", stampTax)}
+            ${line("印花稅：成交總價 0.1%", stampTax)}
             ${line("買賣登記規費：建物契價與土地申報地價 0.1%", registrationFee)}
             ${line("抵押權設定登記規費：設定權利價值 0.1%", mortgageRegistrationFee)}
             ${line("登記謄本與權狀費", documentFee)}
@@ -2736,21 +2768,13 @@
             ${line("地政士、銀行、保險與交屋分攤", serviceFees - documentFee)}
           </div>
         </div>
-        <div class="metric">
-          <span>預估貸款金額</span>
-          <strong>${money.format(Math.round(loanAmount))}</strong>
-          <div class="breakdown">
-            <div class="line"><span>反推貸款成數</span><b>${number.format(actualLoanRatio)}%</b></div>
-          </div>
-          <div class="note">可到「貸款計算」分頁輸入此金額估算月付。</div>
-        </div>
         <div class="metric warn">
           <span>稅務提醒</span>
           <div class="breakdown">
             <div class="line"><span>重購退稅提醒</span><b>${replacementReminder ? "已提醒" : "未勾選"}</b></div>
             <div class="line"><span>舊制財產交易所得</span><b>${oldPropertyTax ? "後續個綜需檢查" : "目前未標記"}</b></div>
           </div>
-          <div class="note">重購自住房地可能涉及房地合一稅或土地增值稅重購退稅；持有較久或舊制案件，後續做個人綜合所得稅時要另外檢查財產交易所得。</div>
+          <div class="note">提醒重購退稅：若賣舊屋後重購自住房地，或先買後賣，可以評估房地合一稅／土地增值稅重購退稅條件。符合四個條件者，不論先買後賣或先賣後買，二年內皆可申請重購退稅。可能適用舊制財產交易所得：105 年前持有的房屋出售屬於舊制財產交易所得，隔年五月個人綜合所得稅申報時需申報財產交易所得。</div>
         </div>
       `;
     }
