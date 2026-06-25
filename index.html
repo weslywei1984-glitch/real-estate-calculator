@@ -2149,13 +2149,6 @@
               </div>
             </div>
             <div class="field">
-              <label for="brokerRate">買方仲介服務費率</label>
-              <div class="control">
-                <input id="brokerRate" type="number" min="0" max="6" step="0.1" value="2">
-                <span class="unit">%</span>
-              </div>
-            </div>
-            <div class="field">
               <label for="scrivenerTransfer">移轉登記地政士費</label>
               <div class="control">
                 <input id="scrivenerTransfer" type="number" min="0" step="500" value="10000">
@@ -2521,7 +2514,6 @@
         buildingValue: 1000000,
         publicContractPrice: 2500000,
         landDeclaredValue: 1800000,
-        brokerRate: 2,
         scrivenerTransfer: 10000,
         scrivenerLoan: 4000,
         signingFee: 1000,
@@ -2563,13 +2555,47 @@
       }
     };
 
+    function parseNumericValue(rawValue) {
+      return Number(String(rawValue || "").replace(/,/g, "")) || 0;
+    }
+
     function value(id) {
       const el = document.getElementById(id);
-      return el.type === "checkbox" ? el.checked : Number(el.value || 0);
+      return el.type === "checkbox" ? el.checked : parseNumericValue(el.value);
     }
 
     function selectValue(id) {
       return document.getElementById(id).value;
+    }
+
+    function formatNumericInput(input) {
+      if (!input || input.value === "") return;
+      input.value = number.format(parseNumericValue(input.value));
+    }
+
+    function formatAllNumericInputs() {
+      document.querySelectorAll("[data-numeric-input]").forEach(formatNumericInput);
+    }
+
+    function setNumericInputValue(id, newValue) {
+      const input = document.getElementById(id);
+      input.value = newValue;
+      if (document.activeElement !== input) {
+        formatNumericInput(input);
+      }
+    }
+
+    function setupNumericInputs() {
+      document.querySelectorAll('input[type="number"]').forEach(input => {
+        input.dataset.numericInput = "true";
+        input.type = "text";
+        input.inputMode = "decimal";
+        formatNumericInput(input);
+        input.addEventListener("focus", () => {
+          input.value = String(input.value || "").replace(/,/g, "");
+        });
+        input.addEventListener("blur", () => formatNumericInput(input));
+      });
     }
 
     function clamp(value, min, max) {
@@ -2615,7 +2641,10 @@
         { id: "selfUseNoRentalBusiness", label: "沒有出租、營業登記或執行業務使用" },
         { id: "selfUseNoPriorClaim", label: "本人、配偶及未成年子女近 6 年未用過自住優惠" }
       ];
-      const selfUsePassed = selfUseChecks.map(item => ({ ...item, passed: value(item.id) }));
+      const selfUsePassed = [
+        { label: `左邊持有年數 ${number.format(holdingYears)} 年，至少須滿 6 年`, passed: holdingYears >= 6 },
+        ...selfUseChecks.map(item => ({ ...item, passed: value(item.id) }))
+      ];
       const selfUse = selfUsePassed.every(item => item.passed);
       const specialRate = value("specialRate");
       const grossIncome = Math.max(0, salePrice - buyCost - sellExpense - landGain);
@@ -2674,7 +2703,7 @@
       const buildingValue = value("buildingValue");
       const publicContractPrice = value("publicContractPrice");
       const landDeclaredValue = value("landDeclaredValue");
-      const brokerRate = clamp(value("brokerRate"), 0, 6);
+      const brokerRate = 2;
       const deedTax = buildingValue * 0.06;
       const stampTax = publicContractPrice * 0.001;
       const registrationFee = (buildingValue + landDeclaredValue) * 0.001;
@@ -3059,6 +3088,7 @@
           el.value = preset;
         }
       });
+      formatAllNumericInputs();
       calculateAll();
     }
 
@@ -3068,6 +3098,8 @@
       calculateLoan();
       calculateYoung();
     }
+
+    setupNumericInputs();
 
     document.querySelectorAll(".tab").forEach(tab => {
       tab.addEventListener("click", () => {
@@ -3097,8 +3129,8 @@
       const purchasePrice = value("purchasePrice");
       const ratio = clamp(value("loanRatio"), 0, 100);
       const loanAmount = purchasePrice * ratio / 100;
-      document.getElementById("loanRatio").value = number.format(ratio);
-      document.getElementById("buyerDownPayment").value = Math.max(0, Math.round(purchasePrice - loanAmount));
+      setNumericInputValue("loanRatio", number.format(ratio));
+      setNumericInputValue("buyerDownPayment", Math.max(0, Math.round(purchasePrice - loanAmount)));
       calculateBuyer();
     }
 
@@ -3106,9 +3138,9 @@
       const purchasePrice = value("purchasePrice");
       const downPayment = clamp(value("buyerDownPayment"), 0, purchasePrice);
       const loanAmount = Math.max(0, purchasePrice - downPayment);
-      document.getElementById("buyerDownPayment").value = Math.round(downPayment);
+      setNumericInputValue("buyerDownPayment", Math.round(downPayment));
       if (purchasePrice > 0) {
-        document.getElementById("loanRatio").value = number.format(loanAmount / purchasePrice * 100);
+        setNumericInputValue("loanRatio", number.format(loanAmount / purchasePrice * 100));
       }
       calculateBuyer();
     }
@@ -3121,17 +3153,17 @@
       const purchasePrice = value("loanPurchasePrice");
       const ratio = clamp(value("loanLtvRatio"), 0, 100);
       const principal = Math.round(purchasePrice * ratio / 100);
-      document.getElementById("loanAmount").value = principal;
-      document.getElementById("loanDownPayment").value = Math.max(0, Math.round(purchasePrice - principal));
+      setNumericInputValue("loanAmount", principal);
+      setNumericInputValue("loanDownPayment", Math.max(0, Math.round(purchasePrice - principal)));
       calculateLoan();
     }
 
     function syncLoanRatioFromAmount() {
       const purchasePrice = value("loanPurchasePrice");
       const principal = value("loanAmount");
-      document.getElementById("loanDownPayment").value = Math.max(0, Math.round(purchasePrice - principal));
+      setNumericInputValue("loanDownPayment", Math.max(0, Math.round(purchasePrice - principal)));
       if (purchasePrice > 0) {
-        document.getElementById("loanLtvRatio").value = number.format(principal / purchasePrice * 100);
+        setNumericInputValue("loanLtvRatio", number.format(principal / purchasePrice * 100));
       }
       calculateLoan();
     }
@@ -3140,10 +3172,10 @@
       const purchasePrice = value("loanPurchasePrice");
       const downPayment = clamp(value("loanDownPayment"), 0, purchasePrice);
       const principal = Math.max(0, Math.round(purchasePrice - downPayment));
-      document.getElementById("loanDownPayment").value = Math.round(downPayment);
-      document.getElementById("loanAmount").value = principal;
+      setNumericInputValue("loanDownPayment", Math.round(downPayment));
+      setNumericInputValue("loanAmount", principal);
       if (purchasePrice > 0) {
-        document.getElementById("loanLtvRatio").value = number.format(principal / purchasePrice * 100);
+        setNumericInputValue("loanLtvRatio", number.format(principal / purchasePrice * 100));
       }
       calculateLoan();
     }
@@ -3157,8 +3189,8 @@
       const ratio = clamp(value("youngLoanRatio"), 0, 80);
       const requestedLoan = purchasePrice * ratio / 100;
       const principal = Math.min(requestedLoan, youngLoanLimit());
-      document.getElementById("youngLoanRatio").value = number.format(ratio);
-      document.getElementById("youngDownPayment").value = Math.max(0, Math.round(purchasePrice - principal));
+      setNumericInputValue("youngLoanRatio", number.format(ratio));
+      setNumericInputValue("youngDownPayment", Math.max(0, Math.round(purchasePrice - principal)));
       calculateYoung();
     }
 
@@ -3168,8 +3200,8 @@
       const requestedLoan = Math.max(0, purchasePrice - downPayment);
       const ratio = purchasePrice > 0 ? clamp(requestedLoan / purchasePrice * 100, 0, 80) : 0;
       const principal = Math.min(purchasePrice * ratio / 100, youngLoanLimit());
-      document.getElementById("youngLoanRatio").value = number.format(ratio);
-      document.getElementById("youngDownPayment").value = Math.max(0, Math.round(purchasePrice - principal));
+      setNumericInputValue("youngLoanRatio", number.format(ratio));
+      setNumericInputValue("youngDownPayment", Math.max(0, Math.round(purchasePrice - principal)));
       calculateYoung();
     }
 
@@ -3186,7 +3218,7 @@
 
     document.getElementById("youngPriceTier").addEventListener("change", event => {
       if (event.target.value === "taipei") {
-        document.getElementById("youngPriceCap").value = 35000000;
+        setNumericInputValue("youngPriceCap", 35000000);
       }
       calculateYoung();
     });
