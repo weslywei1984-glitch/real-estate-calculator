@@ -2657,7 +2657,6 @@
         special: specialRate
       });
       const tax = taxableIncome * rate.rate;
-      const netAfterTax = grossIncome - tax;
       const selfUseDetails = selfUsePassed.map(item => `
         <div class="line"><span>${item.passed ? "已勾選" : "未勾選"}：${item.label}</span><b>${item.passed ? "OK" : "未符合"}</b></div>
       `).join("");
@@ -2677,8 +2676,6 @@
             ${line("減：土地漲價總數額", -landGain)}
             ${line("課稅所得稅基", grossIncome)}
             ${selfUse ? line("自住房地免稅額", -exemption) : ""}
-            ${line("適用稅基", taxableIncome)}
-            ${line("稅後所得", netAfterTax)}
           </div>
         </div>
         <div class="metric ${selfUse ? "" : "warn"}">
