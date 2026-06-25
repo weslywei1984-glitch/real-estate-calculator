@@ -1,0 +1,1052 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>土地漲價總數額計算器｜台南小魏</title>
+  <style>
+    :root {
+      --paper: #fffdf7;
+      --ink: #243126;
+      --muted: #68736c;
+      --line: #d9dece;
+      --green: #257a5c;
+      --green-dark: #16523d;
+      --mint: #e7f6ea;
+      --sky: #dcecff;
+      --blue: #2457a6;
+      --gold: #f6c453;
+      --gold-soft: #fff1bf;
+      --coral: #d9684d;
+      --coral-soft: #ffe5dc;
+      --white: #ffffff;
+      --shadow: 0 18px 48px rgba(46, 58, 43, .12);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(36, 87, 166, .08) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(36, 87, 166, .08) 1px, transparent 1px),
+        linear-gradient(145deg, #fff8df 0%, #f4fbf0 46%, #eef6ff 100%);
+      background-size: 28px 28px, 28px 28px, auto;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .shell {
+      width: min(1120px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 24px 0 40px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      display: grid;
+      gap: 10px;
+    }
+
+    .brand-line {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      color: var(--green-dark);
+      font-weight: 900;
+    }
+
+    .brand-line span {
+      padding: 5px 9px;
+      border: 1px solid rgba(37, 122, 92, .24);
+      border-radius: 999px;
+      background: rgba(231, 246, 234, .92);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 820px;
+      font-size: clamp(2rem, 6vw, 4.4rem);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      margin: 0;
+      max-width: 720px;
+      color: #4f5d54;
+      font-size: 1.06rem;
+      line-height: 1.7;
+    }
+
+    .source-badge {
+      display: grid;
+      gap: 4px;
+      width: min(100%, 260px);
+      padding: 12px 14px;
+      border: 1px solid rgba(36, 87, 166, .18);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .76);
+      box-shadow: 0 10px 28px rgba(36, 87, 166, .08);
+    }
+
+    .source-badge strong {
+      font-size: .96rem;
+    }
+
+    .source-badge a {
+      color: var(--blue);
+      font-size: .9rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .formula-strip {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+      gap: 8px;
+      align-items: center;
+      margin: 20px 0;
+      padding: 12px;
+      border: 1px solid rgba(36, 49, 38, .12);
+      border-radius: 8px;
+      background: rgba(255, 253, 247, .84);
+      box-shadow: var(--shadow);
+    }
+
+    .formula-piece {
+      display: grid;
+      gap: 2px;
+      min-height: 74px;
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--white);
+      border: 1px solid var(--line);
+    }
+
+    .formula-piece small {
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .formula-piece strong {
+      font-size: clamp(1rem, 2.4vw, 1.26rem);
+      line-height: 1.2;
+    }
+
+    .symbol {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: var(--green-dark);
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.04fr) minmax(330px, .72fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .tool-panel,
+    .answer-panel,
+    .notes {
+      border: 1px solid rgba(36, 49, 38, .12);
+      border-radius: 8px;
+      background: rgba(255, 253, 247, .92);
+      box-shadow: var(--shadow);
+    }
+
+    .tool-panel {
+      padding: 16px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .segmented {
+      display: inline-grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #eef3e6;
+    }
+
+    .segmented button,
+    .unit-select {
+      min-height: 44px;
+      border: 0;
+      border-radius: 6px;
+      color: var(--ink);
+      background: transparent;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .segmented button {
+      padding: 0 12px;
+    }
+
+    .segmented button.active {
+      color: var(--white);
+      background: var(--green);
+      box-shadow: 0 8px 18px rgba(37, 122, 92, .24);
+    }
+
+    .unit-wrap {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--muted);
+      font-size: .94rem;
+      font-weight: 800;
+    }
+
+    .unit-select {
+      padding: 0 34px 0 12px;
+      border: 1px solid var(--line);
+      background: var(--white);
+    }
+
+    .fields {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr);
+      gap: 10px;
+      align-items: stretch;
+      padding: 10px;
+      border: 1px solid rgba(36, 49, 38, .1);
+      border-radius: 8px;
+      background: var(--white);
+    }
+
+    .step-mark {
+      display: grid;
+      place-items: center;
+      width: 52px;
+      min-height: 74px;
+      border-radius: 8px;
+      color: var(--green-dark);
+      background: var(--mint);
+      font-size: 1.45rem;
+      font-weight: 1000;
+    }
+
+    .field-body {
+      display: grid;
+      gap: 7px;
+    }
+
+    label {
+      color: var(--ink);
+      font-weight: 1000;
+      line-height: 1.3;
+    }
+
+    .hint {
+      margin: 0;
+      color: var(--muted);
+      font-size: .9rem;
+      line-height: 1.45;
+    }
+
+    input {
+      width: 100%;
+      min-height: 50px;
+      padding: 10px 12px;
+      border: 2px solid #cfd8c9;
+      border-radius: 8px;
+      color: var(--ink);
+      background: #fffefa;
+      font-size: 1.12rem;
+      font-weight: 900;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 4px rgba(37, 122, 92, .14);
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .mode-block[hidden] {
+      display: none;
+    }
+
+    details {
+      border: 1px dashed rgba(36, 49, 38, .22);
+      border-radius: 8px;
+      background: #fffefa;
+    }
+
+    summary {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 14px;
+      color: var(--green-dark);
+      font-weight: 1000;
+      list-style: none;
+      cursor: pointer;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    summary::after {
+      content: "+";
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--gold-soft);
+      color: #7a4b00;
+      flex: 0 0 auto;
+    }
+
+    details[open] summary::after {
+      content: "-";
+    }
+
+    .deductions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      padding: 0 12px 12px;
+    }
+
+    .mini-field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .mini-field label {
+      font-size: .92rem;
+    }
+
+    .mini-field input {
+      min-height: 46px;
+      font-size: 1rem;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .btn {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 16px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      font-weight: 1000;
+      text-decoration: none;
+    }
+
+    .btn svg {
+      width: 19px;
+      height: 19px;
+      stroke-width: 2.4;
+      flex: 0 0 auto;
+    }
+
+    .btn.primary {
+      color: var(--white);
+      background: var(--green);
+      box-shadow: 0 14px 28px rgba(37, 122, 92, .25);
+    }
+
+    .btn.secondary {
+      color: var(--green-dark);
+      border-color: rgba(37, 122, 92, .22);
+      background: var(--mint);
+    }
+
+    .btn.ghost {
+      color: var(--blue);
+      border-color: rgba(36, 87, 166, .2);
+      background: var(--sky);
+    }
+
+    .answer-panel {
+      position: sticky;
+      top: 14px;
+      overflow: hidden;
+    }
+
+    .answer-top {
+      display: grid;
+      gap: 10px;
+      padding: 18px;
+      color: var(--white);
+      background:
+        linear-gradient(135deg, rgba(22, 82, 61, .96), rgba(36, 87, 166, .88)),
+        var(--green-dark);
+    }
+
+    .answer-label {
+      display: inline-flex;
+      width: fit-content;
+      padding: 5px 9px;
+      border-radius: 999px;
+      color: #173d30;
+      background: var(--gold);
+      font-size: .88rem;
+      font-weight: 1000;
+    }
+
+    .big-number {
+      margin: 0;
+      overflow-wrap: anywhere;
+      font-size: clamp(2.1rem, 6vw, 4.25rem);
+      line-height: 1;
+      font-weight: 1000;
+    }
+
+    .sub-result {
+      margin: 0;
+      color: rgba(255, 255, 255, .88);
+      line-height: 1.55;
+      font-weight: 800;
+    }
+
+    .answer-body {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+      background: rgba(255, 253, 247, .96);
+    }
+
+    .breakdown {
+      display: grid;
+      gap: 8px;
+    }
+
+    .line-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(36, 49, 38, .1);
+      line-height: 1.35;
+    }
+
+    .line-item span {
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .line-item strong {
+      text-align: right;
+      overflow-wrap: anywhere;
+    }
+
+    .level-pill {
+      display: grid;
+      gap: 6px;
+      padding: 12px;
+      border-radius: 8px;
+      color: #442f00;
+      background: var(--gold-soft);
+      border: 1px solid rgba(246, 196, 83, .54);
+    }
+
+    .level-pill strong {
+      color: #442f00;
+    }
+
+    .bars {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--white);
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 82px minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+      color: var(--muted);
+      font-size: .86rem;
+      font-weight: 900;
+    }
+
+    .track {
+      height: 12px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #edf0e6;
+    }
+
+    .fill {
+      display: block;
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: var(--green);
+      transition: width .25s ease;
+    }
+
+    .fill.blue {
+      background: var(--blue);
+    }
+
+    .fill.coral {
+      background: var(--coral);
+    }
+
+    .fill.gold {
+      background: var(--gold);
+    }
+
+    .copy-box {
+      width: 100%;
+      min-height: 112px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--ink);
+      background: #fffefa;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    .toast {
+      min-height: 22px;
+      color: var(--green-dark);
+      font-size: .9rem;
+      font-weight: 900;
+    }
+
+    .notes {
+      margin-top: 18px;
+      padding: 14px;
+    }
+
+    .notes h2 {
+      margin: 0 0 8px;
+      font-size: 1.08rem;
+    }
+
+    .notes ul {
+      margin: 0;
+      padding-left: 1.25rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .notes a {
+      color: var(--blue);
+      font-weight: 900;
+      text-decoration: none;
+    }
+
+    @media (max-width: 900px) {
+      header,
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      .source-badge {
+        width: 100%;
+      }
+
+      .answer-panel {
+        position: static;
+      }
+
+      .formula-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .symbol {
+        text-align: center;
+        line-height: .8;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .shell {
+        width: min(100% - 20px, 1120px);
+        padding-top: 16px;
+      }
+
+      .toolbar,
+      .unit-wrap,
+      .actions {
+        align-items: stretch;
+      }
+
+      .segmented,
+      .unit-wrap,
+      .unit-select,
+      .btn {
+        width: 100%;
+      }
+
+      .two-col,
+      .deductions {
+        grid-template-columns: 1fr;
+      }
+
+      .field-row {
+        grid-template-columns: 42px minmax(0, 1fr);
+      }
+
+      .step-mark {
+        width: 42px;
+        min-height: 68px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="brand">
+        <div class="brand-line">
+          <span>台南小魏 買厝作伙</span>
+          <span>0927-617-207</span>
+          <span>永慶不動產 小東南紡店</span>
+        </div>
+        <h1>土地漲價總數額計算器</h1>
+        <p class="lead">只要把「現在的土地現值」減掉「以前的土地現值調整後」，再減掉可扣除費用，就能先抓出土地漲價總數額。</p>
+      </div>
+
+      <div class="source-badge" aria-label="資料來源">
+        <strong>依財政部土地增值稅口徑整理</strong>
+        <a href="https://www.etax.nat.gov.tw/etwmain/etw158w/51" target="_blank" rel="noreferrer">官方試算頁</a>
+      </div>
+    </header>
+
+    <section class="formula-strip" aria-label="公式">
+      <div class="formula-piece">
+        <small>現在</small>
+        <strong>申報移轉現值</strong>
+      </div>
+      <div class="symbol">-</div>
+      <div class="formula-piece">
+        <small>以前</small>
+        <strong>前次現值 × 物價指數</strong>
+      </div>
+      <div class="symbol">-</div>
+      <div class="formula-piece">
+        <small>可扣</small>
+        <strong>土地改良等費用</strong>
+      </div>
+      <div class="symbol">=</div>
+      <div class="formula-piece">
+        <small>答案</small>
+        <strong>土地漲價總數額</strong>
+      </div>
+    </section>
+
+    <main>
+      <section class="tool-panel" aria-label="輸入區">
+        <div class="toolbar">
+          <div class="segmented" role="tablist" aria-label="計算方式">
+            <button type="button" class="active" data-mode="total" role="tab" aria-selected="true">我有總額</button>
+            <button type="button" data-mode="unit" role="tab" aria-selected="false">我有單價和面積</button>
+          </div>
+
+          <label class="unit-wrap">
+            輸入單位
+            <select id="moneyScale" class="unit-select">
+              <option value="1">元</option>
+              <option value="10000">萬元</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="fields">
+          <div id="totalMode" class="mode-block">
+            <div class="field-row">
+              <div class="step-mark">1</div>
+              <div class="field-body">
+                <label for="currentTotal">本次申報移轉現值總額</label>
+                <p class="hint">也可以填公告土地現值總額。</p>
+                <input id="currentTotal" inputmode="decimal" autocomplete="off" placeholder="例如 8000000">
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="step-mark">2</div>
+              <div class="field-body">
+                <label for="previousTotal">前次移轉現值或原規定地價總額</label>
+                <p class="hint">還沒有乘物價指數以前的金額。</p>
+                <input id="previousTotal" inputmode="decimal" autocomplete="off" placeholder="例如 1000000">
+              </div>
+            </div>
+          </div>
+
+          <div id="unitMode" class="mode-block" hidden>
+            <div class="field-row">
+              <div class="step-mark">1</div>
+              <div class="field-body">
+                <label for="area">土地面積</label>
+                <p class="hint">請用平方公尺。若資料是坪，先乘 3.3058。</p>
+                <input id="area" inputmode="decimal" autocomplete="off" placeholder="例如 50">
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="step-mark">2</div>
+              <div class="field-body two-col">
+                <div>
+                  <label for="currentUnit">本次每平方公尺現值</label>
+                  <input id="currentUnit" inputmode="decimal" autocomplete="off" placeholder="例如 160000">
+                </div>
+                <div>
+                  <label for="previousUnit">前次每平方公尺現值</label>
+                  <input id="previousUnit" inputmode="decimal" autocomplete="off" placeholder="例如 20000">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="step-mark">3</div>
+            <div class="field-body">
+              <label for="priceIndex">臺灣地區消費者物價總指數</label>
+              <p class="hint">看到 200% 就填 200；沒有資料時先用 100。</p>
+              <input id="priceIndex" inputmode="decimal" autocomplete="off" value="100" placeholder="例如 200">
+            </div>
+          </div>
+
+          <details>
+            <summary>有土地改良、工程受益費，再打開填</summary>
+            <div class="deductions">
+              <div class="mini-field">
+                <label for="improvement">改良土地費用</label>
+                <input id="improvement" inputmode="decimal" autocomplete="off" placeholder="0">
+              </div>
+              <div class="mini-field">
+                <label for="benefitFee">已繳工程受益費</label>
+                <input id="benefitFee" inputmode="decimal" autocomplete="off" placeholder="0">
+              </div>
+              <div class="mini-field">
+                <label for="readjustment">土地重劃費用</label>
+                <input id="readjustment" inputmode="decimal" autocomplete="off" placeholder="0">
+              </div>
+              <div class="mini-field">
+                <label for="donatedLand">無償捐贈公設用地公告現值</label>
+                <input id="donatedLand" inputmode="decimal" autocomplete="off" placeholder="0">
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn primary" id="sampleBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h4"/></svg>
+            填入範例
+          </button>
+          <button type="button" class="btn secondary" id="resetBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v6h6"/></svg>
+            清空
+          </button>
+          <a class="btn ghost" href="https://www.etax.nat.gov.tw/etwmain/etw158w/51" target="_blank" rel="noreferrer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
+            官方頁面
+          </a>
+        </div>
+      </section>
+
+      <aside class="answer-panel" aria-label="計算結果">
+        <div class="answer-top">
+          <span class="answer-label">土地漲價總數額</span>
+          <p class="big-number" id="increaseAmount">0 元</p>
+          <p class="sub-result" id="plainAnswer">填入數字後，答案會自動更新。</p>
+        </div>
+
+        <div class="answer-body">
+          <div class="breakdown">
+            <div class="line-item">
+              <span>本次申報移轉現值</span>
+              <strong id="currentOut">0 元</strong>
+            </div>
+            <div class="line-item">
+              <span>調整後前次現值</span>
+              <strong id="adjustedOut">0 元</strong>
+            </div>
+            <div class="line-item">
+              <span>可扣除費用</span>
+              <strong id="deductionOut">0 元</strong>
+            </div>
+            <div class="line-item">
+              <span>原始算式結果</span>
+              <strong id="rawOut">0 元</strong>
+            </div>
+          </div>
+
+          <div class="level-pill">
+            <strong id="ratioOut">漲價倍數 0 倍</strong>
+            <span id="levelOut">先算出總數額，再看是否需要帶入土地增值稅試算。</span>
+          </div>
+
+          <div class="bars" aria-label="金額視覺比較">
+            <div class="bar-row"><span>本次現值</span><div class="track"><span class="fill" id="barCurrent"></span></div></div>
+            <div class="bar-row"><span>前次調整</span><div class="track"><span class="fill blue" id="barAdjusted"></span></div></div>
+            <div class="bar-row"><span>扣除費用</span><div class="track"><span class="fill coral" id="barDeduction"></span></div></div>
+            <div class="bar-row"><span>漲價總額</span><div class="track"><span class="fill gold" id="barIncrease"></span></div></div>
+          </div>
+
+          <textarea id="copyText" class="copy-box" readonly aria-label="可複製的計算摘要"></textarea>
+          <button type="button" class="btn primary" id="copyBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            複製計算摘要
+          </button>
+          <div class="toast" id="toast" aria-live="polite"></div>
+        </div>
+      </aside>
+    </main>
+
+    <section class="notes">
+      <h2>資料口徑</h2>
+      <ul>
+        <li>財政部說明：漲價總數額以申報移轉現值，減除前次移轉現值或原規定地價乘以物價指數；如有土地改良費用，也要一併減除。</li>
+        <li>可扣除費用包含改良土地費用、已繳工程受益費、土地重劃費用、因土地使用變更無償捐贈公共設施用地的公告現值總額。</li>
+        <li>本工具用於快速估算，正式申報仍以地方稅稽徵機關核定資料為準。參考：<a href="https://www.etax.nat.gov.tw/etwmain/tax-info/understanding/tax-saving-manual/local/land-value-increment-tax/noaGA0q" target="_blank" rel="noreferrer">財政部土地增值稅節稅手冊</a>。</li>
+      </ul>
+    </section>
+  </div>
+
+  <script>
+    const moneyIds = ["currentTotal", "previousTotal", "currentUnit", "previousUnit", "improvement", "benefitFee", "readjustment", "donatedLand"];
+    const allInputIds = [...moneyIds, "area", "priceIndex"];
+    const els = {};
+
+    document.querySelectorAll("[id]").forEach((el) => {
+      els[el.id] = el;
+    });
+
+    let mode = "total";
+
+    function numberFromInput(id) {
+      const value = (els[id]?.value || "").replace(/,/g, "").trim();
+      const number = Number(value);
+      return Number.isFinite(number) ? number : 0;
+    }
+
+    function moneyFromInput(id) {
+      return numberFromInput(id) * Number(els.moneyScale.value || 1);
+    }
+
+    function formatMoney(value) {
+      const rounded = Math.round(value);
+      return `${rounded.toLocaleString("zh-TW")} 元`;
+    }
+
+    function formatRatio(value) {
+      if (!Number.isFinite(value)) return "0";
+      return value.toLocaleString("zh-TW", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function getLevel(ratio) {
+      if (!Number.isFinite(ratio) || ratio <= 0) {
+        return "尚未產生漲價倍數";
+      }
+      if (ratio < 1) {
+        return "未達 100%，通常落在第 1 級距參考區間。";
+      }
+      if (ratio < 2) {
+        return "100% 以上未達 200%，通常落在第 2 級距參考區間。";
+      }
+      return "200% 以上，通常落在第 3 級距參考區間。";
+    }
+
+    function calculate() {
+      const priceIndex = numberFromInput("priceIndex") || 0;
+      const factor = priceIndex / 100;
+      let current = 0;
+      let previous = 0;
+
+      if (mode === "total") {
+        current = moneyFromInput("currentTotal");
+        previous = moneyFromInput("previousTotal");
+      } else {
+        const area = numberFromInput("area");
+        current = moneyFromInput("currentUnit") * area;
+        previous = moneyFromInput("previousUnit") * area;
+      }
+
+      const adjustedPrevious = previous * factor;
+      const deductions = moneyFromInput("improvement") + moneyFromInput("benefitFee") + moneyFromInput("readjustment") + moneyFromInput("donatedLand");
+      const raw = current - adjustedPrevious - deductions;
+      const increase = Math.max(0, raw);
+      const ratio = adjustedPrevious > 0 ? increase / adjustedPrevious : 0;
+      const maxBar = Math.max(current, adjustedPrevious, deductions, increase, 1);
+
+      els.increaseAmount.textContent = formatMoney(increase);
+      els.currentOut.textContent = formatMoney(current);
+      els.adjustedOut.textContent = formatMoney(adjustedPrevious);
+      els.deductionOut.textContent = formatMoney(deductions);
+      els.rawOut.textContent = formatMoney(raw);
+      els.ratioOut.textContent = `漲價倍數 ${formatRatio(ratio)} 倍`;
+      els.levelOut.textContent = getLevel(ratio);
+
+      if (raw < 0) {
+        els.plainAnswer.textContent = `原始算式為 ${formatMoney(raw)}，此工具以 0 元顯示可帶入的漲價總數額。`;
+      } else if (increase > 0) {
+        els.plainAnswer.textContent = `答案是 ${formatMoney(increase)}。這個數字可再帶入土地增值稅試算。`;
+      } else {
+        els.plainAnswer.textContent = "填入數字後，答案會自動更新。";
+      }
+
+      els.barCurrent.style.width = `${Math.min(100, current / maxBar * 100)}%`;
+      els.barAdjusted.style.width = `${Math.min(100, adjustedPrevious / maxBar * 100)}%`;
+      els.barDeduction.style.width = `${Math.min(100, deductions / maxBar * 100)}%`;
+      els.barIncrease.style.width = `${Math.min(100, increase / maxBar * 100)}%`;
+
+      els.copyText.value = [
+        "土地漲價總數額計算摘要",
+        `本次申報移轉現值：${formatMoney(current)}`,
+        `前次現值調整後：${formatMoney(adjustedPrevious)}（物價指數 ${priceIndex || 0}%）`,
+        `可扣除費用：${formatMoney(deductions)}`,
+        `土地漲價總數額：${formatMoney(increase)}`,
+        `漲價倍數：${formatRatio(ratio)} 倍`,
+        "台南小魏 買厝作伙｜0927-617-207｜永慶不動產 小東南紡店"
+      ].join("\n");
+
+      saveState();
+    }
+
+    function setMode(nextMode) {
+      mode = nextMode;
+      document.querySelectorAll("[data-mode]").forEach((btn) => {
+        const active = btn.dataset.mode === mode;
+        btn.classList.toggle("active", active);
+        btn.setAttribute("aria-selected", String(active));
+      });
+      els.totalMode.hidden = mode !== "total";
+      els.unitMode.hidden = mode !== "unit";
+      calculate();
+    }
+
+    function saveState() {
+      const data = { mode, moneyScale: els.moneyScale.value };
+      allInputIds.forEach((id) => {
+        data[id] = els[id]?.value || "";
+      });
+      localStorage.setItem("landIncrementTotalState", JSON.stringify(data));
+    }
+
+    function restoreState() {
+      try {
+        const data = JSON.parse(localStorage.getItem("landIncrementTotalState") || "{}");
+        if (data.moneyScale) els.moneyScale.value = data.moneyScale;
+        allInputIds.forEach((id) => {
+          if (Object.prototype.hasOwnProperty.call(data, id) && els[id]) {
+            els[id].value = data[id];
+          }
+        });
+        setMode(data.mode === "unit" ? "unit" : "total");
+      } catch {
+        setMode("total");
+      }
+    }
+
+    document.querySelectorAll("[data-mode]").forEach((btn) => {
+      btn.addEventListener("click", () => setMode(btn.dataset.mode));
+    });
+
+    allInputIds.forEach((id) => {
+      els[id]?.addEventListener("input", calculate);
+    });
+
+    els.moneyScale.addEventListener("change", calculate);
+
+    els.sampleBtn.addEventListener("click", () => {
+      els.moneyScale.value = "1";
+      els.area.value = "50";
+      els.currentUnit.value = "160000";
+      els.previousUnit.value = "20000";
+      els.priceIndex.value = "200";
+      els.improvement.value = "";
+      els.benefitFee.value = "80000";
+      els.readjustment.value = "";
+      els.donatedLand.value = "";
+      setMode("unit");
+    });
+
+    els.resetBtn.addEventListener("click", () => {
+      allInputIds.forEach((id) => {
+        els[id].value = id === "priceIndex" ? "100" : "";
+      });
+      els.moneyScale.value = "1";
+      els.toast.textContent = "";
+      setMode("total");
+    });
+
+    els.copyBtn.addEventListener("click", async () => {
+      els.copyText.focus();
+      els.copyText.select();
+      try {
+        await navigator.clipboard.writeText(els.copyText.value);
+        els.toast.textContent = "已複製計算摘要。";
+      } catch {
+        document.execCommand("copy");
+        els.toast.textContent = "已選取摘要，若沒有自動複製，可直接按 Ctrl+C。";
+      }
+    });
+
+    restoreState();
+  </script>
+</body>
+</html>
