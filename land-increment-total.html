@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="data:,">
-  <title>土地漲價總數額計算器｜台南小魏</title>
+  <title>土地漲多少計算器｜台南小魏</title>
   <style>
     :root {
       --paper: #fffdf7;
@@ -158,6 +158,52 @@
     .formula-piece strong {
       font-size: clamp(1rem, 2.4vw, 1.26rem);
       line-height: 1.2;
+    }
+
+    .plain-helper {
+      display: grid;
+      grid-template-columns: 1.1fr repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0 0 20px;
+      padding: 12px;
+      border: 1px solid rgba(37, 122, 92, .16);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .76);
+      box-shadow: 0 12px 34px rgba(37, 122, 92, .08);
+    }
+
+    .helper-title,
+    .helper-step {
+      display: grid;
+      gap: 4px;
+      min-height: 92px;
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .helper-title {
+      color: var(--white);
+      background: var(--green-dark);
+    }
+
+    .helper-title strong {
+      font-size: 1.22rem;
+      line-height: 1.2;
+    }
+
+    .helper-title span,
+    .helper-step span {
+      line-height: 1.45;
+    }
+
+    .helper-step {
+      border: 1px solid var(--line);
+      background: var(--white);
+    }
+
+    .helper-step b {
+      color: var(--green-dark);
+      font-size: 1.04rem;
     }
 
     .symbol {
@@ -612,6 +658,10 @@
         grid-template-columns: 1fr;
       }
 
+      .plain-helper {
+        grid-template-columns: 1fr;
+      }
+
       .symbol {
         text-align: center;
         line-height: .8;
@@ -662,8 +712,8 @@
           <span>0927-617-207</span>
           <span>永慶不動產 小東南紡店</span>
         </div>
-        <h1>土地漲價總數額計算器</h1>
-        <p class="lead">只要把「現在的土地現值」減掉「以前的土地現值調整後」，再減掉可扣除費用，就能先抓出土地漲價總數額。</p>
+        <h1>土地漲多少計算器</h1>
+        <p class="lead">先填土地面積和公告土地現值，就能看出這塊土地「政府認定漲了多少」。不知道進階費用時，先留空也可以。</p>
       </div>
 
       <div class="source-badge" aria-label="資料來源">
@@ -675,22 +725,41 @@
     <section class="formula-strip" aria-label="公式">
       <div class="formula-piece">
         <small>現在</small>
-        <strong>申報移轉現值</strong>
+        <strong>這次土地公告現值總額</strong>
       </div>
       <div class="symbol">-</div>
       <div class="formula-piece">
         <small>以前</small>
-        <strong>前次現值 × 物價指數</strong>
+        <strong>上次土地價格 × 物價調整</strong>
       </div>
       <div class="symbol">-</div>
       <div class="formula-piece">
         <small>可扣</small>
-        <strong>土地改良等費用</strong>
+        <strong>可扣掉的成本</strong>
       </div>
       <div class="symbol">=</div>
       <div class="formula-piece">
         <small>答案</small>
-        <strong>土地漲價總數額</strong>
+        <strong>這塊土地漲多少</strong>
+      </div>
+    </section>
+
+    <section class="plain-helper" aria-label="公告土地現值說明">
+      <div class="helper-title">
+        <strong>公告土地現值怎麼填？</strong>
+        <span>用地政資料上的每平方公尺金額，乘上土地面積。</span>
+      </div>
+      <div class="helper-step">
+        <b>1. 土地面積</b>
+        <span>看謄本或地籍資料，單位用平方公尺。</span>
+      </div>
+      <div class="helper-step">
+        <b>2. 這次公告現值</b>
+        <span>填今年或申報當期每平方公尺公告土地現值。</span>
+      </div>
+      <div class="helper-step">
+        <b>3. 上次土地價格</b>
+        <span>填取得時的申報現值；繼承或特殊案件再查稅務資料。</span>
       </div>
     </section>
 
@@ -698,8 +767,8 @@
       <section class="tool-panel" aria-label="輸入區">
         <div class="toolbar">
           <div class="segmented" role="tablist" aria-label="計算方式">
-            <button type="button" class="active" data-mode="total" role="tab" aria-selected="true">我有總額</button>
-            <button type="button" data-mode="unit" role="tab" aria-selected="false">我有單價和面積</button>
+            <button type="button" data-mode="unit" role="tab" aria-selected="true" class="active">用公告現值算</button>
+            <button type="button" data-mode="total" role="tab" aria-selected="false">我已經有總額</button>
           </div>
 
           <label class="unit-wrap">
@@ -712,12 +781,12 @@
         </div>
 
         <div class="fields">
-          <div id="totalMode" class="mode-block">
+          <div id="totalMode" class="mode-block" hidden>
             <div class="field-row">
               <div class="step-mark">1</div>
               <div class="field-body">
-                <label for="currentTotal">本次申報移轉現值總額</label>
-                <p class="hint">也可以填公告土地現值總額。</p>
+                <label for="currentTotal">這次土地價格總額</label>
+                <p class="hint">已經算好總額時才用這格；也可以填公告土地現值總額。</p>
                 <input id="currentTotal" inputmode="decimal" autocomplete="off" placeholder="例如 8000000">
               </div>
             </div>
@@ -725,14 +794,14 @@
             <div class="field-row">
               <div class="step-mark">2</div>
               <div class="field-body">
-                <label for="previousTotal">前次移轉現值或原規定地價總額</label>
-                <p class="hint">還沒有乘物價指數以前的金額。</p>
+                <label for="previousTotal">上次土地價格總額</label>
+                <p class="hint">還沒有乘物價調整前的金額。通常看上次買賣申報的價格；很久以前取得的土地，資料上可能寫原規定地價。</p>
                 <input id="previousTotal" inputmode="decimal" autocomplete="off" placeholder="例如 1000000">
               </div>
             </div>
           </div>
 
-          <div id="unitMode" class="mode-block" hidden>
+          <div id="unitMode" class="mode-block">
             <div class="field-row">
               <div class="step-mark">1</div>
               <div class="field-body">
@@ -746,11 +815,11 @@
               <div class="step-mark">2</div>
               <div class="field-body two-col">
                 <div>
-                  <label for="currentUnit">本次每平方公尺現值</label>
+                  <label for="currentUnit">這次每平方公尺公告土地現值</label>
                   <input id="currentUnit" inputmode="decimal" autocomplete="off" placeholder="例如 160000">
                 </div>
                 <div>
-                  <label for="previousUnit">前次每平方公尺現值</label>
+                  <label for="previousUnit">上次每平方公尺土地價格</label>
                   <input id="previousUnit" inputmode="decimal" autocomplete="off" placeholder="例如 20000">
                 </div>
               </div>
@@ -760,29 +829,29 @@
           <div class="field-row">
             <div class="step-mark">3</div>
             <div class="field-body">
-              <label for="priceIndex">臺灣地區消費者物價總指數</label>
-              <p class="hint">看到 200% 就填 200；沒有資料時先用 100。</p>
+              <label for="priceIndex">物價調整百分比</label>
+              <p class="hint">資料寫 200% 就填 200；沒有資料時先用 100。</p>
               <input id="priceIndex" inputmode="decimal" autocomplete="off" value="100" placeholder="例如 200">
             </div>
           </div>
 
           <details>
-            <summary>有土地改良、工程受益費，再打開填</summary>
+            <summary>有可扣掉的成本，再打開填</summary>
             <div class="deductions">
               <div class="mini-field">
-                <label for="improvement">改良土地費用</label>
+                <label for="improvement">整理土地花的錢</label>
                 <input id="improvement" inputmode="decimal" autocomplete="off" placeholder="0">
               </div>
               <div class="mini-field">
-                <label for="benefitFee">已繳工程受益費</label>
+                <label for="benefitFee">公共工程分攤費</label>
                 <input id="benefitFee" inputmode="decimal" autocomplete="off" placeholder="0">
               </div>
               <div class="mini-field">
-                <label for="readjustment">土地重劃費用</label>
+                <label for="readjustment">重劃負擔費用</label>
                 <input id="readjustment" inputmode="decimal" autocomplete="off" placeholder="0">
               </div>
               <div class="mini-field">
-                <label for="donatedLand">無償捐贈公設用地公告現值</label>
+                <label for="donatedLand">捐給公共設施的土地價值</label>
                 <input id="donatedLand" inputmode="decimal" autocomplete="off" placeholder="0">
               </div>
             </div>
@@ -807,7 +876,7 @@
 
       <aside class="answer-panel" aria-label="計算結果">
         <div class="answer-top">
-          <span class="answer-label">土地漲價總數額</span>
+          <span class="answer-label">這塊土地漲多少</span>
           <p class="big-number" id="increaseAmount">0 元</p>
           <p class="sub-result" id="plainAnswer">填入數字後，答案會自動更新。</p>
         </div>
@@ -815,19 +884,19 @@
         <div class="answer-body">
           <div class="breakdown">
             <div class="line-item">
-              <span>本次申報移轉現值</span>
+              <span>這次土地價格</span>
               <strong id="currentOut">0 元</strong>
             </div>
             <div class="line-item">
-              <span>調整後前次現值</span>
+              <span>上次價格調整後</span>
               <strong id="adjustedOut">0 元</strong>
             </div>
             <div class="line-item">
-              <span>可扣除費用</span>
+              <span>可扣掉的成本</span>
               <strong id="deductionOut">0 元</strong>
             </div>
             <div class="line-item">
-              <span>原始算式結果</span>
+              <span>算式結果</span>
               <strong id="rawOut">0 元</strong>
             </div>
           </div>
@@ -838,10 +907,10 @@
           </div>
 
           <div class="bars" aria-label="金額視覺比較">
-            <div class="bar-row"><span>本次現值</span><div class="track"><span class="fill" id="barCurrent"></span></div></div>
-            <div class="bar-row"><span>前次調整</span><div class="track"><span class="fill blue" id="barAdjusted"></span></div></div>
-            <div class="bar-row"><span>扣除費用</span><div class="track"><span class="fill coral" id="barDeduction"></span></div></div>
-            <div class="bar-row"><span>漲價總額</span><div class="track"><span class="fill gold" id="barIncrease"></span></div></div>
+            <div class="bar-row"><span>這次價格</span><div class="track"><span class="fill" id="barCurrent"></span></div></div>
+            <div class="bar-row"><span>上次調整</span><div class="track"><span class="fill blue" id="barAdjusted"></span></div></div>
+            <div class="bar-row"><span>可扣成本</span><div class="track"><span class="fill coral" id="barDeduction"></span></div></div>
+            <div class="bar-row"><span>漲多少</span><div class="track"><span class="fill gold" id="barIncrease"></span></div></div>
           </div>
 
           <textarea id="copyText" class="copy-box" readonly aria-label="可複製的計算摘要"></textarea>
@@ -855,10 +924,11 @@
     </main>
 
     <section class="notes">
-      <h2>資料口徑</h2>
+      <h2>白話說明</h2>
       <ul>
-        <li>財政部說明：漲價總數額以申報移轉現值，減除前次移轉現值或原規定地價乘以物價指數；如有土地改良費用，也要一併減除。</li>
-        <li>可扣除費用包含改良土地費用、已繳工程受益費、土地重劃費用、因土地使用變更無償捐贈公共設施用地的公告現值總額。</li>
+        <li>公告土地現值可以想成政府公告的土地價格；總額就是每平方公尺公告土地現值乘上土地面積。</li>
+        <li>本頁算的是「土地漲價總數額」，白話就是這次土地價格扣掉上次土地價格調整後，再扣掉可扣成本。</li>
+        <li>可扣成本包含整理土地費用、工程受益費、重劃費用、捐給公共設施的土地價值等；沒有資料就先填 0。</li>
         <li>本工具用於快速估算，正式申報仍以地方稅稽徵機關核定資料為準。參考：<a href="https://www.etax.nat.gov.tw/etwmain/tax-info/understanding/tax-saving-manual/local/land-value-increment-tax/noaGA0q" target="_blank" rel="noreferrer">財政部土地增值稅節稅手冊</a>。</li>
       </ul>
     </section>
@@ -873,7 +943,7 @@
       els[el.id] = el;
     });
 
-    let mode = "total";
+    let mode = "unit";
 
     function numberFromInput(id) {
       const value = (els[id]?.value || "").replace(/,/g, "").trim();
@@ -903,12 +973,12 @@
         return "尚未產生漲價倍數";
       }
       if (ratio < 1) {
-        return "未達 100%，通常落在第 1 級距參考區間。";
+        return "未達 100%，如果要再算土地增值稅，通常會落在第 1 級距參考區間。";
       }
       if (ratio < 2) {
-        return "100% 以上未達 200%，通常落在第 2 級距參考區間。";
+        return "100% 以上未達 200%，如果要再算土地增值稅，通常會落在第 2 級距參考區間。";
       }
-      return "200% 以上，通常落在第 3 級距參考區間。";
+      return "200% 以上，如果要再算土地增值稅，通常會落在第 3 級距參考區間。";
     }
 
     function calculate() {
@@ -942,9 +1012,9 @@
       els.levelOut.textContent = getLevel(ratio);
 
       if (raw < 0) {
-        els.plainAnswer.textContent = `原始算式為 ${formatMoney(raw)}，此工具以 0 元顯示可帶入的漲價總數額。`;
+        els.plainAnswer.textContent = `算式結果是 ${formatMoney(raw)}，代表沒有抓到可課稅的土地漲價；本工具以 0 元顯示。`;
       } else if (increase > 0) {
-        els.plainAnswer.textContent = `答案是 ${formatMoney(increase)}。這個數字可再帶入土地增值稅試算。`;
+        els.plainAnswer.textContent = `答案是 ${formatMoney(increase)}。這就是這塊土地估算漲了多少。`;
       } else {
         els.plainAnswer.textContent = "填入數字後，答案會自動更新。";
       }
@@ -955,11 +1025,11 @@
       els.barIncrease.style.width = `${Math.min(100, increase / maxBar * 100)}%`;
 
       els.copyText.value = [
-        "土地漲價總數額計算摘要",
-        `本次申報移轉現值：${formatMoney(current)}`,
-        `前次現值調整後：${formatMoney(adjustedPrevious)}（物價指數 ${priceIndex || 0}%）`,
-        `可扣除費用：${formatMoney(deductions)}`,
-        `土地漲價總數額：${formatMoney(increase)}`,
+        "土地漲價估算摘要",
+        `這次土地價格：${formatMoney(current)}`,
+        `上次土地價格調整後：${formatMoney(adjustedPrevious)}（物價調整 ${priceIndex || 0}%）`,
+        `可扣掉的成本：${formatMoney(deductions)}`,
+        `這塊土地估算漲了：${formatMoney(increase)}`,
         `漲價倍數：${formatRatio(ratio)} 倍`,
         "台南小魏 買厝作伙｜0927-617-207｜永慶不動產 小東南紡店"
       ].join("\n");
@@ -996,9 +1066,9 @@
             els[id].value = data[id];
           }
         });
-        setMode(data.mode === "unit" ? "unit" : "total");
+        setMode(data.mode === "total" ? "total" : "unit");
       } catch {
-        setMode("total");
+        setMode("unit");
       }
     }
 
@@ -1031,7 +1101,7 @@
       });
       els.moneyScale.value = "1";
       els.toast.textContent = "";
-      setMode("total");
+      setMode("unit");
     });
 
     els.copyBtn.addEventListener("click", async () => {
