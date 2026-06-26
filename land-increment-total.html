@@ -54,6 +54,26 @@
       cursor: pointer;
     }
 
+    button,
+    a,
+    .field-row,
+    .formula-piece,
+    .helper-step,
+    .helper-title,
+    .instant-card,
+    .line-item,
+    .level-pill,
+    .bars,
+    .notes,
+    details {
+      transition:
+        transform .18s ease,
+        box-shadow .18s ease,
+        border-color .18s ease,
+        background-color .18s ease,
+        opacity .18s ease;
+    }
+
     .shell {
       width: min(1120px, calc(100% - 28px));
       margin: 0 auto;
@@ -148,6 +168,20 @@
       border-radius: 8px;
       background: var(--white);
       border: 1px solid var(--line);
+    }
+
+    .formula-piece:hover,
+    .helper-step:hover,
+    .helper-title:hover,
+    .field-row:hover,
+    .instant-card:hover,
+    .level-pill:hover,
+    .bars:hover,
+    .notes:hover,
+    details:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 26px rgba(46, 58, 43, .08);
+      border-color: rgba(37, 122, 92, .28);
     }
 
     .formula-piece small {
@@ -351,6 +385,26 @@
       box-shadow: 0 0 0 4px rgba(37, 122, 92, .14);
     }
 
+    input.is-invalid {
+      border-color: var(--coral);
+      background: #fff7f3;
+      box-shadow: 0 0 0 4px rgba(217, 104, 77, .14);
+    }
+
+    .field-row.has-error,
+    .mini-field.has-error {
+      border-color: rgba(217, 104, 77, .42);
+      background: #fff9f6;
+    }
+
+    .field-error {
+      min-height: 18px;
+      color: #a7442d;
+      font-size: .84rem;
+      font-weight: 900;
+      line-height: 1.35;
+    }
+
     .two-col {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -481,6 +535,53 @@
       border-radius: 8px;
       font-weight: 1000;
       text-decoration: none;
+      position: relative;
+      user-select: none;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 28px rgba(46, 58, 43, .14);
+    }
+
+    .btn:active,
+    .segmented button:active,
+    summary:active {
+      transform: translateY(1px) scale(.99);
+    }
+
+    .btn:focus-visible,
+    .segmented button:focus-visible,
+    summary:focus-visible,
+    .unit-select:focus-visible {
+      outline: 3px solid rgba(36, 87, 166, .3);
+      outline-offset: 3px;
+    }
+
+    .btn.is-loading,
+    .segmented button.is-loading {
+      pointer-events: none;
+      opacity: .76;
+    }
+
+    .btn.is-loading::after {
+      content: "";
+      width: 14px;
+      height: 14px;
+      border: 2px solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    .btn.is-success {
+      filter: saturate(1.12);
+    }
+
+    .btn.is-error {
+      background: var(--coral-soft);
+      border-color: rgba(217, 104, 77, .45);
+      color: #8f351f;
     }
 
     .btn svg {
@@ -512,6 +613,38 @@
       position: sticky;
       top: 14px;
       overflow: hidden;
+    }
+
+    .answer-panel[data-state="loading"] {
+      opacity: .94;
+    }
+
+    .answer-panel[data-state="loading"] .answer-top::after {
+      content: "";
+      width: 22px;
+      height: 22px;
+      border: 3px solid rgba(255, 255, 255, .72);
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: spin .75s linear infinite;
+    }
+
+    .answer-panel[data-state="success"] {
+      border-color: rgba(37, 122, 92, .35);
+    }
+
+    .answer-panel[data-state="error"] {
+      border-color: rgba(217, 104, 77, .55);
+    }
+
+    .answer-panel[data-state="error"] .answer-top {
+      background:
+        linear-gradient(135deg, rgba(143, 53, 31, .96), rgba(217, 104, 77, .88)),
+        var(--coral);
+    }
+
+    .answer-panel[data-state="empty"] .answer-body {
+      opacity: .78;
     }
 
     .answer-top {
@@ -659,6 +792,47 @@
       color: var(--green-dark);
       font-size: .9rem;
       font-weight: 900;
+    }
+
+    .toast.is-error {
+      color: #a7442d;
+    }
+
+    .toast.is-success {
+      color: var(--green-dark);
+    }
+
+    .form-message {
+      min-height: 24px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: .92rem;
+      font-weight: 900;
+      line-height: 1.45;
+    }
+
+    .form-message.is-error {
+      color: #a7442d;
+    }
+
+    .form-message.is-success {
+      color: var(--green-dark);
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+      }
     }
 
     .notes {
@@ -918,6 +1092,8 @@
           </details>
         </div>
 
+        <div class="form-message" id="formMessage" aria-live="polite"></div>
+
         <div class="actions">
           <button type="button" class="btn primary" id="sampleBtn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h4"/></svg>
@@ -934,11 +1110,11 @@
         </div>
       </section>
 
-      <aside class="answer-panel" aria-label="計算結果">
+      <aside class="answer-panel" aria-label="計算結果" data-state="initial" aria-busy="false">
         <div class="answer-top">
           <span class="answer-label">這塊土地漲多少</span>
           <p class="big-number" id="increaseAmount">0 元</p>
-          <p class="sub-result" id="plainAnswer">填入數字後，答案會自動更新。</p>
+          <p class="sub-result" id="plainAnswer" aria-live="polite">填入數字後，答案會自動更新。</p>
         </div>
 
         <div class="answer-body">
@@ -1041,7 +1217,160 @@
       return "200% 以上，如果要再算土地增值稅，通常會落在第 3 級距參考區間。";
     }
 
+    const primaryInputIds = {
+      total: ["currentTotal", "previousTotal"],
+      unit: ["area", "currentUnit", "previousUnit"]
+    };
+    const deductionInputIds = ["improvement", "benefitFee", "readjustment", "donatedLand"];
+    let calculateTimer = null;
+
+    function rawInput(id) {
+      return (els[id]?.value || "").replace(/,/g, "").trim();
+    }
+
+    function setFormMessage(message, type = "") {
+      if (!els.formMessage) return;
+      els.formMessage.textContent = message;
+      els.formMessage.classList.toggle("is-error", type === "error");
+      els.formMessage.classList.toggle("is-success", type === "success");
+    }
+
+    function setToast(message, type = "") {
+      els.toast.textContent = message;
+      els.toast.classList.toggle("is-error", type === "error");
+      els.toast.classList.toggle("is-success", type === "success");
+    }
+
+    function setAnswerState(state, message) {
+      const panel = document.querySelector(".answer-panel");
+      if (!panel) return;
+      panel.dataset.state = state;
+      panel.setAttribute("aria-busy", state === "loading" ? "true" : "false");
+      if (message) els.plainAnswer.textContent = message;
+    }
+
+    function setButtonState(button, state) {
+      if (!button) return;
+      button.classList.toggle("is-loading", state === "loading");
+      button.classList.toggle("is-success", state === "success");
+      button.classList.toggle("is-error", state === "error");
+      if (state === "success" || state === "error") {
+        window.setTimeout(() => {
+          button.classList.remove("is-success", "is-error");
+        }, 900);
+      }
+    }
+
+    function setFieldError(id, message) {
+      const input = els[id];
+      if (!input) return;
+      const holder = input.closest(".mini-field") || input.closest(".field-body") || input.parentElement;
+      const row = input.closest(".field-row") || input.closest(".mini-field");
+      const errorId = `${id}Error`;
+      let error = document.getElementById(errorId);
+      if (!error && holder) {
+        error = document.createElement("div");
+        error.id = errorId;
+        error.className = "field-error";
+        input.insertAdjacentElement("afterend", error);
+      }
+      input.classList.toggle("is-invalid", Boolean(message));
+      input.setAttribute("aria-invalid", message ? "true" : "false");
+      if (message) {
+        input.setAttribute("aria-describedby", errorId);
+      } else {
+        input.removeAttribute("aria-describedby");
+      }
+      if (row) row.classList.toggle("has-error", Boolean(message));
+      if (error) error.textContent = message || "";
+    }
+
+    function clearFieldErrors() {
+      allInputIds.forEach((id) => setFieldError(id, ""));
+    }
+
+    function validateInput(id, required = false) {
+      const value = rawInput(id);
+      if (!value) {
+        return required ? "這格要先填。" : "";
+      }
+      const number = Number(value);
+      if (!Number.isFinite(number)) return "請填數字。";
+      if (number < 0) return "不能填負數。";
+      if (id === "priceIndex" && number <= 0) return "請填大於 0 的數字。";
+      return "";
+    }
+
+    function validateForm() {
+      const activePrimary = primaryInputIds[mode];
+      const errors = {};
+      const hasPrimaryInput = activePrimary.some((id) => rawInput(id) !== "");
+
+      [...activePrimary, "priceIndex"].forEach((id) => {
+        const message = validateInput(id, hasPrimaryInput);
+        if (message) errors[id] = message;
+      });
+
+      deductionInputIds.forEach((id) => {
+        const message = validateInput(id, false);
+        if (message) errors[id] = message;
+      });
+
+      allInputIds.forEach((id) => {
+        setFieldError(id, errors[id] || "");
+      });
+
+      return {
+        isEmpty: !hasPrimaryInput,
+        isValid: Object.keys(errors).length === 0,
+        errors
+      };
+    }
+
+    function resetOutputs() {
+      els.increaseAmount.textContent = formatMoney(0);
+      if (els.assessedTotalOut) els.assessedTotalOut.textContent = formatMoney(0);
+      if (els.previousBaseOut) els.previousBaseOut.textContent = formatMoney(0);
+      els.currentOut.textContent = formatMoney(0);
+      els.adjustedOut.textContent = formatMoney(0);
+      els.deductionOut.textContent = formatMoney(0);
+      els.rawOut.textContent = formatMoney(0);
+      els.ratioOut.textContent = "漲價倍數 0 倍";
+      els.levelOut.textContent = "尚未產生漲價倍數";
+      els.barCurrent.style.width = "0%";
+      els.barAdjusted.style.width = "0%";
+      els.barDeduction.style.width = "0%";
+      els.barIncrease.style.width = "0%";
+      els.copyText.value = "";
+    }
+
+    function scheduleCalculate(delay = 140) {
+      window.clearTimeout(calculateTimer);
+      setAnswerState("loading", "正在更新計算結果...");
+      calculateTimer = window.setTimeout(calculate, delay);
+    }
+
     function calculate() {
+      window.clearTimeout(calculateTimer);
+      const validation = validateForm();
+
+      if (validation.isEmpty) {
+        resetOutputs();
+        setAnswerState("empty", "先填土地面積和公告土地現值，結果會自動出現。");
+        setFormMessage("先填主要欄位；其他成本沒有資料可以留空。");
+        setToast("");
+        saveState();
+        return;
+      }
+
+      if (!validation.isValid) {
+        setAnswerState("error", "請先修正紅框欄位。");
+        setFormMessage("有欄位格式不正確，請看紅框提示。", "error");
+        setToast("請修正欄位後再複製摘要。", "error");
+        saveState();
+        return;
+      }
+
       const priceIndex = numberFromInput("priceIndex") || 0;
       const factor = priceIndex / 100;
       let current = 0;
@@ -1096,6 +1425,9 @@
         "台南小魏 買厝作伙｜0927-617-207｜永慶不動產 小東南紡店"
       ].join("\n");
 
+      setAnswerState("success");
+      setFormMessage("已更新計算結果。", "success");
+      setToast("");
       saveState();
     }
 
@@ -1108,7 +1440,8 @@
       });
       els.totalMode.hidden = mode !== "total";
       els.unitMode.hidden = mode !== "unit";
-      calculate();
+      clearFieldErrors();
+      scheduleCalculate(80);
     }
 
     function saveState() {
@@ -1135,46 +1468,76 @@
     }
 
     document.querySelectorAll("[data-mode]").forEach((btn) => {
-      btn.addEventListener("click", () => setMode(btn.dataset.mode));
+      btn.addEventListener("click", () => {
+        if (btn.dataset.mode === mode) return;
+        setButtonState(btn, "loading");
+        setMode(btn.dataset.mode);
+        window.setTimeout(() => setButtonState(btn, "success"), 180);
+      });
     });
 
     allInputIds.forEach((id) => {
-      els[id]?.addEventListener("input", calculate);
+      els[id]?.addEventListener("input", () => scheduleCalculate());
     });
 
-    els.moneyScale.addEventListener("change", calculate);
+    els.moneyScale.addEventListener("change", () => scheduleCalculate(80));
 
     els.sampleBtn.addEventListener("click", () => {
-      els.moneyScale.value = "1";
-      els.area.value = "50";
-      els.currentUnit.value = "160000";
-      els.previousUnit.value = "20000";
-      els.priceIndex.value = "200";
-      els.improvement.value = "";
-      els.benefitFee.value = "80000";
-      els.readjustment.value = "";
-      els.donatedLand.value = "";
-      setMode("unit");
+      setButtonState(els.sampleBtn, "loading");
+      setAnswerState("loading", "正在填入範例並更新結果...");
+      window.setTimeout(() => {
+        els.moneyScale.value = "1";
+        els.area.value = "50";
+        els.currentUnit.value = "160000";
+        els.previousUnit.value = "20000";
+        els.priceIndex.value = "200";
+        els.improvement.value = "";
+        els.benefitFee.value = "80000";
+        els.readjustment.value = "";
+        els.donatedLand.value = "";
+        setMode("unit");
+        calculate();
+        setButtonState(els.sampleBtn, "success");
+        setToast("已填入範例。", "success");
+      }, 160);
     });
 
     els.resetBtn.addEventListener("click", () => {
-      allInputIds.forEach((id) => {
-        els[id].value = id === "priceIndex" ? "100" : "";
-      });
-      els.moneyScale.value = "1";
-      els.toast.textContent = "";
-      setMode("unit");
+      setButtonState(els.resetBtn, "loading");
+      setAnswerState("loading", "正在清空欄位...");
+      window.setTimeout(() => {
+        allInputIds.forEach((id) => {
+          els[id].value = id === "priceIndex" ? "100" : "";
+        });
+        els.moneyScale.value = "1";
+        clearFieldErrors();
+        setMode("unit");
+        calculate();
+        setButtonState(els.resetBtn, "success");
+        setToast("已清空。", "success");
+      }, 140);
     });
 
     els.copyBtn.addEventListener("click", async () => {
+      const validation = validateForm();
+      if (validation.isEmpty || !validation.isValid || !els.copyText.value.trim()) {
+        setAnswerState(validation.isValid ? "empty" : "error", validation.isValid ? "先填資料，才會產生可複製的摘要。" : "請先修正紅框欄位。");
+        setFormMessage(validation.isValid ? "目前沒有可複製的摘要。" : "有欄位格式不正確，請看紅框提示。", validation.isValid ? "" : "error");
+        setButtonState(els.copyBtn, "error");
+        setToast(validation.isValid ? "目前沒有可複製的摘要。" : "請修正欄位後再複製摘要。", "error");
+        return;
+      }
+      setButtonState(els.copyBtn, "loading");
       els.copyText.focus();
       els.copyText.select();
       try {
         await navigator.clipboard.writeText(els.copyText.value);
-        els.toast.textContent = "已複製計算摘要。";
+        setButtonState(els.copyBtn, "success");
+        setToast("已複製計算摘要。", "success");
       } catch {
-        document.execCommand("copy");
-        els.toast.textContent = "已選取摘要，若沒有自動複製，可直接按 Ctrl+C。";
+        const copied = document.execCommand("copy");
+        setButtonState(els.copyBtn, copied ? "success" : "error");
+        setToast(copied ? "已複製計算摘要。" : "已選取摘要，若沒有自動複製，可直接按 Ctrl+C。", copied ? "success" : "error");
       }
     });
 
