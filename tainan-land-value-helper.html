@@ -257,9 +257,10 @@
 
     .brand-panel {
       display: grid;
-      align-content: space-between;
-      gap: 16px;
-      padding: 20px;
+      align-content: start;
+      align-self: start;
+      gap: 12px;
+      padding: 18px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: rgba(255, 255, 255, .86);
@@ -1435,13 +1436,20 @@
       formattedBox.remove();
     }
 
-    document.querySelectorAll(".status-strip, .step-list").forEach(block => block.remove());
+    document.querySelectorAll(".status-strip, .step-list, .lead, .quick-note").forEach(block => block.remove());
+    document.querySelector(".workspace > .panel > .panel-head")?.remove();
+    document.querySelector(".result-panel > .panel-head")?.remove();
 
     const queryYearField = els.queryYear?.closest(".field");
     if (queryYearField) queryYearField.remove();
 
     const summaryLabel = document.querySelector('label[for="summaryText"]');
     if (summaryLabel) summaryLabel.textContent = "給您的查詢摘要";
+    const ownerIdLabel = document.querySelector('label[for="ownerId"]');
+    if (ownerIdLabel) ownerIdLabel.textContent = "權利人統一編號（選填備註）";
+    const ownerIdHint = document.querySelector("#ownerId")?.closest(".field")?.querySelector(".hint");
+    if (ownerIdHint) ownerIdHint.textContent = "可作為內部確認備註；前次移轉現值請依官方資料或稅務資料填入上方欄位。";
+    if (els.ownerId) els.ownerId.placeholder = "可不填";
 
     if (els.queryResult) {
       els.queryResult.classList.add("is-removed");
@@ -2082,25 +2090,32 @@
       const currentPing = current * 0.3025;
       const scale = 2;
       const width = 900;
-      const height = 1180;
+      const height = 1280;
       const canvas = document.createElement("canvas");
       canvas.width = width * scale;
       canvas.height = height * scale;
       const ctx = canvas.getContext("2d");
       ctx.scale(scale, scale);
 
+      const font = "system-ui, -apple-system, BlinkMacSystemFont, 'Microsoft JhengHei', sans-serif";
+      const fitText = (text, x, y, maxWidth, size, weight = 800, color = "#0f746b") => {
+        let fontSize = size;
+        ctx.fillStyle = color;
+        do {
+          ctx.font = `${weight} ${fontSize}px ${font}`;
+          if (ctx.measureText(text).width <= maxWidth || fontSize <= 20) break;
+          fontSize -= 2;
+        } while (fontSize > 20);
+        ctx.fillText(text, x, y);
+      };
+
       ctx.fillStyle = "#fbfaf5";
       ctx.fillRect(0, 0, width, height);
       ctx.fillStyle = "#123f38";
       ctx.fillRect(0, 0, width, 150);
-      ctx.fillStyle = "#f6d27a";
-      ctx.font = "700 22px system-ui, -apple-system, BlinkMacSystemFont, 'Microsoft JhengHei', sans-serif";
-      ctx.fillText("台南市公告土地現值查詢", 56, 54);
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "800 40px system-ui, -apple-system, BlinkMacSystemFont, 'Microsoft JhengHei', sans-serif";
-      ctx.fillText(`${els.district.value}${els.sectionName.value}`, 56, 105);
-      ctx.font = "700 26px system-ui, -apple-system, BlinkMacSystemFont, 'Microsoft JhengHei', sans-serif";
-      ctx.fillText(`地號 ${landNumber()}`, 56, 138);
+      fitText("台南市公告土地現值查詢", 56, 52, 760, 21, 800, "#f6d27a");
+      fitText(`${els.district.value}${els.sectionName.value}`, 56, 104, 760, 38, 900, "#ffffff");
+      fitText(`地號 ${landNumber()}`, 56, 138, 760, 25, 800, "#ffffff");
 
       const drawCard = (x, y, w, h, label, value, note = "") => {
         ctx.fillStyle = "#ffffff";
@@ -2111,35 +2126,33 @@
         ctx.fill();
         ctx.stroke();
         ctx.fillStyle = "#52605a";
-        ctx.font = "700 18px system-ui, -apple-system, BlinkMacSystemFont, 'Microsoft JhengHei', sans-serif";
+        ctx.font = `700 17px ${font}`;
         ctx.fillText(label, x + 22, y + 34);
-        ctx.fillStyle = "#0f746b";
-        ctx.font = "800 32px system-ui, -apple-system, BlinkMacSystemFont, 'Microsoft JhengHei', sans-serif";
-        ctx.fillText(value, x + 22, y + 78);
+        fitText(value, x + 22, y + 78, w - 44, 32, 900, "#0f746b");
         if (note) {
           ctx.fillStyle = "#6f7974";
-          ctx.font = "500 15px system-ui, -apple-system, BlinkMacSystemFont, 'Microsoft JhengHei', sans-serif";
-          wrapCanvasText(ctx, note, x + 22, y + 108, w - 44, 22);
+          ctx.font = `500 14px ${font}`;
+          wrapCanvasText(ctx, note, x + 22, y + 108, w - 44, 21);
         }
       };
 
-      drawCard(56, 188, 378, 145, "土地面積", `${formatDecimal(area, 4)} 平方公尺`, `${formatDecimal(ping, 4)} 坪`);
-      drawCard(466, 188, 378, 145, "115 年公告現值", `${number.format(current)} 元/m²`, `每坪約 ${formatUnit(currentPing, "/坪")}`);
-      drawCard(56, 365, 788, 145, "這次公告土地現值總額", formatMoney(currentTotal), "土地面積 x 每平方公尺公告土地現值");
-      drawCard(56, 542, 378, 145, "前次移轉現值總額", previous ? formatMoney(previousTotal) : "未填寫", previous ? "依您輸入的前次移轉現值換算" : "可由客戶提供或依官方資料補填");
-      drawCard(466, 542, 378, 145, "土地價格差額", previous ? formatSignedMoney(gainTotal) : "未計算", previous ? "這次總額 - 上次總額" : "填入前次移轉現值後自動計算");
+      drawCard(56, 186, 378, 132, "土地面積", `${formatDecimal(area, 4)} 平方公尺`, `${formatDecimal(ping, 4)} 坪`);
+      drawCard(466, 186, 378, 132, "115 年公告現值", `${number.format(current)} 元/m²`, `每坪約 ${formatUnit(currentPing, "/坪")}`);
+      drawCard(56, 344, 788, 132, "這次公告土地現值總額", formatMoney(currentTotal), "土地面積 x 每平方公尺公告土地現值");
+      drawCard(56, 502, 378, 132, "前次移轉現值總額", previous ? formatMoney(previousTotal) : "未填寫", previous ? "依輸入的前次移轉現值換算" : "依官方資料或稅務資料補填");
+      drawCard(466, 502, 378, 132, "土地價格差額", previous ? formatSignedMoney(gainTotal) : "未計算", previous ? "這次總額 - 上次總額" : "填入前次移轉現值後計算");
 
       ctx.fillStyle = "#ffffff";
       ctx.strokeStyle = "#d8e3dc";
       ctx.beginPath();
-      ctx.roundRect(56, 730, 788, 210, 12);
+      ctx.roundRect(56, 678, 788, 248, 12);
       ctx.fill();
       ctx.stroke();
       ctx.fillStyle = "#173b35";
-      ctx.font = "800 24px system-ui, -apple-system, BlinkMacSystemFont, 'Microsoft JhengHei', sans-serif";
-      ctx.fillText("查詢摘要", 82, 774);
+      ctx.font = `800 23px ${font}`;
+      ctx.fillText("查詢摘要", 82, 721);
       ctx.fillStyle = "#34423c";
-      ctx.font = "500 18px system-ui, -apple-system, BlinkMacSystemFont, 'Microsoft JhengHei', sans-serif";
+      ctx.font = `500 17px ${font}`;
       const summary = [
         `行政區：${els.district.value}`,
         `小段名：${els.sectionName.value}`,
@@ -2149,19 +2162,24 @@
         `每坪公告土地現值：約 ${formatUnit(currentPing, "/坪")}`
       ];
       if (previous) summary.push(`前次移轉現值總額：約 ${formatMoney(previousTotal)}`);
-      summary.forEach((line, index) => ctx.fillText(line, 82, 814 + index * 29));
+      summary.forEach((line, index) => ctx.fillText(line, 82, 760 + index * 27));
+
+      ctx.fillStyle = "#fff8e6";
+      ctx.beginPath();
+      ctx.roundRect(56, 958, 788, 62, 10);
+      ctx.fill();
+      ctx.fillStyle = "#6d5b35";
+      ctx.font = `600 15px ${font}`;
+      wrapCanvasText(ctx, "本圖為查詢與換算整理，實際資料仍以主管機關核定資料為準。", 82, 996, 736, 22);
 
       ctx.fillStyle = "#123f38";
-      ctx.fillRect(0, 1000, width, 180);
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "800 26px system-ui, -apple-system, BlinkMacSystemFont, 'Microsoft JhengHei', sans-serif";
-      ctx.fillText("台南小魏 買厝作伙", 56, 1050);
-      ctx.font = "700 20px system-ui, -apple-system, BlinkMacSystemFont, 'Microsoft JhengHei', sans-serif";
-      ctx.fillText("魏泉承  0927-617-207", 56, 1088);
-      ctx.fillText("永慶不動產 - 小東南紡店", 56, 1122);
+      ctx.fillRect(0, 1060, width, 220);
+      fitText("台南小魏 買厝作伙", 56, 1116, 760, 28, 900, "#ffffff");
+      fitText("魏泉承  0927-617-207", 56, 1160, 760, 22, 800, "#ffffff");
+      fitText("永慶不動產 - 小東南紡店", 56, 1198, 760, 22, 800, "#ffffff");
       ctx.fillStyle = "#d8e3dc";
-      ctx.font = "500 14px system-ui, -apple-system, BlinkMacSystemFont, 'Microsoft JhengHei', sans-serif";
-      ctx.fillText("本圖為查詢與換算整理，實際資料仍以主管機關核定資料為準。", 56, 1152);
+      ctx.font = `500 15px ${font}`;
+      ctx.fillText("歡迎截圖或存檔，方便後續核對土地資料。", 56, 1238);
 
       const link = document.createElement("a");
       link.download = `台南公告土地現值-${landNumber()}-${new Date().toISOString().slice(0, 10)}.jpg`;
