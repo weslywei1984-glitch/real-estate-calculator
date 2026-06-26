@@ -1,6 +1,8 @@
 const http = require("node:http");
+const https = require("node:https");
 const fs = require("node:fs");
 const path = require("node:path");
+const zlib = require("node:zlib");
 const { URL } = require("node:url");
 
 const HOST = process.env.HOST || (process.env.NODE_ENV === "production" ? "0.0.0.0" : "127.0.0.1");
@@ -96,6 +98,123 @@ function csrfToken(html) {
     || "";
 }
 
+function normalizeHeaders(headers = {}) {
+  if (headers instanceof Headers) return Object.fromEntries(headers.entries());
+  return { ...headers };
+}
+
+function headerReader(headers = {}) {
+  const normalized = {};
+  Object.entries(headers).forEach(([key, value]) => {
+    normalized[key.toLowerCase()] = value;
+  });
+  return {
+    get(name) {
+      const value = normalized[String(name).toLowerCase()];
+      return Array.isArray(value) ? value.join(", ") : value || null;
+    },
+    getSetCookie() {
+      const value = normalized["set-cookie"];
+      if (!value) return [];
+      return Array.isArray(value) ? value : [value];
+    }
+  };
+}
+
+function decodeBody(buffer, encoding = "") {
+  const normalized = String(encoding || "").toLowerCase();
+  if (normalized.includes("br")) return zlib.brotliDecompressSync(buffer);
+  if (normalized.includes("gzip")) return zlib.gunzipSync(buffer);
+  if (normalized.includes("deflate")) return zlib.inflateSync(buffer);
+  return buffer;
+}
+
+function officialHttpsRequest(url, options = {}, redirectCount = 0) {
+  return new Promise((resolve, reject) => {
+    const target = new URL(url);
+    const headers = normalizeHeaders(options.headers);
+    let body = options.body || null;
+    if (body instanceof URLSearchParams) body = body.toString();
+    if (body && typeof body !== "string" && !Buffer.isBuffer(body)) body = String(body);
+    if (body && !headers["Content-Length"] && !headers["content-length"]) {
+      headers["Content-Length"] = Buffer.byteLength(body);
+    }
+    if (!headers["Accept-Encoding"] && !headers["accept-encoding"]) {
+      headers["Accept-Encoding"] = "gzip, deflate, br";
+    }
+
+    const req = https.request({
+      protocol: target.protocol,
+      hostname: target.hostname,
+      port: target.port || 443,
+      path: `${target.pathname}${target.search}`,
+      method: options.method || "GET",
+      headers,
+      family: 4,
+      timeout: 18_000
+    }, res => {
+      const chunks = [];
+      res.on("data", chunk => chunks.push(chunk));
+      res.on("end", async () => {
+        const location = res.headers.location;
+        if ([301, 302, 303, 307, 308].includes(res.statusCode) && location && redirectCount < 3) {
+          try {
+            const redirected = new URL(location, target).toString();
+            resolve(await officialHttpsRequest(redirected, {
+              ...options,
+              method: res.statusCode === 303 ? "GET" : options.method,
+              body: res.statusCode === 303 ? null : body
+            }, redirectCount + 1));
+          } catch (error) {
+            reject(error);
+          }
+          return;
+        }
+
+        let buffer = Buffer.concat(chunks);
+        try {
+          buffer = decodeBody(buffer, res.headers["content-encoding"]);
+        } catch {
+          // Keep the raw body if decoding fails; the parser can still report a readable failure.
+        }
+        const headersApi = headerReader(res.headers);
+        resolve({
+          ok: res.statusCode >= 200 && res.statusCode < 300,
+          status: res.statusCode,
+          url: target.toString(),
+          headers: headersApi,
+          async arrayBuffer() {
+            return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+          },
+          async text() {
+            return new TextDecoder("utf-8").decode(buffer);
+          }
+        });
+      });
+    });
+
+    req.on("timeout", () => {
+      req.destroy(new Error("official request timeout"));
+    });
+    req.on("error", reject);
+    if (body) req.write(body);
+    req.end();
+  });
+}
+
+async function officialFetch(url, options = {}) {
+  try {
+    return await fetch(url, options);
+  } catch (fetchError) {
+    try {
+      return await officialHttpsRequest(url, options);
+    } catch (httpsError) {
+      httpsError.message = `${httpsError.message}; fetch=${fetchError.message}`;
+      throw httpsError;
+    }
+  }
+}
+
 async function resolveOfficialR48(input, context) {
   const sectionName = String(input.sectionName || "").trim();
   if (!sectionName || !context.csrf) return input.r48;
@@ -108,7 +227,7 @@ async function resolveOfficialR48(input, context) {
     dt: String(Date.now())
   }).toString()}`;
 
-  const response = await fetch(url, {
+  const response = await officialFetch(url, {
     headers: {
       "User-Agent": "Mozilla/5.0 Local land value helper",
       "Accept": "text/plain,*/*",
@@ -131,7 +250,7 @@ async function resolveOfficialR48(input, context) {
 
 async function fetchOfficialTransferPage(input) {
   const entryUrl = `${OFFICIAL_ORIGIN}${VALUE_CHANGE_PATH}?menu=true`;
-  const entryResponse = await fetch(entryUrl, {
+  const entryResponse = await officialFetch(entryUrl, {
     headers: {
       "User-Agent": "Mozilla/5.0 Local land value helper",
       "Accept": "text/html,application/xhtml+xml"
@@ -158,7 +277,7 @@ async function fetchOfficialTransferPage(input) {
     button1: "查詢"
   });
 
-  const response = await fetch(actionUrl, {
+  const response = await officialFetch(actionUrl, {
     method: "POST",
     headers: {
       "User-Agent": "Mozilla/5.0 Local land value helper",

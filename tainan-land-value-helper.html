@@ -1446,10 +1446,10 @@
     const summaryLabel = document.querySelector('label[for="summaryText"]');
     if (summaryLabel) summaryLabel.textContent = "給您的查詢摘要";
     const ownerIdLabel = document.querySelector('label[for="ownerId"]');
-    if (ownerIdLabel) ownerIdLabel.textContent = "權利人統一編號（選填備註）";
+    if (ownerIdLabel) ownerIdLabel.textContent = "權利人統一編號（查前次移轉現值）";
     const ownerIdHint = document.querySelector("#ownerId")?.closest(".field")?.querySelector(".hint");
-    if (ownerIdHint) ownerIdHint.textContent = "可作為內部確認備註；前次移轉現值請依官方資料或稅務資料填入上方欄位。";
-    if (els.ownerId) els.ownerId.placeholder = "可不填";
+    if (ownerIdHint) ownerIdHint.textContent = "輸入後按「查詢資料」，系統會嘗試自動帶入前次移轉現值；若官方連線失敗，仍可手動填入。";
+    if (els.ownerId) els.ownerId.placeholder = "身分證字號或統編";
 
     if (els.queryResult) {
       els.queryResult.classList.add("is-removed");
@@ -2324,10 +2324,11 @@
       setButtonLoading(els.queryButton, true, "分析中...");
       showToast(els.landToast, "分析中，請稍候。", "loading");
       const landReady = await lookupLandValues();
+      const transferReady = landReady ? await lookupTransferValue() : false;
       setButtonLoading(els.queryButton, false);
       isSubmitting = false;
       saveFormState();
-      if (landReady) {
+      if (landReady || transferReady) {
         showToast(els.landToast, "已完成分析。", "success");
         pulseButton(els.queryButton, "success");
       } else {
