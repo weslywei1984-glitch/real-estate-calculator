@@ -1540,6 +1540,7 @@
     }
 
     const STORAGE_KEY = "tainanLandValueHelperForm";
+    const LAND_VALUE_DATA_VERSION = "20260626-announced-land-price";
     const loadedDistricts = new Set();
     const loadingDistricts = new Map();
     let syncingArea = false;
@@ -1989,7 +1990,7 @@
 
       const promise = new Promise(resolve => {
         const script = document.createElement("script");
-        script.src = `assets/land-values/${file}`;
+        script.src = `assets/land-values/${file}?v=${LAND_VALUE_DATA_VERSION}`;
         script.onload = () => {
           loadedDistricts.add(district);
           resolve(true);
