@@ -2,9 +2,11 @@
   "name": "real-estate-calculator",
   "version": "1.0.0",
   "private": true,
-  "description": "Static real-estate calculator served by Node.js for Render.",
+  "description": "Real estate calculator and Tainan land value helper served by Node.js.",
+  "main": "tainan-land-value-server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node tainan-land-value-server.js",
+    "dev": "node tainan-land-value-server.js"
   },
   "engines": {
     "node": ">=20"

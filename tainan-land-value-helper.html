@@ -1,0 +1,2181 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>用地號查詢公告現值 簡易三步驟｜台南小魏</title>
+  <style>
+    :root {
+      --ink: #16201d;
+      --muted: #66736e;
+      --paper: #fbfaf5;
+      --panel: #ffffff;
+      --line: rgba(24, 32, 29, .13);
+      --teal: #0f746b;
+      --deep: #173b35;
+      --gold: #c3994c;
+      --coral: #d97755;
+      --blue: #2c5f88;
+      --soft: #eef5ef;
+      --danger: #9d3d2a;
+      --shadow-soft: 0 18px 44px rgba(32, 42, 37, .08);
+      --shadow-strong: 0 24px 70px rgba(32, 42, 37, .16);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 14% 0, rgba(195, 153, 76, .2), transparent 24rem),
+        linear-gradient(135deg, rgba(15, 116, 107, .12), transparent 28%),
+        linear-gradient(180deg, #f5f1e7 0, var(--paper) 340px, #eef3ef 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .52;
+      background-image:
+        linear-gradient(rgba(22, 32, 29, .04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(22, 32, 29, .04) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: linear-gradient(180deg, #000 0, transparent 72%);
+    }
+
+    a {
+      color: inherit;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    .shell {
+      position: relative;
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 28px 0 52px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(290px, .72fr);
+      gap: 22px;
+      align-items: stretch;
+      min-height: 310px;
+    }
+
+    .hero-main {
+      position: relative;
+      overflow: hidden;
+      min-height: 310px;
+      padding: clamp(22px, 4vw, 42px);
+      border: 1px solid rgba(255, 255, 255, .6);
+      border-radius: 8px;
+      color: #fffaf1;
+      background:
+        linear-gradient(135deg, rgba(19, 48, 44, .98), rgba(22, 84, 76, .92)),
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .08) 0 1px, transparent 1px 44px),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, .06) 0 1px, transparent 1px 44px);
+      box-shadow: var(--shadow-strong);
+    }
+
+    .hero-main::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 44%;
+      background: linear-gradient(180deg, transparent, rgba(12, 24, 21, .6));
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 18px;
+      max-width: 780px;
+    }
+
+    .eyebrow {
+      width: fit-content;
+      padding: 7px 10px;
+      border: 1px solid rgba(244, 213, 151, .55);
+      border-radius: 999px;
+      color: #f4d597;
+      background: rgba(9, 22, 20, .32);
+      font-size: .88rem;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 760px;
+      font-size: clamp(1.85rem, 4vw, 3.25rem);
+      line-height: 1.14;
+      letter-spacing: 0;
+    }
+
+    h1 span {
+      display: block;
+    }
+
+    .title-subline {
+      margin-top: 4px;
+      color: #f4d597;
+      font-size: .72em;
+    }
+
+    .lead {
+      margin: 0;
+      max-width: 680px;
+      color: rgba(255, 250, 241, .86);
+      font-size: clamp(1rem, 2.4vw, 1.22rem);
+      line-height: 1.75;
+    }
+
+    .hero-actions,
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 44px;
+      padding: 10px 15px;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: 800;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease, opacity .18s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px rgba(23, 59, 53, .14);
+    }
+
+    .btn:active,
+    .btn.is-pressed {
+      transform: translateY(0) scale(.98);
+      box-shadow: 0 6px 14px rgba(23, 59, 53, .12);
+    }
+
+    .btn:focus-visible {
+      outline: 3px solid rgba(15, 116, 107, .28);
+      outline-offset: 2px;
+    }
+
+    .btn.is-loading {
+      pointer-events: none;
+      opacity: .78;
+    }
+
+    .btn.is-loading::before {
+      content: "";
+      width: 14px;
+      height: 14px;
+      margin-right: 8px;
+      border: 2px solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: spin .72s linear infinite;
+    }
+
+    .btn.is-success {
+      box-shadow: 0 0 0 4px rgba(15, 116, 107, .14);
+    }
+
+    .btn.is-error {
+      box-shadow: 0 0 0 4px rgba(157, 61, 42, .14);
+    }
+
+    .btn.primary {
+      color: #16201d;
+      background: #f6cf79;
+      box-shadow: 0 12px 26px rgba(246, 207, 121, .22);
+    }
+
+    .btn.primary:hover {
+      background: #ffd985;
+    }
+
+    .btn.dark {
+      color: #fff;
+      background: var(--deep);
+    }
+
+    .btn.dark:hover {
+      background: #0f2f2a;
+    }
+
+    .btn.ghost {
+      color: var(--deep);
+      border-color: rgba(23, 59, 53, .22);
+      background: rgba(255, 255, 255, .72);
+    }
+
+    .btn.ghost:hover {
+      border-color: rgba(15, 116, 107, .38);
+      background: #fff;
+    }
+
+    .btn.soft {
+      color: #fffaf1;
+      border-color: rgba(255, 255, 255, .34);
+      background: rgba(255, 255, 255, .12);
+    }
+
+    .btn.soft:hover {
+      border-color: rgba(255, 255, 255, .58);
+      background: rgba(255, 255, 255, .18);
+    }
+
+    .brand-panel {
+      display: grid;
+      align-content: space-between;
+      gap: 16px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .86);
+      box-shadow: 0 18px 48px rgba(32, 42, 37, .12);
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+    .brand-panel:hover,
+    .panel:hover,
+    .explain:hover,
+    .sources:hover,
+    .formatted-box:hover,
+    .metric:hover,
+    .step:hover,
+    .status-chip:hover {
+      transform: translateY(-2px);
+      border-color: rgba(15, 116, 107, .24);
+      box-shadow: 0 18px 40px rgba(32, 42, 37, .12);
+    }
+
+    .brand-top {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .contact-badge {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      min-height: 34px;
+      padding: 7px 11px;
+      border: 1px solid rgba(15, 116, 107, .22);
+      border-radius: 999px;
+      color: var(--deep);
+      background: #edf7f3;
+      font-weight: 900;
+    }
+
+    .brand-name {
+      display: grid;
+      gap: 3px;
+    }
+
+    .brand-name strong {
+      font-size: 1.22rem;
+    }
+
+    .brand-name span {
+      color: var(--teal);
+      font-weight: 800;
+    }
+
+    .contact-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .contact-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(24, 32, 29, .08);
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .contact-line b {
+      flex: 0 0 auto;
+      color: var(--deep);
+    }
+
+    .quick-note {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .status-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .status-chip {
+      display: grid;
+      gap: 3px;
+      min-height: 78px;
+      padding: 10px;
+      border: 1px solid rgba(15, 116, 107, .15);
+      border-radius: 7px;
+      background: #f7fbf8;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .76);
+    }
+
+    .status-chip small {
+      color: var(--muted);
+      font-size: .78rem;
+    }
+
+    .status-chip b {
+      color: var(--deep);
+      font-size: .98rem;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(360px, .72fr);
+      gap: 18px;
+      margin-top: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .92);
+      box-shadow: var(--shadow-soft);
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+      padding: 18px 18px 12px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255, 255, 255, .72), rgba(255, 255, 255, 0));
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(1.24rem, 3vw, 1.72rem);
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .panel-head p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .tag {
+      flex: 0 0 auto;
+      padding: 6px 9px;
+      border: 1px solid rgba(195, 153, 76, .28);
+      border-radius: 999px;
+      color: #7b5b1e;
+      background: #fff7e4;
+      font-size: .82rem;
+      font-weight: 800;
+    }
+
+    .section {
+      padding: 18px;
+    }
+
+    .step-list {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid rgba(23, 59, 53, .11);
+      border-radius: 8px;
+      background: #fbfdfb;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .step:hover {
+      background: #fff;
+    }
+
+    .step b {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--teal);
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .step span {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+      align-content: start;
+    }
+
+    .field.has-error label {
+      color: var(--danger);
+    }
+
+    .field.wide {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      color: #34423e;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .field:focus-within label {
+      color: var(--teal);
+    }
+
+    .hint {
+      margin: 0;
+      color: var(--muted);
+      font-size: .9rem;
+      line-height: 1.48;
+    }
+
+    .control {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      min-height: 46px;
+      border: 1px solid rgba(24, 32, 29, .18);
+      border-radius: 7px;
+      background: #fff;
+      overflow: hidden;
+      transition: border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .control:hover {
+      border-color: rgba(15, 116, 107, .34);
+    }
+
+    .control:focus-within {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 4px rgba(15, 116, 107, .12);
+    }
+
+    .field.has-error .control {
+      border-color: rgba(157, 61, 42, .7);
+      background: #fff9f6;
+      box-shadow: 0 0 0 4px rgba(157, 61, 42, .08);
+    }
+
+    .field.is-valid .control {
+      border-color: rgba(15, 116, 107, .36);
+    }
+
+    .field-error {
+      min-height: 18px;
+      color: var(--danger);
+      font-size: .82rem;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      color: var(--ink);
+      background: transparent;
+    }
+
+    input,
+    select {
+      min-height: 44px;
+      padding: 10px 11px;
+    }
+
+    select {
+      cursor: pointer;
+    }
+
+    textarea {
+      min-height: 122px;
+      padding: 12px;
+      resize: vertical;
+      line-height: 1.6;
+      border-radius: 7px;
+      background: #fbfdfb;
+    }
+
+    .unit {
+      padding: 0 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      font-weight: 700;
+    }
+
+    .formatted-box {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid rgba(15, 116, 107, .18);
+      border-radius: 8px;
+      background: linear-gradient(135deg, #edf7f3, #fff);
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+    .formatted-box strong {
+      display: inline-flex;
+      width: fit-content;
+      max-width: 100%;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, .68);
+    }
+
+    .lookup-status {
+      grid-column: 1 / -1;
+      min-height: 42px;
+      padding: 11px 12px;
+      border: 1px solid rgba(15, 116, 107, .16);
+      border-radius: 7px;
+      color: var(--muted);
+      background: #f7fbf8;
+      font-size: .92rem;
+      line-height: 1.5;
+      transition: border-color .18s ease, background .18s ease, color .18s ease, transform .18s ease;
+    }
+
+    .lookup-status.loading {
+      color: #4c604f;
+      border-color: rgba(44, 95, 136, .22);
+      background: #f1f7fb;
+    }
+
+    .lookup-status.loading::before {
+      content: "";
+      display: inline-block;
+      width: 13px;
+      height: 13px;
+      margin-right: 8px;
+      vertical-align: -2px;
+      border: 2px solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: spin .72s linear infinite;
+    }
+
+    .lookup-status.good {
+      color: #135f55;
+      border-color: rgba(15, 116, 107, .25);
+      background: #eef9f5;
+    }
+
+    .lookup-status.warn {
+      color: #7a3d2f;
+      border-color: rgba(217, 119, 85, .28);
+      background: #fff6ef;
+    }
+
+    .query-result {
+      grid-column: 1 / -1;
+      display: grid;
+      gap: 12px;
+      padding: 15px;
+      border: 1px solid rgba(15, 116, 107, .22);
+      border-radius: 8px;
+      background: linear-gradient(135deg, #eef9f5, #fff);
+      box-shadow: 0 14px 30px rgba(23, 59, 53, .08);
+      animation: resultIn .22s ease both;
+    }
+
+    .query-result[data-state="loading"] .query-item {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .query-result[data-state="loading"] .query-item::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      transform: translateX(-100%);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .72), transparent);
+      animation: shimmer 1.1s ease-in-out infinite;
+    }
+
+    .query-result[data-state="loading"] {
+      border-color: rgba(44, 95, 136, .28);
+      background: linear-gradient(135deg, #eef6fb, #fff);
+    }
+
+    .query-result[data-state="error"] {
+      border-color: rgba(157, 61, 42, .32);
+      background: linear-gradient(135deg, #fff4ef, #fff);
+    }
+
+    .query-result[data-state="success"] {
+      border-color: rgba(15, 116, 107, .28);
+      background: linear-gradient(135deg, #eef9f5, #fff);
+    }
+
+    .query-result[data-state="empty"] {
+      border-color: rgba(24, 32, 29, .12);
+      background: linear-gradient(135deg, #f8f7f2, #fff);
+    }
+
+    .query-result[hidden] {
+      display: none;
+    }
+
+    .query-result-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .query-result-head strong {
+      color: var(--deep);
+      font-size: 1.12rem;
+    }
+
+    .query-result-head span {
+      color: var(--muted);
+      font-size: .9rem;
+      line-height: 1.45;
+    }
+
+    .query-result-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .query-item {
+      display: grid;
+      gap: 4px;
+      padding: 11px;
+      border: 1px solid rgba(24, 32, 29, .09);
+      border-radius: 7px;
+      background: rgba(255, 255, 255, .82);
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+
+    .query-item:hover {
+      transform: translateY(-1px);
+      border-color: rgba(15, 116, 107, .22);
+      background: #fff;
+    }
+
+    .query-item span {
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 800;
+    }
+
+    .query-item b {
+      color: var(--deep);
+      font-size: 1.05rem;
+      overflow-wrap: anywhere;
+    }
+
+    .query-result-note {
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: .92rem;
+    }
+
+    .query-result-note a {
+      color: var(--blue);
+      font-weight: 900;
+    }
+
+    .formatted-box span {
+      color: var(--muted);
+      font-size: .92rem;
+      font-weight: 700;
+    }
+
+    .formatted-box strong {
+      font-size: clamp(1.65rem, 4vw, 2.65rem);
+      letter-spacing: .03em;
+      overflow-wrap: anywhere;
+    }
+
+    .divider {
+      height: 1px;
+      margin: 18px 0;
+      background: var(--line);
+    }
+
+    .result-panel {
+      position: sticky;
+      top: 14px;
+      overflow: hidden;
+    }
+
+    .metric-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .metric {
+      display: grid;
+      gap: 6px;
+      padding: 13px;
+      border: 1px solid rgba(24, 32, 29, .11);
+      border-radius: 8px;
+      background: #fff;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .metric.is-updated {
+      animation: pulseValue .45s ease;
+    }
+
+    .metric.main {
+      border-color: rgba(15, 116, 107, .22);
+      background: linear-gradient(145deg, #e9f7f4, #fff 72%);
+    }
+
+    .metric.main strong {
+      color: #0f746b;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: .91rem;
+      font-weight: 800;
+    }
+
+    .metric strong {
+      color: var(--deep);
+      font-size: clamp(1.4rem, 4vw, 2.05rem);
+      overflow-wrap: anywhere;
+    }
+
+    .metric small {
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .explain-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .explain {
+      min-height: 150px;
+      padding: 15px;
+      border: 1px solid rgba(24, 32, 29, .11);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .76);
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .explain h3 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+    }
+
+    .explain p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .notice {
+      margin-top: 18px;
+      padding: 13px 14px;
+      border-left: 4px solid var(--coral);
+      border-radius: 7px;
+      color: #5f352b;
+      background: #fff6ef;
+      line-height: 1.6;
+    }
+
+    .toast {
+      min-height: 24px;
+      margin-top: 10px;
+      color: var(--teal);
+      font-weight: 800;
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: opacity .18s ease, transform .18s ease, color .18s ease;
+    }
+
+    .toast.is-visible {
+      padding: 9px 10px;
+      border-radius: 7px;
+      background: rgba(237, 247, 243, .86);
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast.is-error {
+      color: var(--danger);
+    }
+
+    .toast.is-loading {
+      color: var(--blue);
+    }
+
+    .sources {
+      margin-top: 18px;
+      padding: 15px 16px;
+      border: 1px solid rgba(24, 32, 29, .1);
+      border-radius: 8px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, .74);
+      font-size: .92rem;
+      line-height: 1.7;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .sources a {
+      color: var(--blue);
+      font-weight: 800;
+    }
+
+    .reveal {
+      animation: fadeUp .36s ease both;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes resultIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulseValue {
+      0% {
+        background: #fff;
+      }
+      45% {
+        background: #fff8e6;
+      }
+      100% {
+        background: inherit;
+      }
+    }
+
+    @keyframes shimmer {
+      to {
+        transform: translateX(100%);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+      }
+    }
+
+    @media (max-width: 940px) {
+      .hero,
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .result-panel {
+        position: static;
+      }
+
+      .brand-panel {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .shell {
+        width: min(100% - 18px, 1180px);
+        padding-top: 10px;
+        padding-bottom: 32px;
+      }
+
+      .hero {
+        gap: 12px;
+      }
+
+      .hero-main {
+        min-height: auto;
+        padding: 20px;
+      }
+
+      .lead {
+        font-size: .98rem;
+      }
+
+      .hero-main,
+      .brand-panel,
+      .panel {
+        border-radius: 7px;
+      }
+
+      .form-grid,
+      .explain-grid,
+      .query-result-grid,
+      .status-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .panel-head {
+        display: grid;
+      }
+
+      .contact-line {
+        display: grid;
+        gap: 2px;
+      }
+
+      .btn {
+        width: 100%;
+        min-height: 48px;
+      }
+
+      .hero-actions,
+      .button-row {
+        width: 100%;
+      }
+
+      .section {
+        padding: 14px;
+      }
+
+      .panel-head {
+        padding: 15px 14px 10px;
+      }
+
+      .metric,
+      .query-item,
+      .formatted-box {
+        padding: 12px;
+      }
+
+      .formatted-box strong {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+        font-size: clamp(1.45rem, 9vw, 2rem);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <section class="hero-main">
+        <div class="hero-content">
+          <span class="eyebrow">台南市公告土地現值查詢</span>
+          <h1><span>用地號查詢公告現值</span><span class="title-subline">簡易三步驟</span></h1>
+          <p class="lead">先整理地號格式，系統會帶入 115 年公告現值；前次移轉現值可用權利人統一編號協助查詢。</p>
+          <div class="hero-actions">
+            <a class="btn primary" href="https://land-query.tainan.gov.tw/query/rwd/valueprice.jsp?menu=false" target="_blank" rel="noreferrer">開啟官方地價查詢</a>
+            <a class="btn soft" href="https://land-query.tainan.gov.tw/query/rwd/valueprice_addr.jsp?menu=false" target="_blank" rel="noreferrer">只有門牌先查地號</a>
+          </div>
+        </div>
+      </section>
+
+      <aside class="brand-panel" aria-label="台南小魏聯絡資訊">
+        <div class="brand-top">
+          <span class="contact-badge">聯絡資訊</span>
+          <div class="brand-name">
+            <strong>魏泉承</strong>
+            <span>台南小魏 買厝作伙</span>
+            <div class="contact-list">
+              <div class="contact-line"><b>電話</b><span>0927-617-207</span></div>
+              <div class="contact-line"><b>服務店</b><span>永慶不動產-小東南紡店</span></div>
+            </div>
+          </div>
+        </div>
+        <p class="quick-note">客人查完官方資料後，只要回填三個資料，就能快速看懂這塊土地這次總額、上次總額與差額。</p>
+        <div class="status-strip" aria-label="查詢重點">
+          <div class="status-chip">
+            <small>地號格式</small>
+            <b>母號 4 碼</b>
+          </div>
+          <div class="status-chip">
+            <small>子號格式</small>
+            <b>子號 4 碼</b>
+          </div>
+          <div class="status-chip">
+            <small>當期年度</small>
+            <b>115 年</b>
+          </div>
+        </div>
+      </aside>
+    </header>
+
+    <div class="workspace">
+      <section class="panel" aria-label="查詢步驟與地號整理">
+        <div class="panel-head">
+          <div>
+            <h2>先把資料整理好</h2>
+            <p>客人最常卡在段小段和地號格式。先在這裡整理，再去官方頁面填寫。</p>
+          </div>
+          <span class="tag">客戶版</span>
+        </div>
+
+        <div class="section">
+          <div class="step-list">
+            <div class="step">
+              <b>1</b>
+              <div>
+                <strong>準備行政區與小段名</strong>
+                <span>例如東區、安平區、永康區，再依官方頁面選段小段名。</span>
+              </div>
+            </div>
+            <div class="step">
+              <b>2</b>
+              <div>
+                <strong>地號要補滿 4 碼</strong>
+                <span>例如 427-13，要填成 0427-0013；沒有子號時通常填 0000。</span>
+              </div>
+            </div>
+            <div class="step">
+              <b>3</b>
+              <div>
+                <strong>當期與歷年分開查</strong>
+                <span>官方頁面 115 年為當期資料；114 年以前要改選歷年資料。</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="district">行政區</label>
+              <div class="control">
+                <select id="district">
+                  <option value="">請選擇</option>
+                  <option>東區</option>
+                  <option>南區</option>
+                  <option>北區</option>
+                  <option>安平區</option>
+                  <option>中西區</option>
+                  <option>安南區</option>
+                  <option>新營區</option>
+                  <option>鹽水區</option>
+                  <option>柳營區</option>
+                  <option>白河區</option>
+                  <option>後壁區</option>
+                  <option>東山區</option>
+                  <option>麻豆區</option>
+                  <option>下營區</option>
+                  <option>六甲區</option>
+                  <option>官田區</option>
+                  <option>大內區</option>
+                  <option>佳里區</option>
+                  <option>西港區</option>
+                  <option>七股區</option>
+                  <option>將軍區</option>
+                  <option>北門區</option>
+                  <option>學甲區</option>
+                  <option>新化區</option>
+                  <option>善化區</option>
+                  <option>新市區</option>
+                  <option>安定區</option>
+                  <option>山上區</option>
+                  <option>左鎮區</option>
+                  <option>仁德區</option>
+                  <option>歸仁區</option>
+                  <option>關廟區</option>
+                  <option>龍崎區</option>
+                  <option>玉井區</option>
+                  <option>楠西區</option>
+                  <option>南化區</option>
+                  <option>永康區</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="sectionName">小段名</label>
+              <div class="control">
+                <select id="sectionName">
+                  <option value="">請先選行政區</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="mainNo">地號母號</label>
+              <p class="hint">輸入 427 會自動整理成 0427。</p>
+              <div class="control">
+                <input id="mainNo" inputmode="numeric" autocomplete="off" placeholder="427" maxlength="4">
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="subNo">地號子號</label>
+              <p class="hint">沒有子號可填 0，會整理成 0000。</p>
+              <div class="control">
+                <input id="subNo" inputmode="numeric" autocomplete="off" placeholder="13" maxlength="4">
+              </div>
+            </div>
+          </div>
+
+          <div class="formatted-box" aria-label="整理後地號">
+            <span>官方頁面要填的地號</span>
+            <strong id="formattedLandNo">----</strong>
+            <div class="button-row">
+              <button class="btn primary" type="button" id="queryLandValues">查詢資料</button>
+              <button class="btn dark" type="button" id="copyLandNo">複製地號</button>
+              <a class="btn ghost" href="https://land-query.tainan.gov.tw/query/rwd/valueprice.jsp?menu=false" target="_blank" rel="noreferrer">去官方頁面填寫</a>
+            </div>
+            <div class="toast" id="landToast" aria-live="polite"></div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="areaSqm">土地面積</label>
+              <p class="hint">平方公尺和坪數可互相換算。</p>
+              <div class="control">
+                <input id="areaSqm" inputmode="decimal" autocomplete="off" placeholder="例如 50">
+                <span class="unit">平方公尺</span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="areaPing">土地坪數</label>
+              <p class="hint">輸入坪數會自動換算平方公尺。</p>
+              <div class="control">
+                <input id="areaPing" inputmode="decimal" autocomplete="off" placeholder="例如 15.13">
+                <span class="unit">坪</span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="currentValue">這次每平方公尺公告土地現值</label>
+              <p class="hint">填行政區、小段名、地號後按「查詢資料」帶入 115 年資料。</p>
+              <div class="control">
+                <input id="currentValue" inputmode="decimal" autocomplete="off" placeholder="例如 160000">
+                <span class="unit">元/m²</span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="previousValue">前次移轉現值</label>
+              <p class="hint">輸入權利人統一編號後，系統會嘗試自動查詢並帶入。</p>
+              <div class="control">
+                <input id="previousValue" inputmode="decimal" autocomplete="off" placeholder="例如 20000">
+                <span class="unit">元/m²</span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="ownerId">權利人統一編號</label>
+              <p class="hint">用來帶入官方前次移轉現值查詢；只會暫存在此裝置瀏覽器。</p>
+              <div class="control">
+                <input id="ownerId" autocomplete="off" maxlength="10" placeholder="身分證字號或統編">
+              </div>
+            </div>
+
+            <div class="lookup-status" id="lookupStatus" aria-live="polite">選行政區、小段名並輸入地號後，按「查詢資料」取得 115 年每平方公尺公告土地現值；填權利人統一編號可協助查前次移轉現值。</div>
+
+            <div class="query-result" id="queryResult" hidden aria-live="polite">
+              <div class="query-result-head">
+                <div>
+                  <strong>查詢結果</strong>
+                  <span id="queryResultSubtitle">填寫資料後按查詢資料。</span>
+                </div>
+              </div>
+              <div class="query-result-grid" id="queryResultGrid"></div>
+              <div class="query-result-note" id="queryResultNote"></div>
+            </div>
+
+            <div class="field">
+              <label for="queryYear">查詢年度</label>
+              <div class="control">
+                <select id="queryYear">
+                  <option value="115">115 年當期資料</option>
+                  <option value="114">114 年以前歷年資料</option>
+                  <option value="custom">其他年度</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel result-panel" aria-label="換算結果">
+        <div class="panel-head">
+          <div>
+            <h2>查完後看這裡</h2>
+            <p>把官方金額帶回來，這裡會自動換算。</p>
+          </div>
+        </div>
+        <div class="section">
+          <div class="metric-grid">
+            <div class="metric main">
+              <span>這次公告土地現值總額</span>
+              <strong id="currentTotalOut">0 元</strong>
+              <small>土地面積 × 每平方公尺公告土地現值</small>
+            </div>
+            <div class="metric">
+              <span>前次移轉現值總額</span>
+              <strong id="previousTotalOut">0 元</strong>
+              <small>土地面積 × 每平方公尺前次移轉現值</small>
+            </div>
+            <div class="metric">
+              <span>土地價格差額</span>
+              <strong id="gainTotalOut">0 元</strong>
+              <small>這次總額 - 上次總額</small>
+            </div>
+            <div class="metric">
+              <span>每坪公告土地現值</span>
+              <strong id="currentPingOut">0 元/坪</strong>
+              <small>每平方公尺金額 × 0.3025</small>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="field">
+            <label for="summaryText">給小魏的查詢摘要</label>
+            <textarea id="summaryText" readonly></textarea>
+          </div>
+          <div class="button-row" style="margin-top: 10px;">
+            <button class="btn dark" type="button" id="copySummary">複製摘要</button>
+            <a class="btn ghost" href="index.html">回到稅費與貸款試算</a>
+            <a class="btn ghost" href="land-increment-total.html">算土地漲多少</a>
+          </div>
+          <div class="toast" id="summaryToast" aria-live="polite"></div>
+        </div>
+      </aside>
+    </div>
+
+    <section class="explain-grid" aria-label="白話說明">
+      <article class="explain">
+        <h3>公告土地現值是什麼？</h3>
+        <p>可以先想成政府公告的土地價格基準，土地移轉、土地增值稅、補償等情境會常看到。它不是市場成交價，但很常是稅務試算的起點。</p>
+      </article>
+      <article class="explain">
+        <h3>前次移轉現值是什麼？</h3>
+        <p>前次移轉現值是土地前一次移轉時採用的公告現值基礎。填好地號與權利人統一編號後，本頁會嘗試協助查詢並帶入，請以官方結果或稅務資料為準。</p>
+      </article>
+    </section>
+
+    <div class="notice">
+      本頁只協助整理查詢步驟與換算結果，不能取代官方系統。資料有疑義時，仍以台南市各地政事務所或主管機關核定資料為準。
+    </div>
+
+    <section class="sources">
+      參考來源：
+      <a href="https://land-query.tainan.gov.tw/query/rwd/valueprice.jsp?menu=false" target="_blank" rel="noreferrer">台南市公告土地現值及公告地價查詢</a>、
+      <a href="https://land-query.tainan.gov.tw/query/rwd/valueprice_addr.jsp?menu=false" target="_blank" rel="noreferrer">台南市公告土地現值門牌查詢</a>。
+      小段名下拉選單整理自
+      <a href="https://odportal.tw/dataset/RU2UWnsf" target="_blank" rel="noreferrer">臺南市土地地段代碼表</a>。
+      自動帶入的每平方公尺公告現值整理自
+      <a href="https://data.tainan.gov.tw/DataSet/Detail/67c6a4e2-a280-4922-94d4-d25b0fbad0f3" target="_blank" rel="noreferrer">115年臺南市公告土地現值表</a>。
+      官方頁面說明地號母子號各 4 碼，且 115 年為當期資料、114 年以前為歷年資料。
+    </section>
+  </main>
+
+  <script src="assets/tainan-sections.js"></script>
+  <script src="assets/tainan-land-value-files.js"></script>
+  <script src="assets/tainan-section-codes.js"></script>
+  <script>
+    const number = new Intl.NumberFormat("zh-TW", {
+      maximumFractionDigits: 2
+    });
+
+    const wholeNumber = new Intl.NumberFormat("zh-TW", {
+      maximumFractionDigits: 0
+    });
+
+    const els = {
+      district: document.getElementById("district"),
+      sectionName: document.getElementById("sectionName"),
+      mainNo: document.getElementById("mainNo"),
+      subNo: document.getElementById("subNo"),
+      areaSqm: document.getElementById("areaSqm"),
+      areaPing: document.getElementById("areaPing"),
+      currentValue: document.getElementById("currentValue"),
+      previousValue: document.getElementById("previousValue"),
+      ownerId: document.getElementById("ownerId"),
+      queryYear: document.getElementById("queryYear"),
+      formattedLandNo: document.getElementById("formattedLandNo"),
+      currentTotalOut: document.getElementById("currentTotalOut"),
+      previousTotalOut: document.getElementById("previousTotalOut"),
+      gainTotalOut: document.getElementById("gainTotalOut"),
+      currentPingOut: document.getElementById("currentPingOut"),
+      summaryText: document.getElementById("summaryText"),
+      lookupStatus: document.getElementById("lookupStatus"),
+      queryResult: document.getElementById("queryResult"),
+      queryResultSubtitle: document.getElementById("queryResultSubtitle"),
+      queryResultGrid: document.getElementById("queryResultGrid"),
+      queryResultNote: document.getElementById("queryResultNote"),
+      landToast: document.getElementById("landToast"),
+      summaryToast: document.getElementById("summaryToast"),
+      queryButton: document.getElementById("queryLandValues"),
+      copyLandButton: document.getElementById("copyLandNo"),
+      copySummaryButton: document.getElementById("copySummary")
+    };
+
+    const STORAGE_KEY = "tainanLandValueHelperForm";
+    const loadedDistricts = new Set();
+    const loadingDistricts = new Map();
+    let syncingArea = false;
+    let lastLookupRow = null;
+    let lastTransferLookup = null;
+    let isSubmitting = false;
+    let lastMetricSnapshot = "";
+    const fieldErrors = new Map();
+    const officialDistrictCodes = {
+      "東區": "DC-01",
+      "南區": "DC-02",
+      "北區": "DA-04",
+      "安平區": "DA-07",
+      "中西區": "DA-08",
+      "安南區": "DB-06",
+      "新營區": "DD-09",
+      "鹽水區": "DD-10",
+      "柳營區": "DD-11",
+      "白河區": "DE-12",
+      "後壁區": "DE-13",
+      "東山區": "DE-14",
+      "麻豆區": "DF-15",
+      "下營區": "DF-16",
+      "六甲區": "DF-17",
+      "官田區": "DF-18",
+      "大內區": "DF-19",
+      "佳里區": "DG-20",
+      "西港區": "DG-21",
+      "七股區": "DG-22",
+      "將軍區": "DG-23",
+      "北門區": "DG-24",
+      "學甲區": "DG-25",
+      "新化區": "DH-26",
+      "善化區": "DH-27",
+      "新市區": "DH-28",
+      "安定區": "DH-29",
+      "山上區": "DH-30",
+      "左鎮區": "DH-31",
+      "仁德區": "DI-32",
+      "歸仁區": "DI-33",
+      "關廟區": "DI-34",
+      "龍崎區": "DI-35",
+      "玉井區": "DJ-36",
+      "楠西區": "DJ-37",
+      "南化區": "DJ-38",
+      "永康區": "DK-39"
+    };
+
+    function cleanNumber(raw) {
+      return Number(String(raw || "").replace(/[^\d.]/g, "")) || 0;
+    }
+
+    function normalizeDecimal(raw) {
+      const cleaned = String(raw || "").replace(/[^\d.]/g, "");
+      const parts = cleaned.split(".");
+      return parts.length > 1 ? `${parts[0]}.${parts.slice(1).join("")}` : cleaned;
+    }
+
+    function normalizeDigits(raw, max = 4) {
+      return String(raw || "").replace(/\D/g, "").slice(0, max);
+    }
+
+    function padFour(raw) {
+      const digits = String(raw || "").replace(/\D/g, "").slice(0, 4);
+      if (!digits) return "";
+      return digits.padStart(4, "0");
+    }
+
+    function landNumber() {
+      const main = padFour(els.mainNo.value);
+      const sub = padFour(els.subNo.value || "0");
+      if (!main) return "----";
+      return `${main}-${sub}`;
+    }
+
+    function formatMoney(value) {
+      return `${wholeNumber.format(Math.max(0, Math.round(value)))} 元`;
+    }
+
+    function formatSignedMoney(value) {
+      const rounded = Math.round(value);
+      const sign = rounded < 0 ? "-" : "";
+      return `${sign}${wholeNumber.format(Math.abs(rounded))} 元`;
+    }
+
+    function formatUnit(value, suffix) {
+      if (!value) return `0 ${suffix}`;
+      return `${formatMoney(value)}${suffix}`;
+    }
+
+    function formatDecimal(value, digits = 2) {
+      if (!Number.isFinite(value)) return "";
+      return new Intl.NumberFormat("zh-TW", {
+        maximumFractionDigits: digits
+      }).format(value);
+    }
+
+    function setLookupStatus(message, tone = "") {
+      els.lookupStatus.textContent = message;
+      els.lookupStatus.className = `lookup-status ${tone}`.trim();
+    }
+
+    function showToast(toastEl, message, tone = "success") {
+      toastEl.textContent = message;
+      toastEl.className = `toast is-visible is-${tone}`.trim();
+      window.clearTimeout(toastEl._timer);
+      toastEl._timer = window.setTimeout(() => {
+        toastEl.className = "toast";
+        toastEl.textContent = "";
+      }, tone === "loading" ? 1600 : 2800);
+    }
+
+    function setButtonLoading(button, isLoading, loadingText = "處理中...") {
+      if (!button) return;
+      if (isLoading) {
+        button.dataset.originalText = button.textContent;
+        button.textContent = loadingText;
+        button.classList.add("is-loading");
+        button.setAttribute("aria-busy", "true");
+      } else {
+        button.textContent = button.dataset.originalText || button.textContent;
+        button.classList.remove("is-loading");
+        button.removeAttribute("aria-busy");
+      }
+    }
+
+    function pulseButton(button, tone = "success") {
+      if (!button) return;
+      button.classList.remove("is-success", "is-error");
+      button.classList.add(tone === "error" ? "is-error" : "is-success");
+      window.setTimeout(() => button.classList.remove("is-success", "is-error"), 900);
+    }
+
+    function addPressFeedback(target) {
+      target.addEventListener("pointerdown", () => target.classList.add("is-pressed"));
+      ["pointerup", "pointerleave", "blur"].forEach(type => {
+        target.addEventListener(type, () => target.classList.remove("is-pressed"));
+      });
+    }
+
+    function hideQueryResult() {
+      setQueryResultState("empty", "目前沒有可顯示的結果。");
+    }
+
+    function animateResult() {
+      els.queryResult.style.animation = "none";
+      void els.queryResult.offsetWidth;
+      els.queryResult.style.animation = "";
+    }
+
+    function setQueryResultState(state, message) {
+      els.queryResult.hidden = false;
+      els.queryResult.dataset.state = state;
+      els.queryResultSubtitle.textContent = state === "loading" ? "分析中，請稍候。" : "填寫資料後按查詢資料。";
+      els.queryResultGrid.innerHTML = [
+        queryItem("查詢狀態", state === "loading" ? "分析中..." : state === "error" ? "需要修正" : state === "success" ? "已完成" : "尚未查詢"),
+        queryItem("目前結果", message)
+      ].join("");
+      els.queryResultNote.textContent = state === "empty"
+        ? "請先完成上方欄位，再按「查詢資料」。"
+        : message;
+      animateResult();
+    }
+
+    function canShowQueryResult() {
+      return Boolean(els.district.value && els.sectionName.value && landNumber() !== "----");
+    }
+
+    function queryItem(label, value) {
+      return `
+        <div class="query-item">
+          <span>${label}</span>
+          <b>${value}</b>
+        </div>
+      `;
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function setFieldError(input, message = "") {
+      const field = input.closest(".field");
+      if (!field) return;
+      let error = fieldErrors.get(input.id);
+      if (!error) {
+        error = document.createElement("div");
+        error.className = "field-error";
+        error.setAttribute("aria-live", "polite");
+        field.appendChild(error);
+        fieldErrors.set(input.id, error);
+      }
+      error.textContent = message;
+      field.classList.toggle("has-error", Boolean(message));
+      field.classList.toggle("is-valid", !message && Boolean(input.value));
+      if (message) {
+        input.setAttribute("aria-invalid", "true");
+      } else {
+        input.removeAttribute("aria-invalid");
+      }
+    }
+
+    function validateField(input, { show = true } = {}) {
+      let message = "";
+      const value = String(input.value || "").trim();
+      const numeric = cleanNumber(value);
+
+      if (input === els.district && !value) message = "請選擇行政區。";
+      if (input === els.sectionName && !value) message = "請選擇小段名。";
+      if (input === els.mainNo && (!value || numeric <= 0)) message = "請輸入正確地號母號。";
+      if (input === els.areaSqm && (!value || numeric <= 0)) message = "土地面積不可空白或為 0。";
+      if (input === els.ownerId && value && value.length < 8) message = "請確認權利人統一編號格式。";
+
+      if ([els.areaPing, els.currentValue, els.previousValue].includes(input) && value && numeric <= 0) {
+        message = "數值不可為 0 或負數。";
+      }
+      if (input === els.subNo && value && cleanNumber(value) < 0) {
+        message = "地號子號不可為負數。";
+      }
+
+      if (show) setFieldError(input, message);
+      return !message;
+    }
+
+    function validateForm({ show = true } = {}) {
+      const fields = [els.district, els.sectionName, els.mainNo, els.areaSqm, els.ownerId, els.areaPing, els.currentValue, els.previousValue, els.subNo];
+      return fields.map(input => validateField(input, { show })).every(Boolean);
+    }
+
+    function sanitizeInput(input) {
+      const before = input.value;
+      if ([els.mainNo, els.subNo].includes(input)) input.value = normalizeDigits(input.value, 4);
+      if ([els.areaSqm, els.areaPing, els.currentValue, els.previousValue].includes(input)) input.value = normalizeDecimal(input.value);
+      if (input === els.ownerId) input.value = input.value.toUpperCase().replace(/\s/g, "").slice(0, 10);
+      return before !== input.value;
+    }
+
+    function saveFormState() {
+      const payload = {
+        district: els.district.value,
+        sectionName: els.sectionName.value,
+        mainNo: els.mainNo.value,
+        subNo: els.subNo.value,
+        areaSqm: els.areaSqm.value,
+        areaPing: els.areaPing.value,
+        currentValue: els.currentValue.value,
+        previousValue: els.previousValue.value,
+        queryYear: els.queryYear.value
+      };
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      } catch {
+        showToast(els.landToast, "瀏覽器暫存失敗，但不影響本次查詢。", "error");
+      }
+    }
+
+    function restoreFormState() {
+      try {
+        const raw = window.localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const payload = JSON.parse(raw);
+        els.district.value = payload.district || "";
+        populateSectionOptions();
+        els.sectionName.value = payload.sectionName || "";
+        els.mainNo.value = payload.mainNo || "";
+        els.subNo.value = payload.subNo || "";
+        els.areaSqm.value = payload.areaSqm || "";
+        els.areaPing.value = payload.areaPing || "";
+        els.currentValue.value = payload.currentValue || "";
+        els.previousValue.value = payload.previousValue || "";
+        els.ownerId.value = "";
+        els.queryYear.value = payload.queryYear || "115";
+        showToast(els.landToast, "已帶入上次填寫資料。", "success");
+      } catch {
+        window.localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+
+    function sectionCode() {
+      return window.TAINAN_SECTION_CODES?.[els.district.value]?.[els.sectionName.value] || "";
+    }
+
+    function localApiBase() {
+      return location.protocol === "file:" ? "http://127.0.0.1:8787" : "";
+    }
+
+    function canOpenOfficialTransfer() {
+      return Boolean(officialDistrictCodes[els.district.value] && sectionCode() && padFour(els.mainNo.value) && els.ownerId.value.trim());
+    }
+
+    async function lookupTransferValue() {
+      if (!canShowQueryResult()) return false;
+
+      if (!canOpenOfficialTransfer()) {
+        lastTransferLookup = {
+          found: false,
+          message: "請先填行政區、小段名、地號與權利人統一編號，才能自動查前次移轉現值。"
+        };
+        showQueryResult(lastLookupRow);
+        return false;
+      }
+
+      lastTransferLookup = { loading: true, message: "正在查詢官方前次移轉現值..." };
+      setLookupStatus("分析中，請稍候。正在查詢官方前次移轉現值...", "loading");
+      showQueryResult(lastLookupRow);
+
+      const payload = {
+        siteArea: officialDistrictCodes[els.district.value],
+        r48: sectionCode(),
+        sectionName: els.sectionName.value,
+        mainNo: els.mainNo.value,
+        subNo: els.subNo.value || "0",
+        ownerId: els.ownerId.value.trim().toUpperCase()
+      };
+
+      try {
+        const response = await fetch(`${localApiBase()}/api/transfer-value`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        lastTransferLookup = data;
+
+        if (data.ok && data.found && data.value) {
+          setAutoValue(els.previousValue, data.value);
+          update();
+          showQueryResult(lastLookupRow);
+          setLookupStatus(data.message, "good");
+          return true;
+        }
+
+        showQueryResult(lastLookupRow);
+        setLookupStatus(data.message || "官方查詢沒有回傳前次移轉現值。", "warn");
+        return false;
+      } catch {
+        lastTransferLookup = {
+          found: false,
+          message: "本機查詢服務尚未啟動，暫時無法自動查前次移轉現值。"
+        };
+        showQueryResult(lastLookupRow);
+        setLookupStatus(lastTransferLookup.message, "warn");
+        return false;
+      }
+    }
+
+    function showQueryResult(row) {
+      const sourceRow = row || lastLookupRow || [0, 0];
+      const officialArea = cleanNumber(sourceRow[0]);
+      const currentValue = cleanNumber(sourceRow[1]) || cleanNumber(els.currentValue.value);
+      const area = cleanNumber(els.areaSqm.value) || officialArea || 0;
+      const ping = area ? area / 3.3058 : 0;
+      const previous = cleanNumber(els.previousValue.value);
+      const officialReady = canOpenOfficialTransfer();
+      const transferMessage = lastTransferLookup?.message || "";
+      const previousDisplay = previous
+        ? `${number.format(previous)} 元/m²`
+        : lastTransferLookup?.loading
+          ? "查詢中..."
+          : lastTransferLookup?.found === false
+            ? "官方未回傳金額"
+            : officialReady
+              ? "按查詢自動帶入"
+              : "等待權利人統編";
+      const resultState = lastTransferLookup?.loading
+        ? "loading"
+        : previous || currentValue
+          ? "success"
+          : lastTransferLookup?.found === false
+            ? "empty"
+            : "empty";
+
+      els.queryResultSubtitle.textContent = `${els.district.value}${els.sectionName.value} ${landNumber()}`;
+      els.queryResultGrid.innerHTML = [
+        queryItem("官方登載面積", officialArea ? `${formatDecimal(officialArea, 4)} 平方公尺` : "未提供"),
+        queryItem("換算坪數", ping ? `${formatDecimal(ping, 4)} 坪` : "0 坪"),
+        queryItem("115 年公告現值", currentValue ? `${number.format(currentValue)} 元/m²` : "未找到"),
+        queryItem("前次移轉現值", previousDisplay)
+      ].join("");
+      els.queryResultNote.innerHTML = previous
+        ? "前次移轉現值已自動帶入，右側結果會同步計算土地價格差額。"
+        : (transferMessage ? escapeHtml(transferMessage) : (officialReady ? "按「查詢資料」會透過本機服務查官方前次移轉現值，查到後會自動帶入。" : "填入權利人統一編號後，系統會嘗試自動查前次移轉現值。"));
+      els.queryResult.hidden = false;
+      els.queryResult.dataset.state = resultState;
+      animateResult();
+      els.queryResult.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function refreshQueryResultIfReady() {
+      update();
+      if (canShowQueryResult() && (!els.queryResult.hidden || cleanNumber(els.previousValue.value) || els.ownerId.value.trim())) {
+        showQueryResult(lastLookupRow);
+      }
+    }
+
+    function landValueKey() {
+      const section = els.sectionName.value;
+      const landNo = landNumber();
+      if (!section || landNo === "----") return "";
+      return `${section}|${landNo}`;
+    }
+
+    function setAutoValue(input, value) {
+      input.value = value == null ? "" : String(value);
+      input.dataset.autoFilled = value == null ? "" : "true";
+    }
+
+    function clearAutoValues() {
+      [els.currentValue, els.previousValue].forEach(input => {
+        if (input.dataset.autoFilled === "true") {
+          input.value = "";
+          input.dataset.autoFilled = "";
+        }
+      });
+    }
+
+    function loadDistrictValues(district) {
+      if (!district) return Promise.resolve(false);
+      window.TAINAN_LAND_VALUE_CACHE = window.TAINAN_LAND_VALUE_CACHE || {};
+      if (window.TAINAN_LAND_VALUE_CACHE[district]) {
+        loadedDistricts.add(district);
+        return Promise.resolve(true);
+      }
+      if (loadingDistricts.has(district)) return loadingDistricts.get(district);
+
+      const file = window.TAINAN_LAND_VALUE_FILES?.[district];
+      if (!file) return Promise.resolve(false);
+
+      const promise = new Promise(resolve => {
+        const script = document.createElement("script");
+        script.src = `assets/land-values/${file}`;
+        script.onload = () => {
+          loadedDistricts.add(district);
+          resolve(true);
+        };
+        script.onerror = () => resolve(false);
+        document.head.appendChild(script);
+      });
+      loadingDistricts.set(district, promise);
+      return promise;
+    }
+
+    async function lookupLandValues() {
+      const district = els.district.value;
+      const key = landValueKey();
+
+      if (!district || !els.sectionName.value || landNumber() === "----") {
+        lastLookupRow = null;
+        clearAutoValues();
+        setLookupStatus("選行政區、小段名並輸入地號後，系統會自動查 115 年每平方公尺公告土地現值；填權利人統一編號可協助查前次移轉現值。");
+        hideQueryResult();
+        update();
+        return false;
+      }
+
+      setLookupStatus("分析中，正在載入該行政區公告現值資料...", "loading");
+      setQueryResultState("loading", "正在查詢公告現值與整理結果。");
+      const loaded = await loadDistrictValues(district);
+      if (!loaded) {
+        lastLookupRow = null;
+        clearAutoValues();
+        setLookupStatus("此行政區資料暫時未載入成功，仍可填完整資料嘗試查前次移轉現值。", "warn");
+        showQueryResult(null);
+        update();
+        return true;
+      }
+
+      const row = window.TAINAN_LAND_VALUE_CACHE?.[district]?.[key];
+      if (!row) {
+        lastLookupRow = null;
+        clearAutoValues();
+        setLookupStatus("找不到這筆地號的公告現值資料，請確認小段名與地號格式；仍可填完整資料嘗試查前次移轉現值。", "warn");
+        showQueryResult(null);
+        update();
+        return true;
+      }
+
+      lastLookupRow = row;
+      const [officialArea, currentValue] = row;
+      if (!cleanNumber(els.areaSqm.value) && officialArea) {
+        setAreaFromSqm(officialArea);
+      }
+      setAutoValue(els.currentValue, currentValue);
+      const areaText = officialArea ? `，官方登載面積 ${formatDecimal(officialArea, 4)} 平方公尺` : "";
+      setLookupStatus(`已找到 ${district}${els.sectionName.value} ${landNumber()} 的 115 年公告現值${areaText}；也會嘗試查前次移轉現值。`, "good");
+      update();
+      showQueryResult(row);
+      return true;
+    }
+
+    function setAreaFromSqm(value) {
+      syncingArea = true;
+      const sqm = cleanNumber(value);
+      els.areaSqm.value = sqm ? formatDecimal(sqm, 4) : "";
+      els.areaPing.value = sqm ? formatDecimal(sqm / 3.3058, 4) : "";
+      syncingArea = false;
+    }
+
+    function setAreaFromPing(value) {
+      syncingArea = true;
+      const ping = cleanNumber(value);
+      els.areaPing.value = ping ? formatDecimal(ping, 4) : "";
+      els.areaSqm.value = ping ? formatDecimal(ping * 3.3058, 4) : "";
+      syncingArea = false;
+    }
+
+    function populateSectionOptions() {
+      const district = els.district.value;
+      const sections = window.TAINAN_SECTIONS?.[district] || [];
+      els.sectionName.innerHTML = "";
+
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = district ? "請選擇小段名" : "請先選行政區";
+      els.sectionName.appendChild(placeholder);
+
+      sections.forEach(section => {
+        const option = document.createElement("option");
+        option.value = section;
+        option.textContent = section;
+        els.sectionName.appendChild(option);
+      });
+
+      els.sectionName.disabled = sections.length === 0;
+    }
+
+    function buildSummary(currentTotal, previousTotal, gainTotal, currentPing) {
+      const district = els.district.value || "未填行政區";
+      const section = els.sectionName.value || "未填小段名";
+      const area = cleanNumber(els.areaSqm.value);
+      const ping = cleanNumber(els.areaPing.value);
+      const current = cleanNumber(els.currentValue.value);
+      const previous = cleanNumber(els.previousValue.value);
+      const ownerId = els.ownerId.value.trim();
+      const yearText = els.queryYear.options[els.queryYear.selectedIndex].text;
+
+      return [
+        "台南市公告土地現值查詢摘要",
+        `行政區：${district}`,
+        `段小段：${section}`,
+        `地號：${landNumber()}`,
+        `權利人統一編號：${ownerId ? "已填" : "未填"}`,
+        `年度：${yearText}`,
+        `土地面積：${area ? number.format(area) : 0} 平方公尺（約 ${ping ? number.format(ping) : 0} 坪）`,
+        `這次每平方公尺公告土地現值：${current ? number.format(current) : 0} 元/平方公尺`,
+        `這次公告土地現值總額：約 ${formatMoney(currentTotal)}`,
+        `每坪公告土地現值：約 ${formatUnit(currentPing, "/坪")}`,
+        `前次移轉現值：${previous ? number.format(previous) : 0} 元/平方公尺`,
+        `前次移轉現值總額：約 ${formatMoney(previousTotal)}`,
+        `土地價格差額：約 ${formatSignedMoney(gainTotal)}`,
+        "台南小魏 買厝作伙｜魏泉承 0927-617-207｜永慶不動產-小東南紡店"
+      ].join("\n");
+    }
+
+    function update() {
+      const area = cleanNumber(els.areaSqm.value);
+      const current = cleanNumber(els.currentValue.value);
+      const previous = cleanNumber(els.previousValue.value);
+      const currentTotal = area * current;
+      const previousTotal = area * previous;
+      const gainTotal = currentTotal - previousTotal;
+      const currentPing = current * 0.3025;
+      const metricSnapshot = [currentTotal, previousTotal, gainTotal, currentPing].map(value => Math.round(value)).join("|");
+
+      els.formattedLandNo.textContent = landNumber();
+      els.currentTotalOut.textContent = formatMoney(currentTotal);
+      els.previousTotalOut.textContent = formatMoney(previousTotal);
+      els.gainTotalOut.textContent = formatSignedMoney(gainTotal);
+      els.currentPingOut.textContent = formatUnit(currentPing, "/坪");
+      els.summaryText.value = buildSummary(currentTotal, previousTotal, gainTotal, currentPing);
+
+      if (metricSnapshot !== lastMetricSnapshot) {
+        document.querySelectorAll(".metric").forEach(metric => {
+          metric.classList.remove("is-updated");
+          void metric.offsetWidth;
+          metric.classList.add("is-updated");
+        });
+        lastMetricSnapshot = metricSnapshot;
+      }
+    }
+
+    async function copyText(text, toastEl, successText) {
+      if (!text || text === "----") {
+        showToast(toastEl, "目前沒有可複製的內容。", "error");
+        return false;
+      }
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast(toastEl, successText, "success");
+        return true;
+      } catch {
+        showToast(toastEl, "瀏覽器不允許自動複製，請直接選取欄位文字複製。", "error");
+        return false;
+      }
+    }
+
+    document.querySelectorAll("input, select").forEach(input => {
+      input.addEventListener("input", () => {
+        sanitizeInput(input);
+        validateField(input, { show: true });
+        update();
+        saveFormState();
+      });
+      input.addEventListener("change", () => {
+        sanitizeInput(input);
+        validateField(input, { show: true });
+        update();
+        saveFormState();
+        showToast(els.landToast, "資料已更新。", "success");
+      });
+    });
+
+      els.district.addEventListener("change", () => {
+        populateSectionOptions();
+        lastLookupRow = null;
+        lastTransferLookup = null;
+        clearAutoValues();
+        hideQueryResult();
+        setLookupStatus("選行政區、小段名並輸入地號後，按「查詢資料」取得 115 年公告現值。");
+        validateField(els.sectionName, { show: true });
+        saveFormState();
+        update();
+      });
+
+    [els.sectionName, els.mainNo, els.subNo].forEach(input => {
+      input.addEventListener("input", () => {
+        lastLookupRow = null;
+        lastTransferLookup = null;
+        clearAutoValues();
+        hideQueryResult();
+        setLookupStatus("資料已變更，請重新按「查詢資料」。");
+        validateField(input, { show: true });
+        saveFormState();
+      });
+      input.addEventListener("change", () => {
+        lastLookupRow = null;
+        lastTransferLookup = null;
+        clearAutoValues();
+        hideQueryResult();
+        setLookupStatus("資料已變更，請重新按「查詢資料」。");
+        validateField(input, { show: true });
+        saveFormState();
+      });
+    });
+
+    els.areaSqm.addEventListener("input", () => {
+      if (!syncingArea) {
+        const raw = els.areaSqm.value;
+        syncingArea = true;
+        els.areaPing.value = raw ? formatDecimal(cleanNumber(raw) / 3.3058, 4) : "";
+        syncingArea = false;
+        validateField(els.areaSqm, { show: true });
+        validateField(els.areaPing, { show: true });
+        saveFormState();
+        update();
+      }
+    });
+
+    els.areaPing.addEventListener("input", () => {
+      if (!syncingArea) {
+        const raw = els.areaPing.value;
+        syncingArea = true;
+        els.areaSqm.value = raw ? formatDecimal(cleanNumber(raw) * 3.3058, 4) : "";
+        syncingArea = false;
+        validateField(els.areaPing, { show: true });
+        validateField(els.areaSqm, { show: true });
+        saveFormState();
+        update();
+      }
+    });
+
+    [els.currentValue, els.previousValue].forEach(input => {
+      input.addEventListener("input", () => {
+        input.dataset.autoFilled = "";
+        validateField(input, { show: true });
+        saveFormState();
+      });
+    });
+
+    els.previousValue.addEventListener("input", refreshQueryResultIfReady);
+    els.previousValue.addEventListener("change", refreshQueryResultIfReady);
+
+    function handleOwnerIdChange() {
+      lastTransferLookup = null;
+      if (els.previousValue.dataset.autoFilled === "true") {
+        els.previousValue.value = "";
+        els.previousValue.dataset.autoFilled = "";
+      }
+      refreshQueryResultIfReady();
+      validateField(els.ownerId, { show: true });
+      saveFormState();
+    }
+
+    els.ownerId.addEventListener("input", handleOwnerIdChange);
+    els.ownerId.addEventListener("change", handleOwnerIdChange);
+
+    els.copyLandButton.addEventListener("click", async () => {
+      setButtonLoading(els.copyLandButton, true, "複製中...");
+      const ok = await copyText(landNumber(), els.landToast, "已複製地號。");
+      setButtonLoading(els.copyLandButton, false);
+      pulseButton(els.copyLandButton, ok ? "success" : "error");
+    });
+
+    els.queryButton.addEventListener("click", async () => {
+      if (isSubmitting) return;
+      if (!validateForm({ show: true })) {
+        setQueryResultState("error", "請確認必填欄位與數值格式。");
+        setLookupStatus("請確認必填欄位與數值格式。", "warn");
+        showToast(els.landToast, "請確認必填欄位。", "error");
+        pulseButton(els.queryButton, "error");
+        return;
+      }
+      isSubmitting = true;
+      lastTransferLookup = null;
+      setButtonLoading(els.queryButton, true, "分析中...");
+      showToast(els.landToast, "分析中，請稍候。", "loading");
+      const landReady = await lookupLandValues();
+      const transferReady = landReady ? await lookupTransferValue() : false;
+      setButtonLoading(els.queryButton, false);
+      isSubmitting = false;
+      saveFormState();
+      if (landReady || transferReady) {
+        showToast(els.landToast, "已完成分析。", "success");
+        pulseButton(els.queryButton, "success");
+      } else {
+        setQueryResultState("error", "目前無法產生結果，請檢查欄位後再查詢。");
+        showToast(els.landToast, "目前無法產生結果。", "error");
+        pulseButton(els.queryButton, "error");
+      }
+    });
+
+    els.copySummaryButton.addEventListener("click", async () => {
+      els.summaryText.focus();
+      els.summaryText.select();
+      setButtonLoading(els.copySummaryButton, true, "複製中...");
+      const ok = await copyText(els.summaryText.value, els.summaryToast, "已複製摘要。");
+      setButtonLoading(els.copySummaryButton, false);
+      pulseButton(els.copySummaryButton, ok ? "success" : "error");
+    });
+
+    document.querySelectorAll(".btn").forEach(button => {
+      addPressFeedback(button);
+      if (button.tagName === "A") {
+        button.addEventListener("click", () => {
+          button.classList.add("is-loading");
+          window.setTimeout(() => button.classList.remove("is-loading"), 900);
+        });
+      }
+    });
+
+    document.querySelectorAll(".panel, .brand-panel, .explain, .sources, .notice").forEach((block, index) => {
+      block.classList.add("reveal");
+      block.style.animationDelay = `${Math.min(index * 45, 240)}ms`;
+    });
+
+    populateSectionOptions();
+    restoreFormState();
+    validateForm({ show: false });
+    setQueryResultState("empty", "目前沒有可顯示的結果。");
+    update();
+  </script>
+</body>
+</html>
