@@ -74,8 +74,8 @@
 
     .hero {
       display: grid;
-      grid-template-columns: minmax(0, 1.15fr) minmax(290px, .72fr);
-      gap: 22px;
+      grid-template-columns: minmax(0, 1fr) minmax(360px, .72fr);
+      gap: 18px;
       align-items: stretch;
       min-height: 310px;
     }
@@ -257,10 +257,10 @@
 
     .brand-panel {
       display: grid;
-      align-content: start;
-      align-self: start;
-      gap: 12px;
-      padding: 18px;
+      align-content: center;
+      gap: 16px;
+      min-height: 310px;
+      padding: 22px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: rgba(255, 255, 255, .86);
@@ -292,13 +292,14 @@
       display: inline-flex;
       align-items: center;
       width: fit-content;
-      min-height: 34px;
-      padding: 7px 11px;
+      min-height: 38px;
+      padding: 8px 13px;
       border: 1px solid rgba(15, 116, 107, .22);
       border-radius: 999px;
       color: var(--deep);
       background: #edf7f3;
       font-weight: 900;
+      font-size: 1rem;
     }
 
     .brand-name {
@@ -307,28 +308,30 @@
     }
 
     .brand-name strong {
-      font-size: 1.22rem;
+      font-size: 1.42rem;
     }
 
     .brand-name span {
       color: var(--teal);
       font-weight: 800;
+      font-size: 1.06rem;
     }
 
     .contact-list {
       display: grid;
-      gap: 8px;
-      margin-top: 8px;
+      gap: 10px;
+      margin-top: 14px;
     }
 
     .contact-line {
       display: flex;
       justify-content: space-between;
       gap: 12px;
-      padding: 9px 0;
+      padding: 12px 0;
       border-bottom: 1px solid rgba(24, 32, 29, .08);
       color: var(--muted);
       line-height: 1.4;
+      font-size: 1.02rem;
     }
 
     .contact-line b {
@@ -336,10 +339,23 @@
       color: var(--deep);
     }
 
+    .contact-line span {
+      font-weight: 900;
+      color: var(--teal);
+    }
+
     .quick-note {
       margin: 0;
       color: var(--muted);
       line-height: 1.65;
+    }
+
+    .land-value-field .hint {
+      min-height: 42px;
+    }
+
+    .transfer-value-field .button-row {
+      margin-top: 10px;
     }
 
     .status-strip {
@@ -1445,11 +1461,25 @@
 
     const summaryLabel = document.querySelector('label[for="summaryText"]');
     if (summaryLabel) summaryLabel.textContent = "給您的查詢摘要";
-    const ownerIdLabel = document.querySelector('label[for="ownerId"]');
-    if (ownerIdLabel) ownerIdLabel.textContent = "權利人統一編號（查前次移轉現值）";
-    const ownerIdHint = document.querySelector("#ownerId")?.closest(".field")?.querySelector(".hint");
-    if (ownerIdHint) ownerIdHint.textContent = "輸入後按「查詢資料」，系統會嘗試自動帶入前次移轉現值；若官方連線失敗，仍可手動填入。";
-    if (els.ownerId) els.ownerId.placeholder = "身分證字號或統編";
+    document.querySelector("#currentValue")?.closest(".field")?.classList.add("land-value-field");
+    document.querySelector("#previousValue")?.closest(".field")?.classList.add("land-value-field", "transfer-value-field");
+    const ownerIdField = document.querySelector("#ownerId")?.closest(".field");
+    if (ownerIdField) ownerIdField.remove();
+    const previousValueField = document.querySelector("#previousValue")?.closest(".field");
+    if (previousValueField && !document.getElementById("officialTransferLookup")) {
+      const link = document.createElement("a");
+      link.className = "btn ghost";
+      link.id = "officialTransferLookup";
+      link.href = "https://land-query.tainan.gov.tw/query/rwd/valuechange.jsp?menu=true";
+      link.target = "_blank";
+      link.rel = "noreferrer";
+      link.textContent = "查詢前次移轉現值";
+      const row = document.createElement("div");
+      row.className = "button-row";
+      row.style.marginTop = "10px";
+      row.appendChild(link);
+      previousValueField.appendChild(row);
+    }
 
     if (els.queryResult) {
       els.queryResult.classList.add("is-removed");
@@ -2005,7 +2035,6 @@
       const ping = cleanNumber(els.areaPing.value);
       const current = cleanNumber(els.currentValue.value);
       const previous = cleanNumber(els.previousValue.value);
-      const ownerId = els.ownerId.value.trim();
       const yearText = "115 年當期資料";
 
       return [
@@ -2013,7 +2042,6 @@
         `行政區：${district}`,
         `段小段：${section}`,
         `地號：${landNumber()}`,
-        `權利人統一編號：${ownerId ? "已填" : "未填"}`,
         `年度：${yearText}`,
         `土地面積：${area ? number.format(area) : 0} 平方公尺（約 ${ping ? number.format(ping) : 0} 坪）`,
         `這次每平方公尺公告土地現值：${current ? number.format(current) : 0} 元/平方公尺`,
@@ -2324,11 +2352,10 @@
       setButtonLoading(els.queryButton, true, "分析中...");
       showToast(els.landToast, "分析中，請稍候。", "loading");
       const landReady = await lookupLandValues();
-      const transferReady = landReady ? await lookupTransferValue() : false;
       setButtonLoading(els.queryButton, false);
       isSubmitting = false;
       saveFormState();
-      if (landReady || transferReady) {
+      if (landReady) {
         showToast(els.landToast, "已完成分析。", "success");
         pulseButton(els.queryButton, "success");
       } else {
