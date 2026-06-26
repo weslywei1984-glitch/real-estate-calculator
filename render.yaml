@@ -2,7 +2,7 @@ services:
   - type: web
     name: real-estate-calculator
     runtime: node
-    plan: starter
+    plan: free
     buildCommand: npm install
     startCommand: npm start
     envVars:
