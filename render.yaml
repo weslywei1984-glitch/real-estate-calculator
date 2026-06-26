@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: real-estate-calculator
+    runtime: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 22
