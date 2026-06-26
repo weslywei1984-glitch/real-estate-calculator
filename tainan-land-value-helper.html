@@ -358,6 +358,37 @@
       margin-top: 10px;
     }
 
+    .announced-price-card {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border: 1px solid rgba(15, 116, 107, .18);
+      border-radius: 7px;
+      background: #f8fcfa;
+      color: var(--ink);
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity .18s ease, transform .18s ease, border-color .18s ease;
+    }
+
+    .announced-price-card[hidden] {
+      display: none;
+    }
+
+    .announced-price-card span,
+    .announced-price-card small {
+      display: block;
+      color: var(--muted);
+      font-size: .86rem;
+      line-height: 1.45;
+    }
+
+    .announced-price-card strong {
+      display: block;
+      margin-top: 3px;
+      color: var(--teal);
+      font-size: 1.08rem;
+    }
+
     .status-strip {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1264,7 +1295,7 @@
             </div>
 
             <div class="field">
-              <label for="currentValue">這次每平方公尺公告土地現值</label>
+              <label for="currentValue">公告現值</label>
               <p class="hint">填行政區、小段名、地號後按「查詢資料」帶入 115 年資料。</p>
               <div class="control">
                 <input id="currentValue" inputmode="decimal" autocomplete="off" placeholder="例如 160000">
@@ -1331,14 +1362,14 @@
         <div class="section">
           <div class="metric-grid">
             <div class="metric main">
-              <span>這次公告土地現值總額</span>
+              <span>公告現值坪數換算</span>
               <strong id="currentTotalOut">0 元</strong>
-              <small>土地面積 × 每平方公尺公告土地現值</small>
+              <small>土地坪數 × 每坪公告現值</small>
             </div>
             <div class="metric">
-              <span>前次移轉現值總額</span>
+              <span>前次移轉現值坪數換算</span>
               <strong id="previousTotalOut">0 元</strong>
-              <small>土地面積 × 每平方公尺前次移轉現值</small>
+              <small>土地坪數 × 每坪前次移轉現值</small>
             </div>
             <div class="metric">
               <span>土地價格差額</span>
@@ -1461,8 +1492,25 @@
 
     const summaryLabel = document.querySelector('label[for="summaryText"]');
     if (summaryLabel) summaryLabel.textContent = "給您的查詢摘要";
-    document.querySelector("#currentValue")?.closest(".field")?.classList.add("land-value-field");
+    const currentValueLabel = document.querySelector('label[for="currentValue"]');
+    if (currentValueLabel) currentValueLabel.textContent = "公告現值";
+    const currentValueField = document.querySelector("#currentValue")?.closest(".field");
+    currentValueField?.classList.add("land-value-field");
     document.querySelector("#previousValue")?.closest(".field")?.classList.add("land-value-field", "transfer-value-field");
+    if (currentValueField && !document.getElementById("announcedLandPriceBox")) {
+      const announcedBox = document.createElement("div");
+      announcedBox.className = "announced-price-card";
+      announcedBox.id = "announcedLandPriceBox";
+      announcedBox.hidden = true;
+      announcedBox.innerHTML = `
+        <span>公告地價</span>
+        <strong id="announcedLandPriceOut">目前資料未提供</strong>
+        <small>按「查詢資料」後顯示官方資料庫可帶入的公告地價。</small>
+      `;
+      currentValueField.appendChild(announcedBox);
+      els.announcedLandPriceBox = announcedBox;
+      els.announcedLandPriceOut = announcedBox.querySelector("#announcedLandPriceOut");
+    }
     const ownerIdField = document.querySelector("#ownerId")?.closest(".field");
     if (ownerIdField) ownerIdField.remove();
     const previousValueField = document.querySelector("#previousValue")?.closest(".field");
@@ -1597,6 +1645,19 @@
     function setLookupStatus(message, tone = "") {
       els.lookupStatus.textContent = message;
       els.lookupStatus.className = `lookup-status ${tone}`.trim();
+    }
+
+    function setAnnouncedLandPrice(value, { show = true } = {}) {
+      if (!els.announcedLandPriceBox || !els.announcedLandPriceOut) return;
+      const price = cleanNumber(value);
+      els.announcedLandPriceOut.textContent = price ? `${number.format(price)} 元/m²` : "目前資料未提供";
+      els.announcedLandPriceBox.hidden = !show;
+    }
+
+    function hideAnnouncedLandPrice() {
+      if (!els.announcedLandPriceBox || !els.announcedLandPriceOut) return;
+      els.announcedLandPriceOut.textContent = "目前資料未提供";
+      els.announcedLandPriceBox.hidden = true;
     }
 
     function showToast(toastEl, message, tone = "success") {
@@ -1916,6 +1977,7 @@
           input.dataset.autoFilled = "";
         }
       });
+      hideAnnouncedLandPrice();
     }
 
     function loadDistrictValues(district) {
@@ -1980,11 +2042,12 @@
       }
 
       lastLookupRow = row;
-      const [officialArea, currentValue] = row;
+      const [officialArea, currentValue, announcedLandPrice] = row;
       if (!cleanNumber(els.areaSqm.value) && officialArea) {
         setAreaFromSqm(officialArea);
       }
       setAutoValue(els.currentValue, currentValue);
+      setAnnouncedLandPrice(announcedLandPrice, { show: true });
       const areaText = officialArea ? `，官方登載面積 ${formatDecimal(officialArea, 4)} 平方公尺` : "";
       setLookupStatus(`已找到 ${district}${els.sectionName.value} ${landNumber()} 的 115 年公告現值${areaText}，右側已同步換算。`, "good");
       update();
@@ -2028,11 +2091,11 @@
       els.sectionName.disabled = sections.length === 0;
     }
 
-    function buildSummary(currentTotal, previousTotal, gainTotal, currentPing) {
+    function buildSummary(currentTotal, previousTotal, gainTotal, currentPing, previousPing) {
       const district = els.district.value || "未填行政區";
       const section = els.sectionName.value || "未填小段名";
       const area = cleanNumber(els.areaSqm.value);
-      const ping = cleanNumber(els.areaPing.value);
+      const ping = cleanNumber(els.areaPing.value) || (area ? area / 3.3058 : 0);
       const current = cleanNumber(els.currentValue.value);
       const previous = cleanNumber(els.previousValue.value);
       const yearText = "115 年當期資料";
@@ -2044,11 +2107,12 @@
         `地號：${landNumber()}`,
         `年度：${yearText}`,
         `土地面積：${area ? number.format(area) : 0} 平方公尺（約 ${ping ? number.format(ping) : 0} 坪）`,
-        `這次每平方公尺公告土地現值：${current ? number.format(current) : 0} 元/平方公尺`,
-        `這次公告土地現值總額：約 ${formatMoney(currentTotal)}`,
-        `每坪公告土地現值：約 ${formatUnit(currentPing, "/坪")}`,
+        `公告現值：${current ? number.format(current) : 0} 元/平方公尺`,
+        `每坪公告現值：約 ${formatUnit(currentPing, "/坪")}`,
+        `公告現值坪數換算：約 ${formatMoney(currentTotal)}`,
         `前次移轉現值：${previous ? number.format(previous) : 0} 元/平方公尺`,
-        `前次移轉現值總額：約 ${formatMoney(previousTotal)}`,
+        `每坪前次移轉現值：約 ${formatUnit(previousPing, "/坪")}`,
+        `前次移轉現值坪數換算：約 ${formatMoney(previousTotal)}`,
         `土地價格差額：約 ${formatSignedMoney(gainTotal)}`,
         "台南小魏 買厝作伙｜魏泉承 0927-617-207｜永慶不動產-小東南紡店"
       ].join("\n");
@@ -2056,20 +2120,22 @@
 
     function update() {
       const area = cleanNumber(els.areaSqm.value);
+      const ping = cleanNumber(els.areaPing.value) || (area ? area / 3.3058 : 0);
       const current = cleanNumber(els.currentValue.value);
       const previous = cleanNumber(els.previousValue.value);
-      const currentTotal = area * current;
-      const previousTotal = area * previous;
-      const gainTotal = currentTotal - previousTotal;
       const currentPing = current * 0.3025;
-      const metricSnapshot = [currentTotal, previousTotal, gainTotal, currentPing].map(value => Math.round(value)).join("|");
+      const previousPing = previous * 0.3025;
+      const currentTotal = ping * currentPing;
+      const previousTotal = ping * previousPing;
+      const gainTotal = currentTotal - previousTotal;
+      const metricSnapshot = [currentTotal, previousTotal, gainTotal, currentPing, previousPing].map(value => Math.round(value)).join("|");
 
       els.formattedLandNo.textContent = landNumber();
       els.currentTotalOut.textContent = formatMoney(currentTotal);
       els.previousTotalOut.textContent = formatMoney(previousTotal);
       els.gainTotalOut.textContent = formatSignedMoney(gainTotal);
       els.currentPingOut.textContent = formatUnit(currentPing, "/坪");
-      els.summaryText.value = buildSummary(currentTotal, previousTotal, gainTotal, currentPing);
+      els.summaryText.value = buildSummary(currentTotal, previousTotal, gainTotal, currentPing, previousPing);
 
       if (metricSnapshot !== lastMetricSnapshot) {
         document.querySelectorAll(".metric").forEach(metric => {
@@ -2103,7 +2169,7 @@
 
     function downloadSummaryJpg() {
       const area = cleanNumber(els.areaSqm.value);
-      const ping = cleanNumber(els.areaPing.value);
+      const ping = cleanNumber(els.areaPing.value) || (area ? area / 3.3058 : 0);
       const current = cleanNumber(els.currentValue.value);
       const previous = cleanNumber(els.previousValue.value);
 
@@ -2112,10 +2178,11 @@
         return false;
       }
 
-      const currentTotal = area * current;
-      const previousTotal = area * previous;
-      const gainTotal = currentTotal - previousTotal;
       const currentPing = current * 0.3025;
+      const previousPing = previous * 0.3025;
+      const currentTotal = ping * currentPing;
+      const previousTotal = ping * previousPing;
+      const gainTotal = currentTotal - previousTotal;
       const scale = 2;
       const width = 900;
       const height = 1280;
@@ -2166,9 +2233,9 @@
 
       drawCard(56, 186, 378, 132, "土地面積", `${formatDecimal(area, 4)} 平方公尺`, `${formatDecimal(ping, 4)} 坪`);
       drawCard(466, 186, 378, 132, "115 年公告現值", `${number.format(current)} 元/m²`, `每坪約 ${formatUnit(currentPing, "/坪")}`);
-      drawCard(56, 344, 788, 132, "這次公告土地現值總額", formatMoney(currentTotal), "土地面積 x 每平方公尺公告土地現值");
-      drawCard(56, 502, 378, 132, "前次移轉現值總額", previous ? formatMoney(previousTotal) : "未填寫", previous ? "依輸入的前次移轉現值換算" : "依官方資料或稅務資料補填");
-      drawCard(466, 502, 378, 132, "土地價格差額", previous ? formatSignedMoney(gainTotal) : "未計算", previous ? "這次總額 - 上次總額" : "填入前次移轉現值後計算");
+      drawCard(56, 344, 788, 132, "公告現值坪數換算", formatMoney(currentTotal), "土地坪數 x 每坪公告現值");
+      drawCard(56, 502, 378, 132, "前次移轉現值坪數換算", previous ? formatMoney(previousTotal) : "未填寫", previous ? "土地坪數 x 每坪前次移轉現值" : "依官方資料或稅務資料補填");
+      drawCard(466, 502, 378, 132, "土地價格差額", previous ? formatSignedMoney(gainTotal) : "未計算", previous ? "這次坪數換算 - 前次坪數換算" : "填入前次移轉現值後計算");
 
       ctx.fillStyle = "#ffffff";
       ctx.strokeStyle = "#d8e3dc";
@@ -2186,10 +2253,10 @@
         `小段名：${els.sectionName.value}`,
         `地號：${landNumber()}`,
         `土地面積：約 ${number.format(area)} 平方公尺 / ${number.format(ping)} 坪`,
-        `公告土地現值總額：約 ${formatMoney(currentTotal)}`,
+        `公告現值坪數換算：約 ${formatMoney(currentTotal)}`,
         `每坪公告土地現值：約 ${formatUnit(currentPing, "/坪")}`
       ];
-      if (previous) summary.push(`前次移轉現值總額：約 ${formatMoney(previousTotal)}`);
+      if (previous) summary.push(`前次移轉現值坪數換算：約 ${formatMoney(previousTotal)}`);
       summary.forEach((line, index) => ctx.fillText(line, 82, 760 + index * 27));
 
       ctx.fillStyle = "#fff8e6";
