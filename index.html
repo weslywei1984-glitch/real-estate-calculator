@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>房地稅費與貸款試算</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M12 34 32 16l20 18v18H38V40H26v12H12Z' fill='%23f7d77a'/%3E%3C/svg%3E">
   <style>
     :root {
       --bg: #f5f7f4;
@@ -237,6 +238,23 @@
     .lookup-links a:hover {
       color: #0b5f58;
       border-bottom-color: currentColor;
+    }
+
+    .field-error {
+      color: var(--rose);
+      font-size: .82rem;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .field.invalid label {
+      color: var(--rose);
+    }
+
+    .field.invalid .control {
+      border-color: rgba(190, 18, 60, .55);
+      background: rgba(255, 228, 230, .5);
+      box-shadow: 0 0 0 4px rgba(190, 18, 60, .08);
     }
 
     .down-payment-field {
@@ -790,15 +808,94 @@
       box-shadow: var(--shadow-soft);
     }
 
+    .panel,
+    .lookup-links,
+    .check-row {
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+    }
+
+    .panel:hover {
+      border-color: rgba(13, 111, 102, .16);
+      box-shadow: 0 22px 54px rgba(24, 33, 43, .09);
+    }
+
+    .primary:disabled,
+    .secondary:disabled {
+      cursor: wait;
+      opacity: .7;
+      transform: none;
+    }
+
+    .primary.is-success,
+    .secondary.is-success {
+      box-shadow: 0 0 0 4px rgba(13, 111, 102, .14), var(--shadow-soft);
+    }
+
     .result-stack {
       gap: 13px;
       padding: 22px;
+      min-height: 160px;
+      transition: opacity .18s ease, transform .18s ease;
+    }
+
+    .result-stack[data-state="loading"] {
+      opacity: .72;
+    }
+
+    .result-message {
+      display: grid;
+      gap: 8px;
+      place-items: center;
+      min-height: 136px;
+      padding: 20px;
+      border: 1px dashed rgba(24, 33, 43, .18);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .72);
+      color: #64748b;
+      text-align: center;
+    }
+
+    .result-message strong {
+      color: #17212c;
+      font-size: 1.08rem;
+    }
+
+    .result-message.error {
+      border-color: rgba(190, 18, 60, .32);
+      background: rgba(255, 228, 230, .52);
+      color: #9f1239;
+    }
+
+    .result-message.loading::before {
+      content: "";
+      width: 26px;
+      height: 26px;
+      border: 3px solid rgba(13, 111, 102, .18);
+      border-top-color: var(--teal);
+      border-radius: 50%;
+      animation: spin .72s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
 
     .metric {
       border-color: rgba(24, 33, 43, .09);
       background: #ffffff;
       box-shadow: 0 8px 18px rgba(24, 33, 43, .045);
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+
+    .metric:hover,
+    .lookup-links:hover {
+      transform: translateY(-2px);
+      border-color: rgba(13, 111, 102, .24);
+      box-shadow: 0 14px 28px rgba(24, 33, 43, .08);
+    }
+
+    .is-pressed {
+      transform: translateY(1px) scale(.995) !important;
     }
 
     .metric.main {
@@ -1966,6 +2063,20 @@
         border-radius: 22px;
       }
 
+      .primary,
+      .secondary {
+        width: 100%;
+      }
+
+      .result-stack {
+        min-height: 132px;
+        padding: 16px;
+      }
+
+      .result-message {
+        min-height: 108px;
+      }
+
       .policy-stats {
         grid-template-columns: 1fr;
       }
@@ -3110,17 +3221,168 @@
         }
       });
       formatAllNumericInputs();
-      calculateAll();
+      runGroup(group, { loading: true, feedback: "已套用" });
     }
 
-    function calculateAll() {
-      calculateTax();
-      calculateBuyer();
-      calculateLoan();
-      calculateYoung();
+    const calculators = {
+      tax: { formId: "taxForm", resultId: "taxResult", run: calculateTax },
+      buyer: { formId: "buyerForm", resultId: "buyerResult", run: calculateBuyer },
+      loan: { formId: "loanForm", resultId: "loanResult", run: calculateLoan },
+      young: { formId: "youngForm", resultId: "youngResult", run: calculateYoung }
+    };
+
+    const pendingCalculations = {};
+
+    function resultMessage(tone, title, body = "") {
+      return `
+        <div class="result-message ${tone}" role="status">
+          <strong>${title}</strong>
+          ${body ? `<span>${body}</span>` : ""}
+        </div>
+      `;
+    }
+
+    function setResultState(group, state, title, body) {
+      const result = document.getElementById(calculators[group].resultId);
+      result.dataset.state = state;
+      result.setAttribute("aria-live", "polite");
+      if (state !== "success") {
+        result.innerHTML = resultMessage(state, title, body);
+      }
+    }
+
+    function showInitialStates() {
+      Object.keys(calculators).forEach(group => {
+        setResultState(group, "initial", "尚未更新結果", "填寫左側資料後，結果會顯示在這裡。");
+      });
+    }
+
+    function clearValidation(form) {
+      form.querySelectorAll(".field.invalid").forEach(field => field.classList.remove("invalid"));
+      form.querySelectorAll(".field-error").forEach(error => error.remove());
+      form.querySelectorAll("[aria-invalid]").forEach(input => input.removeAttribute("aria-invalid"));
+    }
+
+    function addFieldError(input, message) {
+      const field = input.closest(".field");
+      if (!field) return;
+      field.classList.add("invalid");
+      input.setAttribute("aria-invalid", "true");
+      const error = document.createElement("div");
+      error.className = "field-error";
+      error.textContent = message;
+      field.appendChild(error);
+    }
+
+    function strictNumber(input) {
+      const raw = String(input.value || "").replace(/,/g, "").trim();
+      if (raw === "") return null;
+      if (!/^-?\d+(\.\d+)?$/.test(raw)) return Number.NaN;
+      return Number(raw);
+    }
+
+    function formIsEmpty(form) {
+      return [...form.querySelectorAll("[data-numeric-input]")].every(input => String(input.value || "").trim() === "");
+    }
+
+    function validateForm(form) {
+      clearValidation(form);
+      let valid = true;
+      form.querySelectorAll("[data-numeric-input]").forEach(input => {
+        const numeric = strictNumber(input);
+        const label = form.querySelector(`label[for="${input.id}"]`);
+        const name = label ? label.textContent.trim() : "此欄位";
+        if (numeric === null || Number.isNaN(numeric)) {
+          addFieldError(input, `${name} 請輸入有效數字`);
+          valid = false;
+          return;
+        }
+        const min = input.getAttribute("min");
+        const max = input.getAttribute("max");
+        if (min !== null && numeric < Number(min)) {
+          addFieldError(input, `${name} 不可小於 ${number.format(Number(min))}`);
+          valid = false;
+        } else if (max !== null && numeric > Number(max)) {
+          addFieldError(input, `${name} 不可大於 ${number.format(Number(max))}`);
+          valid = false;
+        }
+      });
+      return valid;
+    }
+
+    function setButtonState(form, loading, feedback = "已更新") {
+      const button = form.querySelector(".primary");
+      if (!button) return;
+      button.dataset.originalText ||= button.textContent;
+      button.disabled = loading;
+      button.classList.toggle("is-loading", loading);
+      if (loading) {
+        button.textContent = "計算中...";
+        return;
+      }
+      button.textContent = feedback;
+      button.classList.add("is-success");
+      window.setTimeout(() => {
+        button.textContent = button.dataset.originalText;
+        button.classList.remove("is-success");
+      }, 900);
+    }
+
+    function finishGroup(group, feedback) {
+      const config = calculators[group];
+      const form = document.getElementById(config.formId);
+      try {
+        if (formIsEmpty(form)) {
+          clearValidation(form);
+          setResultState(group, "empty", "沒有可計算的資料", "請至少填寫一個金額或數字欄位。");
+          setButtonState(form, false, feedback);
+          return;
+        }
+        if (!validateForm(form)) {
+          const firstInvalid = form.querySelector("[aria-invalid='true']");
+          firstInvalid?.focus({ preventScroll: true });
+          setResultState(group, "error", "資料需要修正", "請檢查左側紅色欄位後再重新計算。");
+          setButtonState(form, false, "需修正");
+          return;
+        }
+        config.run();
+        setResultState(group, "success");
+        setButtonState(form, false, feedback);
+      } catch (error) {
+        console.error(error);
+        setResultState(group, "error", "計算時發生錯誤", "請檢查輸入內容，或先套用範例後再修改。");
+        setButtonState(form, false, "發生錯誤");
+      }
+    }
+
+    function runGroup(group, options = {}) {
+      const config = calculators[group];
+      if (!config) return;
+      const form = document.getElementById(config.formId);
+      window.clearTimeout(pendingCalculations[group]);
+      if (options.loading) {
+        setButtonState(form, true);
+        setResultState(group, "loading", "正在計算", "系統正在更新右側結果。");
+        pendingCalculations[group] = window.setTimeout(() => finishGroup(group, options.feedback || "已更新"), 180);
+      } else {
+        finishGroup(group, options.feedback || "已更新");
+      }
+    }
+
+    function scheduleGroup(group) {
+      const config = calculators[group];
+      if (!config) return;
+      window.clearTimeout(pendingCalculations[group]);
+      setResultState(group, "loading", "正在更新", "輸入變更後正在重新估算。");
+      pendingCalculations[group] = window.setTimeout(() => finishGroup(group, "已更新"), 220);
+    }
+
+    function calculateAll(options = {}) {
+      Object.keys(calculators).forEach(group => runGroup(group, options));
     }
 
     setupNumericInputs();
+    showInitialStates();
 
     document.querySelectorAll(".tab").forEach(tab => {
       tab.addEventListener("click", () => {
@@ -3134,12 +3396,13 @@
     });
 
     document.querySelectorAll("form").forEach(form => {
+      const group = Object.entries(calculators).find(([, config]) => config.formId === form.id)?.[0];
       form.addEventListener("submit", event => {
         event.preventDefault();
-        calculateAll();
+        runGroup(group, { loading: true, feedback: "已更新" });
       });
-      form.addEventListener("input", calculateAll);
-      form.addEventListener("change", calculateAll);
+      form.addEventListener("input", () => scheduleGroup(group));
+      form.addEventListener("change", () => scheduleGroup(group));
     });
 
     document.querySelectorAll("[data-reset]").forEach(button => {
@@ -3152,7 +3415,7 @@
       const loanAmount = purchasePrice * ratio / 100;
       setNumericInputValue("loanRatio", number.format(ratio));
       setNumericInputValue("buyerDownPayment", Math.max(0, Math.round(purchasePrice - loanAmount)));
-      calculateBuyer();
+      scheduleGroup("buyer");
     }
 
     function syncBuyerRatioFromDownPayment() {
@@ -3163,7 +3426,7 @@
       if (purchasePrice > 0) {
         setNumericInputValue("loanRatio", number.format(loanAmount / purchasePrice * 100));
       }
-      calculateBuyer();
+      scheduleGroup("buyer");
     }
 
     document.getElementById("purchasePrice").addEventListener("input", syncBuyerDownPaymentFromRatio);
@@ -3176,7 +3439,7 @@
       const principal = Math.round(purchasePrice * ratio / 100);
       setNumericInputValue("loanAmount", principal);
       setNumericInputValue("loanDownPayment", Math.max(0, Math.round(purchasePrice - principal)));
-      calculateLoan();
+      scheduleGroup("loan");
     }
 
     function syncLoanRatioFromAmount() {
@@ -3186,7 +3449,7 @@
       if (purchasePrice > 0) {
         setNumericInputValue("loanLtvRatio", number.format(principal / purchasePrice * 100));
       }
-      calculateLoan();
+      scheduleGroup("loan");
     }
 
     function syncLoanAmountFromDownPayment() {
@@ -3198,7 +3461,7 @@
       if (purchasePrice > 0) {
         setNumericInputValue("loanLtvRatio", number.format(principal / purchasePrice * 100));
       }
-      calculateLoan();
+      scheduleGroup("loan");
     }
 
     function youngLoanLimit() {
@@ -3212,7 +3475,7 @@
       const principal = Math.min(requestedLoan, youngLoanLimit());
       setNumericInputValue("youngLoanRatio", number.format(ratio));
       setNumericInputValue("youngDownPayment", Math.max(0, Math.round(purchasePrice - principal)));
-      calculateYoung();
+      scheduleGroup("young");
     }
 
     function syncYoungLoanRatioFromDownPayment() {
@@ -3223,28 +3486,35 @@
       const principal = Math.min(purchasePrice * ratio / 100, youngLoanLimit());
       setNumericInputValue("youngLoanRatio", number.format(ratio));
       setNumericInputValue("youngDownPayment", Math.max(0, Math.round(purchasePrice - principal)));
-      calculateYoung();
+      scheduleGroup("young");
     }
 
     document.getElementById("loanPurchasePrice").addEventListener("input", syncLoanAmountFromPrice);
     document.getElementById("loanLtvRatio").addEventListener("input", syncLoanAmountFromPrice);
     document.getElementById("loanAmount").addEventListener("input", syncLoanRatioFromAmount);
     document.getElementById("loanDownPayment").addEventListener("input", syncLoanAmountFromDownPayment);
-    document.getElementById("annualRate").addEventListener("input", calculateLoan);
+    document.getElementById("annualRate").addEventListener("input", () => scheduleGroup("loan"));
     document.getElementById("youngPurchasePrice").addEventListener("input", syncYoungDownPaymentFromLoanRatio);
     document.getElementById("youngLoanRatio").addEventListener("input", syncYoungDownPaymentFromLoanRatio);
     document.getElementById("youngDownPayment").addEventListener("input", syncYoungLoanRatioFromDownPayment);
     document.getElementById("youngApplicantType").addEventListener("change", syncYoungDownPaymentFromLoanRatio);
-    document.getElementById("youngBaseRate").addEventListener("input", calculateYoung);
+    document.getElementById("youngBaseRate").addEventListener("input", () => scheduleGroup("young"));
 
     document.getElementById("youngPriceTier").addEventListener("change", event => {
       if (event.target.value === "taipei") {
         setNumericInputValue("youngPriceCap", 35000000);
       }
-      calculateYoung();
+      scheduleGroup("young");
     });
 
-    calculateAll();
+    document.addEventListener("pointerdown", event => {
+      const target = event.target.closest(".metric, .check-row, .lookup-links, .tab, button");
+      if (!target) return;
+      target.classList.add("is-pressed");
+      window.setTimeout(() => target.classList.remove("is-pressed"), 140);
+    });
+
+    window.setTimeout(() => calculateAll(), 260);
   </script>
 </body>
 </html>
