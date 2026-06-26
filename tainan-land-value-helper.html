@@ -766,6 +766,10 @@
       overflow-wrap: anywhere;
     }
 
+    .formatted-box.is-removed {
+      display: none !important;
+    }
+
     .divider {
       height: 1px;
       margin: 18px 0;
@@ -1268,6 +1272,11 @@
               </div>
             </div>
 
+            <div class="field wide query-action-field">
+              <div class="button-row" id="queryActionButtons"></div>
+              <div id="queryActionToast"></div>
+            </div>
+
             <div class="lookup-status" id="lookupStatus" aria-live="polite">選行政區、小段名並輸入地號後，按「查詢資料」取得 115 年每平方公尺公告土地現值；填權利人統一編號可協助查前次移轉現值。</div>
 
             <div class="query-result" id="queryResult" hidden aria-live="polite">
@@ -1409,6 +1418,21 @@
       copyLandButton: document.getElementById("copyLandNo"),
       copySummaryButton: document.getElementById("copySummary")
     };
+
+    const formattedBox = document.querySelector(".formatted-box");
+    const queryActionButtons = document.getElementById("queryActionButtons");
+    const queryActionToast = document.getElementById("queryActionToast");
+
+    if (queryActionButtons && els.queryButton) {
+      queryActionButtons.appendChild(els.queryButton);
+    }
+    if (queryActionToast && els.landToast) {
+      queryActionToast.appendChild(els.landToast);
+    }
+    if (formattedBox) {
+      formattedBox.classList.add("is-removed");
+      formattedBox.remove();
+    }
 
     const STORAGE_KEY = "tainanLandValueHelperForm";
     const loadedDistricts = new Set();
