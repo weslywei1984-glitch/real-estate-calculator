@@ -370,10 +370,6 @@
       transition: opacity .18s ease, transform .18s ease, border-color .18s ease;
     }
 
-    .announced-price-card[hidden] {
-      display: none;
-    }
-
     .announced-price-card span,
     .announced-price-card small {
       display: block;
@@ -1501,11 +1497,10 @@
       const announcedBox = document.createElement("div");
       announcedBox.className = "announced-price-card";
       announcedBox.id = "announcedLandPriceBox";
-      announcedBox.hidden = true;
       announcedBox.innerHTML = `
         <span>公告地價</span>
         <strong id="announcedLandPriceOut">目前資料未提供</strong>
-        <small>按「查詢資料」後顯示官方資料庫可帶入的公告地價。</small>
+        <small>按「查詢資料」後會自動帶入公告地價資料。</small>
       `;
       currentValueField.appendChild(announcedBox);
       els.announcedLandPriceBox = announcedBox;
@@ -1647,17 +1642,17 @@
       els.lookupStatus.className = `lookup-status ${tone}`.trim();
     }
 
-    function setAnnouncedLandPrice(value, { show = true } = {}) {
+    function setAnnouncedLandPrice(value) {
       if (!els.announcedLandPriceBox || !els.announcedLandPriceOut) return;
       const price = cleanNumber(value);
       els.announcedLandPriceOut.textContent = price ? `${number.format(price)} 元/m²` : "目前資料未提供";
-      els.announcedLandPriceBox.hidden = !show;
+      els.announcedLandPriceBox.hidden = false;
     }
 
     function hideAnnouncedLandPrice() {
       if (!els.announcedLandPriceBox || !els.announcedLandPriceOut) return;
       els.announcedLandPriceOut.textContent = "目前資料未提供";
-      els.announcedLandPriceBox.hidden = true;
+      els.announcedLandPriceBox.hidden = false;
     }
 
     function showToast(toastEl, message, tone = "success") {
@@ -2047,7 +2042,7 @@
         setAreaFromSqm(officialArea);
       }
       setAutoValue(els.currentValue, currentValue);
-      setAnnouncedLandPrice(announcedLandPrice, { show: true });
+      setAnnouncedLandPrice(announcedLandPrice);
       const areaText = officialArea ? `，官方登載面積 ${formatDecimal(officialArea, 4)} 平方公尺` : "";
       setLookupStatus(`已找到 ${district}${els.sectionName.value} ${landNumber()} 的 115 年公告現值${areaText}，右側已同步換算。`, "good");
       update();
