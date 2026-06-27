@@ -2177,8 +2177,8 @@
             </div>
             <div class="lookup-links field wide" aria-label="土地稅務查詢連結">
               <span>查完資料後再回填：</span>
-              <a href="https://easymap.land.moi.gov.tw/" target="_blank" rel="noreferrer">查土地公告現值／公告地價</a>
-              <a href="/land-increment-total.html" target="_blank" rel="noreferrer">查漲價總額／土地增值稅試算</a>
+              <a href="https://weslywei1984-glitch.github.io/real-estate-calculator/tainan-land-value-helper.html" target="_blank" rel="noreferrer">查土地公告現值</a>
+              <a href="https://weslywei1984-glitch.github.io/real-estate-calculator/land-increment-total.html" target="_blank" rel="noreferrer">查土地漲價總數額</a>
             </div>
             <div class="field">
               <label for="holdingYears">持有年數</label>
@@ -2223,7 +2223,7 @@
           </div>
 
           <div class="actions">
-            <button class="primary" type="submit">重新計算</button>
+            <button class="primary" type="button" data-clear="tax">清空</button>
             <button class="secondary" type="button" data-reset="tax">套用範例</button>
           </div>
         </div>
@@ -2360,7 +2360,7 @@
             </label>
           </div>
           <div class="actions">
-            <button class="primary" type="submit">重新計算</button>
+            <button class="primary" type="button" data-clear="buyer">清空</button>
             <button class="secondary" type="button" data-reset="buyer">套用範例</button>
           </div>
         </div>
@@ -2450,7 +2450,7 @@
             </div>
           </div>
           <div class="actions">
-            <button class="primary" type="submit">重新計算</button>
+            <button class="primary" type="button" data-clear="loan">清空</button>
             <button class="secondary" type="button" data-reset="loan">套用範例</button>
           </div>
         </div>
@@ -2590,7 +2590,7 @@
           </div>
 
           <div class="actions">
-            <button class="primary young-primary" type="submit">重新計算</button>
+            <button class="primary young-primary" type="button" data-clear="young">清空</button>
             <button class="secondary" type="button" data-reset="young">套用範例</button>
           </div>
         </div>
@@ -3224,6 +3224,36 @@
       runGroup(group, { loading: true, feedback: "已套用" });
     }
 
+    function clearGroup(group) {
+      const config = calculators[group];
+      if (!config) return;
+      const form = document.getElementById(config.formId);
+      const button = form.querySelector(`[data-clear="${group}"]`);
+
+      window.clearTimeout(pendingCalculations[group]);
+      form.querySelectorAll("input").forEach(input => {
+        if (input.type === "checkbox" || input.type === "radio") {
+          input.checked = false;
+        } else {
+          input.value = "";
+        }
+      });
+      form.querySelectorAll("select").forEach(select => {
+        select.selectedIndex = 0;
+      });
+      clearValidation(form);
+      setResultState(group, "empty", "尚未輸入試算資料", "填寫左側欄位後，結果會自動更新。");
+
+      if (!button) return;
+      button.dataset.originalText ||= button.textContent;
+      button.textContent = "已清空";
+      button.classList.add("is-success");
+      window.setTimeout(() => {
+        button.textContent = button.dataset.originalText;
+        button.classList.remove("is-success");
+      }, 900);
+    }
+
     const calculators = {
       tax: { formId: "taxForm", resultId: "taxResult", run: calculateTax },
       buyer: { formId: "buyerForm", resultId: "buyerResult", run: calculateBuyer },
@@ -3311,7 +3341,7 @@
     }
 
     function setButtonState(form, loading, feedback = "已更新") {
-      const button = form.querySelector(".primary");
+      const button = form.querySelector('[type="submit"]');
       if (!button) return;
       button.dataset.originalText ||= button.textContent;
       button.disabled = loading;
@@ -3341,7 +3371,7 @@
         if (!validateForm(form)) {
           const firstInvalid = form.querySelector("[aria-invalid='true']");
           firstInvalid?.focus({ preventScroll: true });
-          setResultState(group, "error", "資料需要修正", "請檢查左側紅色欄位後再重新計算。");
+          setResultState(group, "error", "資料需要修正", "請檢查左側紅色欄位後再試一次。");
           setButtonState(form, false, "需修正");
           return;
         }
@@ -3407,6 +3437,10 @@
 
     document.querySelectorAll("[data-reset]").forEach(button => {
       button.addEventListener("click", () => resetGroup(button.dataset.reset));
+    });
+
+    document.querySelectorAll("[data-clear]").forEach(button => {
+      button.addEventListener("click", () => clearGroup(button.dataset.clear));
     });
 
     function syncBuyerDownPaymentFromRatio() {
