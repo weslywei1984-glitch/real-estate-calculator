@@ -275,6 +275,13 @@
       margin-bottom: 14px;
     }
 
+    .mode-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
     .segmented {
       display: inline-grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -313,9 +320,11 @@
       color: var(--muted);
       font-size: .94rem;
       font-weight: 800;
+      white-space: nowrap;
     }
 
     .unit-select {
+      min-width: 0;
       padding: 0 34px 0 12px;
       border: 1px solid var(--line);
       background: var(--white);
@@ -409,6 +418,35 @@
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
+    }
+
+    .price-group {
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid rgba(36, 49, 38, .1);
+      border-radius: 8px;
+      background: #fbfcf8;
+    }
+
+    .price-group-title {
+      color: var(--green-dark);
+      font-weight: 1000;
+    }
+
+    .price-converter {
+      display: grid;
+      gap: 8px;
+    }
+
+    .price-field {
+      display: grid;
+      gap: 5px;
+    }
+
+    .price-field label {
+      color: var(--muted);
+      font-size: .84rem;
     }
 
     .area-converter {
@@ -651,6 +689,11 @@
       color: var(--blue);
       border-color: rgba(36, 87, 166, .2);
       background: var(--sky);
+    }
+
+    .toolbar-link {
+      min-height: 44px;
+      padding-inline: 12px;
     }
 
     .answer-panel {
@@ -930,12 +973,14 @@
       }
 
       .toolbar,
+      .mode-actions,
       .unit-wrap,
       .actions {
         align-items: stretch;
       }
 
       .segmented,
+      .mode-actions,
       .unit-wrap,
       .unit-select,
       .btn {
@@ -1000,9 +1045,15 @@
     <main>
       <section class="tool-panel" aria-label="輸入區">
         <div class="toolbar">
-          <div class="segmented" role="tablist" aria-label="計算方式">
-            <button type="button" data-mode="unit" role="tab" aria-selected="true" class="active">用公告現值算</button>
-            <button type="button" data-mode="total" role="tab" aria-selected="false">我已經有總額</button>
+          <div class="mode-actions">
+            <div class="segmented" role="tablist" aria-label="計算方式">
+              <button type="button" data-mode="unit" role="tab" aria-selected="true" class="active">用公告現值算</button>
+              <button type="button" data-mode="total" role="tab" aria-selected="false">我已經有總額</button>
+            </div>
+            <a class="btn ghost toolbar-link" href="https://www.etax.nat.gov.tw/etwmain/etw158w/51" target="_blank" rel="noreferrer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
+              官方頁面
+            </a>
           </div>
 
           <label class="unit-wrap">
@@ -1058,13 +1109,31 @@
               <div class="step-mark">2</div>
               <div class="field-body">
                 <div class="two-col">
-                  <div>
-                    <label for="currentUnit">這次每平方公尺公告土地現值</label>
-                    <input id="currentUnit" inputmode="decimal" autocomplete="off" placeholder="例如 160000">
+                  <div class="price-group">
+                    <div class="price-group-title">這次公告土地現值</div>
+                    <div class="price-converter">
+                      <div class="price-field">
+                        <label for="currentUnit">每平方公尺（元）</label>
+                        <input id="currentUnit" inputmode="decimal" autocomplete="off" placeholder="例如 160000">
+                      </div>
+                      <div class="price-field">
+                        <label for="currentPingUnit">每坪（元）</label>
+                        <input id="currentPingUnit" inputmode="decimal" autocomplete="off" placeholder="例如 528928">
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <label for="previousUnit">上次每平方公尺土地價格</label>
-                    <input id="previousUnit" inputmode="decimal" autocomplete="off" placeholder="例如 20000">
+                  <div class="price-group">
+                    <div class="price-group-title">上次土地價格</div>
+                    <div class="price-converter">
+                      <div class="price-field">
+                        <label for="previousUnit">每平方公尺（元）</label>
+                        <input id="previousUnit" inputmode="decimal" autocomplete="off" placeholder="例如 20000">
+                      </div>
+                      <div class="price-field">
+                        <label for="previousPingUnit">每坪（元）</label>
+                        <input id="previousPingUnit" inputmode="decimal" autocomplete="off" placeholder="例如 66116">
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -1121,21 +1190,17 @@
         <div class="form-message" id="formMessage" aria-live="polite"></div>
 
         <div class="actions">
-          <button type="button" class="btn primary" id="sampleBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h4"/></svg>
-            填入範例
-          </button>
           <button type="button" class="btn secondary" id="resetBtn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v6h6"/></svg>
             清空
           </button>
-          <a class="btn ghost" href="https://www.etax.nat.gov.tw/etwmain/etw158w/51" target="_blank" rel="noreferrer">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
-            官方頁面
-          </a>
+          <button type="button" class="btn primary" id="sampleBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h4"/></svg>
+            套用範例
+          </button>
           <a class="btn secondary" href="index.html">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>
-            回到稅費與貸款試算
+            回稅費與貸款試算
           </a>
           <a class="btn ghost" href="tainan-land-value-helper.html">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
@@ -1205,7 +1270,7 @@
   </div>
 
   <script>
-    const moneyIds = ["currentTotal", "previousTotal", "currentUnit", "previousUnit", "improvement", "benefitFee", "readjustment", "donatedLand"];
+    const moneyIds = ["currentTotal", "previousTotal", "currentUnit", "currentPingUnit", "previousUnit", "previousPingUnit", "improvement", "benefitFee", "readjustment", "donatedLand"];
     const allInputIds = [...moneyIds, "area", "areaPing", "priceIndex"];
     const els = {};
 
@@ -1260,6 +1325,32 @@
 
       const converted = sourceId === "area" ? number / 3.3058 : number * 3.3058;
       els[targetId].value = formatArea(converted);
+    }
+
+    const unitPricePairs = {
+      currentUnit: { targetId: "currentPingUnit", factor: 3.3058 },
+      currentPingUnit: { targetId: "currentUnit", factor: 1 / 3.3058 },
+      previousUnit: { targetId: "previousPingUnit", factor: 3.3058 },
+      previousPingUnit: { targetId: "previousUnit", factor: 1 / 3.3058 }
+    };
+
+    function syncUnitPrice(sourceId) {
+      const pair = unitPricePairs[sourceId];
+      if (!pair) return;
+
+      const value = rawInput(sourceId);
+      if (!value) {
+        els[pair.targetId].value = "";
+        return;
+      }
+
+      const number = Number(value);
+      if (!Number.isFinite(number) || number < 0) {
+        els[pair.targetId].value = "";
+        return;
+      }
+
+      els[pair.targetId].value = formatArea(number * pair.factor);
     }
 
     function getLevel(ratio) {
@@ -1377,6 +1468,10 @@
       if (mode === "unit") {
         const areaPingMessage = validateInput("areaPing", false);
         if (areaPingMessage) errors.areaPing = areaPingMessage;
+        ["currentPingUnit", "previousPingUnit"].forEach((id) => {
+          const message = validateInput(id, false);
+          if (message) errors[id] = message;
+        });
       }
 
       allInputIds.forEach((id) => {
@@ -1532,6 +1627,10 @@
         });
         if (rawInput("area") && !rawInput("areaPing")) syncArea("area");
         if (rawInput("areaPing") && !rawInput("area")) syncArea("areaPing");
+        if (rawInput("currentUnit") && !rawInput("currentPingUnit")) syncUnitPrice("currentUnit");
+        if (rawInput("currentPingUnit") && !rawInput("currentUnit")) syncUnitPrice("currentPingUnit");
+        if (rawInput("previousUnit") && !rawInput("previousPingUnit")) syncUnitPrice("previousUnit");
+        if (rawInput("previousPingUnit") && !rawInput("previousUnit")) syncUnitPrice("previousPingUnit");
         setMode(data.mode === "total" ? "total" : "unit");
       } catch {
         setMode("unit");
@@ -1550,6 +1649,7 @@
     allInputIds.forEach((id) => {
       els[id]?.addEventListener("input", () => {
         if (id === "area" || id === "areaPing") syncArea(id);
+        if (unitPricePairs[id]) syncUnitPrice(id);
         scheduleCalculate();
       });
     });
@@ -1558,13 +1658,15 @@
 
     els.sampleBtn.addEventListener("click", () => {
       setButtonState(els.sampleBtn, "loading");
-      setAnswerState("loading", "正在填入範例並更新結果...");
+      setAnswerState("loading", "正在套用範例並更新結果...");
       window.setTimeout(() => {
         els.moneyScale.value = "1";
         els.area.value = "50";
         syncArea("area");
         els.currentUnit.value = "160000";
+        syncUnitPrice("currentUnit");
         els.previousUnit.value = "20000";
+        syncUnitPrice("previousUnit");
         els.priceIndex.value = "200";
         els.improvement.value = "";
         els.benefitFee.value = "80000";
@@ -1573,7 +1675,7 @@
         setMode("unit");
         calculate();
         setButtonState(els.sampleBtn, "success");
-        setToast("已填入範例。", "success");
+        setToast("已套用範例。", "success");
       }, 160);
     });
 
