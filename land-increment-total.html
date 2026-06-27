@@ -411,6 +411,26 @@
       gap: 10px;
     }
 
+    .area-converter {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid rgba(37, 122, 92, .16);
+      border-radius: 8px;
+      background: #f6fbf3;
+    }
+
+    .area-unit {
+      display: grid;
+      gap: 6px;
+    }
+
+    .area-unit label {
+      color: var(--green-dark);
+      font-size: .92rem;
+    }
+
     .instant-total {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -906,6 +926,7 @@
       }
 
       .two-col,
+      .area-converter,
       .deductions,
       .instant-total {
         grid-template-columns: 1fr;
@@ -1025,8 +1046,17 @@
               <div class="step-mark">1</div>
               <div class="field-body">
                 <label for="area">土地面積</label>
-                <p class="hint">請用平方公尺。若資料是坪，先乘 3.3058。</p>
-                <input id="area" inputmode="decimal" autocomplete="off" placeholder="例如 50">
+                <p class="hint">填平方公尺或坪數都可以，另一格會自動換算。</p>
+                <div class="area-converter" aria-label="土地面積換算">
+                  <div class="area-unit">
+                    <label for="area">平方公尺（m²）</label>
+                    <input id="area" inputmode="decimal" autocomplete="off" placeholder="例如 50">
+                  </div>
+                  <div class="area-unit">
+                    <label for="areaPing">坪</label>
+                    <input id="areaPing" inputmode="decimal" autocomplete="off" placeholder="例如 15.125">
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1172,7 +1202,7 @@
 
   <script>
     const moneyIds = ["currentTotal", "previousTotal", "currentUnit", "previousUnit", "improvement", "benefitFee", "readjustment", "donatedLand"];
-    const allInputIds = [...moneyIds, "area", "priceIndex"];
+    const allInputIds = [...moneyIds, "area", "areaPing", "priceIndex"];
     const els = {};
 
     document.querySelectorAll("[id]").forEach((el) => {
@@ -1202,6 +1232,30 @@
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       });
+    }
+
+    function formatArea(value) {
+      if (!Number.isFinite(value)) return "";
+      return Number(value.toFixed(4)).toString();
+    }
+
+    function syncArea(sourceId) {
+      const targetId = sourceId === "area" ? "areaPing" : "area";
+      const value = rawInput(sourceId);
+
+      if (!value) {
+        els[targetId].value = "";
+        return;
+      }
+
+      const number = Number(value);
+      if (!Number.isFinite(number) || number < 0) {
+        els[targetId].value = "";
+        return;
+      }
+
+      const converted = sourceId === "area" ? number / 3.3058 : number * 3.3058;
+      els[targetId].value = formatArea(converted);
     }
 
     function getLevel(ratio) {
@@ -1281,7 +1335,7 @@
       } else {
         input.removeAttribute("aria-describedby");
       }
-      if (row) row.classList.toggle("has-error", Boolean(message));
+      if (row) row.classList.toggle("has-error", Boolean(row.querySelector(".is-invalid")));
       if (error) error.textContent = message || "";
     }
 
@@ -1315,6 +1369,11 @@
         const message = validateInput(id, false);
         if (message) errors[id] = message;
       });
+
+      if (mode === "unit") {
+        const areaPingMessage = validateInput("areaPing", false);
+        if (areaPingMessage) errors.areaPing = areaPingMessage;
+      }
 
       allInputIds.forEach((id) => {
         setFieldError(id, errors[id] || "");
@@ -1461,6 +1520,8 @@
             els[id].value = data[id];
           }
         });
+        if (rawInput("area") && !rawInput("areaPing")) syncArea("area");
+        if (rawInput("areaPing") && !rawInput("area")) syncArea("areaPing");
         setMode(data.mode === "total" ? "total" : "unit");
       } catch {
         setMode("unit");
@@ -1477,7 +1538,10 @@
     });
 
     allInputIds.forEach((id) => {
-      els[id]?.addEventListener("input", () => scheduleCalculate());
+      els[id]?.addEventListener("input", () => {
+        if (id === "area" || id === "areaPing") syncArea(id);
+        scheduleCalculate();
+      });
     });
 
     els.moneyScale.addEventListener("change", () => scheduleCalculate(80));
@@ -1488,6 +1552,7 @@
       window.setTimeout(() => {
         els.moneyScale.value = "1";
         els.area.value = "50";
+        syncArea("area");
         els.currentUnit.value = "160000";
         els.previousUnit.value = "20000";
         els.priceIndex.value = "200";
