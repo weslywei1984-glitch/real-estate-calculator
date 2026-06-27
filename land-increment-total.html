@@ -82,7 +82,7 @@
 
     header {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 1fr);
       gap: 16px;
       align-items: end;
       margin-bottom: 18px;
@@ -440,8 +440,8 @@
 
     .instant-card {
       display: grid;
-      gap: 5px;
-      min-height: 108px;
+      gap: 6px;
+      min-height: 138px;
       padding: 12px;
       border: 1px solid rgba(37, 122, 92, .18);
       border-radius: 8px;
@@ -461,8 +461,8 @@
 
     .instant-card strong {
       color: var(--green-dark);
-      font-size: clamp(1.35rem, 4vw, 2rem);
-      line-height: 1.05;
+      font-size: clamp(1.3rem, 2.2vw, 1.75rem);
+      line-height: 1.1;
       overflow-wrap: anywhere;
     }
 
@@ -472,7 +472,31 @@
 
     .instant-card small {
       color: var(--muted);
+      font-size: .8rem;
       line-height: 1.35;
+    }
+
+    .unit-price {
+      display: flex;
+      gap: 8px;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-top: auto;
+      padding-top: 8px;
+      border-top: 1px solid rgba(37, 122, 92, .14);
+      color: var(--muted);
+      font-size: .8rem;
+      font-weight: 900;
+    }
+
+    .instant-card.alt .unit-price {
+      border-top-color: rgba(36, 87, 166, .14);
+    }
+
+    .unit-price b {
+      color: var(--ink);
+      font-size: .92rem;
+      white-space: nowrap;
     }
 
     .mode-block[hidden] {
@@ -690,10 +714,11 @@
 
     .big-number {
       margin: 0;
-      overflow-wrap: anywhere;
-      font-size: clamp(2.1rem, 6vw, 4.25rem);
-      line-height: 1;
+      font-size: clamp(1.8rem, 3.8vw, 3.15rem);
+      line-height: 1.05;
       font-weight: 1000;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
     }
 
     .sub-result {
@@ -884,19 +909,11 @@
         grid-template-columns: 1fr;
       }
 
-      .source-badge {
-        width: 100%;
-      }
-
       .answer-panel {
         position: static;
       }
 
       .formula-strip {
-        grid-template-columns: 1fr;
-      }
-
-      .plain-helper {
         grid-template-columns: 1fr;
       }
 
@@ -956,10 +973,6 @@
         <p class="lead">先填土地面積和公告土地現值，就能看出這塊土地「政府認定漲了多少」。不知道進階費用時，先留空也可以。</p>
       </div>
 
-      <div class="source-badge" aria-label="資料來源">
-        <strong>依財政部土地增值稅口徑整理</strong>
-        <a href="https://www.etax.nat.gov.tw/etwmain/etw158w/51" target="_blank" rel="noreferrer">官方試算頁</a>
-      </div>
     </header>
 
     <section class="formula-strip" aria-label="公式">
@@ -981,25 +994,6 @@
       <div class="formula-piece">
         <small>答案</small>
         <strong>這塊土地漲多少</strong>
-      </div>
-    </section>
-
-    <section class="plain-helper" aria-label="公告土地現值說明">
-      <div class="helper-title">
-        <strong>公告土地現值怎麼填？</strong>
-        <span>用地政資料上的每平方公尺金額，乘上土地面積。</span>
-      </div>
-      <div class="helper-step">
-        <b>1. 土地面積</b>
-        <span>看謄本或地籍資料，單位用平方公尺。</span>
-      </div>
-      <div class="helper-step">
-        <b>2. 這次公告現值</b>
-        <span>填今年或申報當期每平方公尺公告土地現值。</span>
-      </div>
-      <div class="helper-step">
-        <b>3. 上次土地價格</b>
-        <span>填取得時的申報現值；繼承或特殊案件再查稅務資料。</span>
       </div>
     </section>
 
@@ -1079,11 +1073,13 @@
                     <span>公告土地現值總額</span>
                     <strong id="assessedTotalOut">0 元</strong>
                     <small>土地面積 × 這次每平方公尺公告土地現值</small>
+                    <div class="unit-price"><span>換算每坪約</span><b id="currentPingUnitOut">0 元</b></div>
                   </div>
                   <div class="instant-card alt">
                     <span>上次土地價格總額</span>
                     <strong id="previousBaseOut">0 元</strong>
                     <small>土地面積 × 上次每平方公尺土地價格</small>
+                    <div class="unit-price"><span>換算每坪約</span><b id="previousPingUnitOut">0 元</b></div>
                   </div>
                 </div>
               </div>
@@ -1136,6 +1132,14 @@
           <a class="btn ghost" href="https://www.etax.nat.gov.tw/etwmain/etw158w/51" target="_blank" rel="noreferrer">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
             官方頁面
+          </a>
+          <a class="btn secondary" href="index.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>
+            回到稅費與貸款試算
+          </a>
+          <a class="btn ghost" href="tainan-land-value-helper.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            用地號查公告現值
           </a>
         </div>
       </section>
@@ -1390,6 +1394,8 @@
       els.increaseAmount.textContent = formatMoney(0);
       if (els.assessedTotalOut) els.assessedTotalOut.textContent = formatMoney(0);
       if (els.previousBaseOut) els.previousBaseOut.textContent = formatMoney(0);
+      if (els.currentPingUnitOut) els.currentPingUnitOut.textContent = formatMoney(0);
+      if (els.previousPingUnitOut) els.previousPingUnitOut.textContent = formatMoney(0);
       els.currentOut.textContent = formatMoney(0);
       els.adjustedOut.textContent = formatMoney(0);
       els.deductionOut.textContent = formatMoney(0);
@@ -1450,10 +1456,14 @@
       const increase = Math.max(0, raw);
       const ratio = adjustedPrevious > 0 ? increase / adjustedPrevious : 0;
       const maxBar = Math.max(current, adjustedPrevious, deductions, increase, 1);
+      const currentPingUnit = mode === "unit" ? moneyFromInput("currentUnit") * 3.3058 : 0;
+      const previousPingUnit = mode === "unit" ? moneyFromInput("previousUnit") * 3.3058 : 0;
 
       els.increaseAmount.textContent = formatMoney(increase);
       if (els.assessedTotalOut) els.assessedTotalOut.textContent = formatMoney(current);
       if (els.previousBaseOut) els.previousBaseOut.textContent = formatMoney(previous);
+      if (els.currentPingUnitOut) els.currentPingUnitOut.textContent = formatMoney(currentPingUnit);
+      if (els.previousPingUnitOut) els.previousPingUnitOut.textContent = formatMoney(previousPingUnit);
       els.currentOut.textContent = formatMoney(current);
       els.adjustedOut.textContent = formatMoney(adjustedPrevious);
       els.deductionOut.textContent = formatMoney(deductions);
