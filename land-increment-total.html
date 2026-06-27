@@ -602,8 +602,14 @@
     .actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
       margin-top: 14px;
+    }
+
+    .actions .btn {
+      min-height: 46px;
+      padding-inline: 12px;
+      font-size: .92rem;
     }
 
     .btn {
@@ -1020,28 +1026,6 @@
 
     </header>
 
-    <section class="formula-strip" aria-label="公式">
-      <div class="formula-piece">
-        <small>現在</small>
-        <strong>這次土地公告現值總額</strong>
-      </div>
-      <div class="symbol">-</div>
-      <div class="formula-piece">
-        <small>以前</small>
-        <strong>上次土地價格 × 物價調整</strong>
-      </div>
-      <div class="symbol">-</div>
-      <div class="formula-piece">
-        <small>可扣</small>
-        <strong>可扣掉的成本</strong>
-      </div>
-      <div class="symbol">=</div>
-      <div class="formula-piece">
-        <small>答案</small>
-        <strong>這塊土地漲多少</strong>
-      </div>
-    </section>
-
     <main>
       <section class="tool-panel" aria-label="輸入區">
         <div class="toolbar">
@@ -1116,10 +1100,6 @@
                         <label for="currentUnit">每平方公尺（元）</label>
                         <input id="currentUnit" inputmode="decimal" autocomplete="off" placeholder="例如 160000">
                       </div>
-                      <div class="price-field">
-                        <label for="currentPingUnit">每坪（元）</label>
-                        <input id="currentPingUnit" inputmode="decimal" autocomplete="off" placeholder="例如 528928">
-                      </div>
                     </div>
                   </div>
                   <div class="price-group">
@@ -1128,10 +1108,6 @@
                       <div class="price-field">
                         <label for="previousUnit">每平方公尺（元）</label>
                         <input id="previousUnit" inputmode="decimal" autocomplete="off" placeholder="例如 20000">
-                      </div>
-                      <div class="price-field">
-                        <label for="previousPingUnit">每坪（元）</label>
-                        <input id="previousPingUnit" inputmode="decimal" autocomplete="off" placeholder="例如 66116">
                       </div>
                     </div>
                   </div>
@@ -1270,7 +1246,7 @@
   </div>
 
   <script>
-    const moneyIds = ["currentTotal", "previousTotal", "currentUnit", "currentPingUnit", "previousUnit", "previousPingUnit", "improvement", "benefitFee", "readjustment", "donatedLand"];
+    const moneyIds = ["currentTotal", "previousTotal", "currentUnit", "previousUnit", "improvement", "benefitFee", "readjustment", "donatedLand"];
     const allInputIds = [...moneyIds, "area", "areaPing", "priceIndex"];
     const els = {};
 
@@ -1325,32 +1301,6 @@
 
       const converted = sourceId === "area" ? number / 3.3058 : number * 3.3058;
       els[targetId].value = formatArea(converted);
-    }
-
-    const unitPricePairs = {
-      currentUnit: { targetId: "currentPingUnit", factor: 3.3058 },
-      currentPingUnit: { targetId: "currentUnit", factor: 1 / 3.3058 },
-      previousUnit: { targetId: "previousPingUnit", factor: 3.3058 },
-      previousPingUnit: { targetId: "previousUnit", factor: 1 / 3.3058 }
-    };
-
-    function syncUnitPrice(sourceId) {
-      const pair = unitPricePairs[sourceId];
-      if (!pair) return;
-
-      const value = rawInput(sourceId);
-      if (!value) {
-        els[pair.targetId].value = "";
-        return;
-      }
-
-      const number = Number(value);
-      if (!Number.isFinite(number) || number < 0) {
-        els[pair.targetId].value = "";
-        return;
-      }
-
-      els[pair.targetId].value = formatArea(number * pair.factor);
     }
 
     function getLevel(ratio) {
@@ -1468,10 +1418,6 @@
       if (mode === "unit") {
         const areaPingMessage = validateInput("areaPing", false);
         if (areaPingMessage) errors.areaPing = areaPingMessage;
-        ["currentPingUnit", "previousPingUnit"].forEach((id) => {
-          const message = validateInput(id, false);
-          if (message) errors[id] = message;
-        });
       }
 
       allInputIds.forEach((id) => {
@@ -1627,10 +1573,6 @@
         });
         if (rawInput("area") && !rawInput("areaPing")) syncArea("area");
         if (rawInput("areaPing") && !rawInput("area")) syncArea("areaPing");
-        if (rawInput("currentUnit") && !rawInput("currentPingUnit")) syncUnitPrice("currentUnit");
-        if (rawInput("currentPingUnit") && !rawInput("currentUnit")) syncUnitPrice("currentPingUnit");
-        if (rawInput("previousUnit") && !rawInput("previousPingUnit")) syncUnitPrice("previousUnit");
-        if (rawInput("previousPingUnit") && !rawInput("previousUnit")) syncUnitPrice("previousPingUnit");
         setMode(data.mode === "total" ? "total" : "unit");
       } catch {
         setMode("unit");
@@ -1649,7 +1591,6 @@
     allInputIds.forEach((id) => {
       els[id]?.addEventListener("input", () => {
         if (id === "area" || id === "areaPing") syncArea(id);
-        if (unitPricePairs[id]) syncUnitPrice(id);
         scheduleCalculate();
       });
     });
@@ -1664,9 +1605,7 @@
         els.area.value = "50";
         syncArea("area");
         els.currentUnit.value = "160000";
-        syncUnitPrice("currentUnit");
         els.previousUnit.value = "20000";
-        syncUnitPrice("previousUnit");
         els.priceIndex.value = "200";
         els.improvement.value = "";
         els.benefitFee.value = "80000";
