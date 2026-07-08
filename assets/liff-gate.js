@@ -99,10 +99,7 @@
 
   showChecking();
 
-  var sdk = document.createElement("script");
-  sdk.src = "https://static.line-scdn.net/liff/edge/2/sdk.js";
-  sdk.onerror = showNeedLine;
-  sdk.onload = function () {
+  function startLiff() {
     window.liff.init({ liffId: LIFF_ID }).then(function () {
       if (!window.liff.isLoggedIn()) {
         if (window.liff.isInClient()) {
@@ -121,6 +118,16 @@
         }
       }).catch(pass); // 好友查詢失敗（例如尚未連結官方帳號）時不擋使用
     }).catch(showNeedLine);
-  };
-  document.head.appendChild(sdk);
+  }
+
+  if (window.liff) {
+    // SDK 已由頁面 <head> 預載，立即初始化，避免 LINE 端等待逾時（408）
+    startLiff();
+  } else {
+    var sdk = document.createElement("script");
+    sdk.src = "https://static.line-scdn.net/liff/edge/2/sdk.js";
+    sdk.onerror = showNeedLine;
+    sdk.onload = startLiff;
+    document.head.appendChild(sdk);
+  }
 })();
