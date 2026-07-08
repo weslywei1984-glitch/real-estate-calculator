@@ -49,6 +49,14 @@
 
 原因:看起來不像硬廣告,像在分享真實成交故事,讀者比較容易看完 😊
 
+## LINE LIFF 好友鎖
+
+- 三個頁面都在 `<head>` 載入 `assets/liff-gate.js`：檢查是否經由 LINE 開啟＋是否為官方帳號好友，未通過會顯示加好友鎖定畫面。
+- LIFF ID：`2010638341-Jcjp32uy`（LINE Login channel 綁定官方帳號 @tainanwei）。
+- 對外分享一律用 `https://liff.line.me/2010638341-Jcjp32uy`（子頁面在後面加 `/land-increment-total.html` 等路徑）。
+- 本機（localhost / 127.0.0.1）預設略過鎖，方便驗證計算器；加 `?liffgate=test` 可預覽鎖定畫面。
+- 好友檢查失敗（API 錯誤）時故意放行，避免設定問題把整站鎖死。
+
 ## 部署
 
 - 推到 `main` 分支即自動部署 GitHub Pages:https://weslywei1984-glitch.github.io/real-estate-calculator/
