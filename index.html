@@ -2310,13 +2310,6 @@
               <a href="https://www.etax.nat.gov.tw/etwmain/etw158w/51" target="_blank" rel="noreferrer">查漲價總額／土地增值稅試算</a>
             </div>
             <div class="field">
-              <label for="brokerRate">仲介服務費率</label>
-              <div class="control">
-                <input id="brokerRate" type="number" min="0" max="6" step="0.1" value="2">
-                <span class="unit">%</span>
-              </div>
-            </div>
-            <div class="field">
               <label for="scrivenerTransfer">移轉登記地政士費</label>
               <div class="control">
                 <input id="scrivenerTransfer" type="number" min="0" step="500" value="10000">
@@ -2684,7 +2677,6 @@
         mortgageSettingRatio: 1.2,
         buildingValue: 1000000,
         landDeclaredValue: 1800000,
-        brokerRate: 2,
         scrivenerTransfer: 10000,
         scrivenerLoan: 4000,
         signingFee: 1000,
@@ -2902,7 +2894,7 @@
       const mortgageSettingValue = loanAmount * value("mortgageSettingRatio");
       const buildingValue = value("buildingValue");
       const landDeclaredValue = value("landDeclaredValue");
-      const brokerRate = clamp(value("brokerRate"), 0, 6);
+      const brokerRate = 2;
       const deedTax = buildingValue * 0.06;
       const stampTax = purchasePrice * 0.001;
       const registrationFee = (buildingValue + landDeclaredValue) * 0.001;
