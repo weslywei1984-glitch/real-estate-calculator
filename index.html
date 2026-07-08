@@ -2111,6 +2111,70 @@
     .wan-hint:empty {
       display: none;
     }
+
+    /* 表單欄位統一尺寸、整齊排列 */
+    .form-grid .field > label {
+      display: flex;
+      align-items: flex-end;
+      min-height: 22px;
+    }
+
+    .form-grid .control {
+      height: 52px;
+      min-height: 52px;
+    }
+
+    .field.down-payment-field {
+      padding: 0;
+      border: 0;
+      background: transparent;
+    }
+
+    .down-payment-field > label {
+      color: #7a5b22;
+    }
+
+    .down-payment-field .control {
+      border-color: rgba(202, 161, 93, .5);
+      background: linear-gradient(180deg, #fffaf0, #fff3d9);
+    }
+
+    .down-payment-field .control:hover,
+    .down-payment-field .control:focus-within {
+      border-color: rgba(202, 161, 93, .78);
+      box-shadow: 0 0 0 4px rgba(202, 161, 93, .14);
+    }
+
+    /* 結果卡片進場動畫 */
+    .result-stack[data-state="success"] .metric,
+    .result-stack[data-state="success"] .eligibility-result,
+    .result-stack[data-state="success"] .table-wrap {
+      animation: metricIn .32s ease both;
+    }
+
+    .result-stack[data-state="success"] > :nth-child(2) { animation-delay: .05s; }
+    .result-stack[data-state="success"] > :nth-child(3) { animation-delay: .1s; }
+    .result-stack[data-state="success"] > :nth-child(4) { animation-delay: .15s; }
+    .result-stack[data-state="success"] > :nth-child(n+5) { animation-delay: .2s; }
+
+    @keyframes metricIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .result-stack[data-state="success"] .metric,
+      .result-stack[data-state="success"] .eligibility-result,
+      .result-stack[data-state="success"] .table-wrap {
+        animation: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -2276,7 +2340,7 @@
                 <span class="unit">%</span>
               </div>
             </div>
-            <div class="field wide down-payment-field">
+            <div class="field down-payment-field">
               <label for="buyerDownPayment">自備款</label>
               <div class="control">
                 <input id="buyerDownPayment" type="number" min="0" step="10000" value="3000000">
@@ -2421,7 +2485,7 @@
                 <span class="unit">元</span>
               </div>
             </div>
-            <div class="field wide down-payment-field">
+            <div class="field down-payment-field">
               <label for="loanDownPayment">自備款</label>
               <div class="control">
                 <input id="loanDownPayment" type="number" min="0" step="10000" value="3000000">
@@ -2529,7 +2593,7 @@
                 <span class="unit">%</span>
               </div>
             </div>
-            <div class="field wide down-payment-field">
+            <div class="field down-payment-field">
               <label for="youngDownPayment">自備款</label>
               <div class="control">
                 <input id="youngDownPayment" type="number" min="0" step="10000" value="2400000">
@@ -3297,7 +3361,7 @@
       clearValidation(form);
       updateAllWanHints();
       queueSave();
-      setResultState(group, "empty", "尚未輸入試算資料", "填寫左側欄位後，結果會自動更新。");
+      setResultState(group, "empty", "🧹 已清空，重新開始", "填寫左側欄位後，結果會自動更新。");
 
       if (!button) return;
       button.dataset.originalText ||= button.textContent;
@@ -3338,7 +3402,7 @@
 
     function showInitialStates() {
       Object.keys(calculators).forEach(group => {
-        setResultState(group, "initial", "尚未更新結果", "填寫左側資料後，結果會顯示在這裡。");
+        setResultState(group, "initial", "🧮 填好左邊，答案馬上出現", "結果會自動更新；也可以先按「套用範例」看示範。");
       });
     }
 
@@ -3432,12 +3496,36 @@
         }
         config.run();
         setResultState(group, "success");
+        animateResultNumbers(group);
         setButtonState(form, false, feedback);
       } catch (error) {
         console.error(error);
         setResultState(group, "error", "計算時發生錯誤", "請檢查輸入內容，或先套用範例後再修改。");
         setButtonState(form, false, "發生錯誤");
       }
+    }
+
+    function animateResultNumbers(group) {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const result = document.getElementById(calculators[group].resultId);
+      result.querySelectorAll(".metric > strong").forEach(el => {
+        const finalText = el.textContent;
+        const match = finalText.match(/-?[\d,]+(\.\d+)?/);
+        if (!match) return;
+        const finalNumber = Number(match[0].replace(/,/g, ""));
+        if (!Number.isFinite(finalNumber) || Math.abs(finalNumber) < 10) return;
+        const startTime = performance.now();
+        const duration = 420;
+        const tick = now => {
+          const progress = Math.min(1, (now - startTime) / duration);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = progress < 1
+            ? finalText.replace(match[0], Math.round(finalNumber * eased).toLocaleString("zh-TW"))
+            : finalText;
+          if (progress < 1 && el.isConnected) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      });
     }
 
     function runGroup(group, options = {}) {

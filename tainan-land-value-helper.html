@@ -922,9 +922,6 @@
       padding: 9px 10px;
       border-radius: 7px;
       background: rgba(237, 247, 243, .86);
-    }
-
-    .toast.is-visible {
       opacity: 1;
       transform: translateY(0);
     }
@@ -1360,17 +1357,17 @@
             <div class="metric main">
               <span>公告現值坪數換算</span>
               <strong id="currentTotalOut">0 元</strong>
-              <small>土地坪數 × 每坪公告現值</small>
+              <small id="currentTotalNote">土地坪數 × 每坪公告現值</small>
             </div>
             <div class="metric">
               <span>前次移轉現值坪數換算</span>
               <strong id="previousTotalOut">0 元</strong>
-              <small>土地坪數 × 每坪前次移轉現值</small>
+              <small id="previousTotalNote">土地坪數 × 每坪前次移轉現值</small>
             </div>
             <div class="metric">
               <span>土地價格差額</span>
               <strong id="gainTotalOut">0 元</strong>
-              <small>這次總額 - 上次總額</small>
+              <small id="gainTotalNote">這次總額 - 上次總額</small>
             </div>
             <div class="metric">
               <span>每坪公告土地現值</span>
@@ -1449,6 +1446,9 @@
       currentTotalOut: document.getElementById("currentTotalOut"),
       previousTotalOut: document.getElementById("previousTotalOut"),
       gainTotalOut: document.getElementById("gainTotalOut"),
+      currentTotalNote: document.getElementById("currentTotalNote"),
+      previousTotalNote: document.getElementById("previousTotalNote"),
+      gainTotalNote: document.getElementById("gainTotalNote"),
       currentPingOut: document.getElementById("currentPingOut"),
       summaryText: document.getElementById("summaryText"),
       lookupStatus: document.getElementById("lookupStatus"),
@@ -1769,7 +1769,7 @@
       if (input === els.district && !value) message = "請選擇行政區。";
       if (input === els.sectionName && !value) message = "請選擇小段名。";
       if (input === els.mainNo && (!value || numeric <= 0)) message = "請輸入正確地號母號。";
-      if (input === els.areaSqm && (!value || numeric <= 0)) message = "土地面積不可空白或為 0。";
+      if (input === els.areaSqm && value && numeric <= 0) message = "土地面積不可為 0 或負數。";
       if (input === els.ownerId && value && value.length < 8) message = "請確認權利人統一編號格式。";
 
       if ([els.areaPing, els.currentValue, els.previousValue].includes(input) && value && numeric <= 0) {
@@ -2021,7 +2021,7 @@
       if (!loaded) {
         lastLookupRow = null;
         clearAutoValues();
-        setLookupStatus("此行政區資料暫時未載入成功，請稍後再試或確認網路連線。", "warn");
+        setLookupStatus("⚠️ 此行政區資料暫時未載入成功，請稍後再試或確認網路連線。", "warn");
         showQueryResult(null);
         update();
         return true;
@@ -2031,7 +2031,7 @@
       if (!row) {
         lastLookupRow = null;
         clearAutoValues();
-        setLookupStatus("找不到這筆地號的 115 年公告現值資料，請確認小段名與地號格式。", "warn");
+        setLookupStatus("⚠️ 找不到這筆地號的 115 年公告現值資料，請確認小段名與地號格式。", "warn");
         showQueryResult(null);
         update();
         return true;
@@ -2045,7 +2045,7 @@
       setAutoValue(els.currentValue, currentValue);
       setAnnouncedLandPrice(announcedLandPrice);
       const areaText = officialArea ? `，官方登載面積 ${formatDecimal(officialArea, 4)} 平方公尺` : "";
-      setLookupStatus(`已找到 ${district}${els.sectionName.value} ${landNumber()} 的 115 年公告現值${areaText}，右側已同步換算。`, "good");
+      setLookupStatus(`✅ 已找到 ${district}${els.sectionName.value} ${landNumber()} 的 115 年公告現值${areaText}，右側已同步換算。`, "good");
       update();
       showQueryResult(row);
       return true;
@@ -2114,6 +2114,15 @@
       ].join("\n");
     }
 
+    function wanNote(value, fallback) {
+      const abs = Math.abs(value);
+      if (!Number.isFinite(value) || abs < 10000) return fallback;
+      const wan = abs >= 100000000
+        ? `約 ${formatDecimal(value / 100000000, 2)} 億元`
+        : `約 ${formatDecimal(value / 10000, 1)} 萬元`;
+      return `${wan}｜${fallback}`;
+    }
+
     function update() {
       const area = cleanNumber(els.areaSqm.value);
       const ping = cleanNumber(els.areaPing.value) || (area ? area / 3.3058 : 0);
@@ -2131,6 +2140,9 @@
       els.previousTotalOut.textContent = formatMoney(previousTotal);
       els.gainTotalOut.textContent = formatSignedMoney(gainTotal);
       els.currentPingOut.textContent = formatUnit(currentPing, "/坪");
+      if (els.currentTotalNote) els.currentTotalNote.textContent = wanNote(currentTotal, "土地坪數 × 每坪公告現值");
+      if (els.previousTotalNote) els.previousTotalNote.textContent = wanNote(previousTotal, "土地坪數 × 每坪前次移轉現值");
+      if (els.gainTotalNote) els.gainTotalNote.textContent = wanNote(gainTotal, "這次總額 - 上次總額");
       els.summaryText.value = buildSummary(currentTotal, previousTotal, gainTotal, currentPing, previousPing);
 
       if (metricSnapshot !== lastMetricSnapshot) {

@@ -1271,6 +1271,37 @@
       return `${rounded.toLocaleString("zh-TW")} 元`;
     }
 
+    function wanText(value) {
+      const abs = Math.abs(value);
+      if (!Number.isFinite(value) || abs < 10000) return "";
+      if (abs >= 100000000) {
+        return `約 ${(value / 100000000).toLocaleString("zh-TW", { maximumFractionDigits: 2 })} 億元`;
+      }
+      return `約 ${(value / 10000).toLocaleString("zh-TW", { maximumFractionDigits: 1 })} 萬元`;
+    }
+
+    let bigNumberFrame = null;
+
+    function setBigNumber(value) {
+      const el = els.increaseAmount;
+      const from = Number(el.dataset.value || 0);
+      el.dataset.value = String(value);
+      window.cancelAnimationFrame(bigNumberFrame);
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !Number.isFinite(from) || from === value) {
+        el.textContent = formatMoney(value);
+        return;
+      }
+      const startTime = performance.now();
+      const duration = 420;
+      const tick = (now) => {
+        const progress = Math.min(1, (now - startTime) / duration);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = formatMoney(from + (value - from) * eased);
+        if (progress < 1) bigNumberFrame = window.requestAnimationFrame(tick);
+      };
+      bigNumberFrame = window.requestAnimationFrame(tick);
+    }
+
     function formatRatio(value) {
       if (!Number.isFinite(value)) return "0";
       return value.toLocaleString("zh-TW", {
@@ -1305,15 +1336,15 @@
 
     function getLevel(ratio) {
       if (!Number.isFinite(ratio) || ratio <= 0) {
-        return "尚未產生漲價倍數";
+        return "⏳ 尚未產生漲價倍數";
       }
       if (ratio < 1) {
-        return "未達 100%，如果要再算土地增值稅，通常會落在第 1 級距參考區間。";
+        return "📊 未達 100%，如果要再算土地增值稅，通常會落在第 1 級距參考區間。";
       }
       if (ratio < 2) {
-        return "100% 以上未達 200%，如果要再算土地增值稅，通常會落在第 2 級距參考區間。";
+        return "📈 100% 以上未達 200%，如果要再算土地增值稅，通常會落在第 2 級距參考區間。";
       }
-      return "200% 以上，如果要再算土地增值稅，通常會落在第 3 級距參考區間。";
+      return "🚀 200% 以上，如果要再算土地增值稅，通常會落在第 3 級距參考區間。";
     }
 
     const primaryInputIds = {
@@ -1432,7 +1463,7 @@
     }
 
     function resetOutputs() {
-      els.increaseAmount.textContent = formatMoney(0);
+      setBigNumber(0);
       if (els.assessedTotalOut) els.assessedTotalOut.textContent = formatMoney(0);
       if (els.previousBaseOut) els.previousBaseOut.textContent = formatMoney(0);
       if (els.currentPingUnitOut) els.currentPingUnitOut.textContent = formatMoney(0);
@@ -1500,7 +1531,7 @@
       const currentPingUnit = mode === "unit" ? moneyFromInput("currentUnit") * 3.3058 : 0;
       const previousPingUnit = mode === "unit" ? moneyFromInput("previousUnit") * 3.3058 : 0;
 
-      els.increaseAmount.textContent = formatMoney(increase);
+      setBigNumber(increase);
       if (els.assessedTotalOut) els.assessedTotalOut.textContent = formatMoney(current);
       if (els.previousBaseOut) els.previousBaseOut.textContent = formatMoney(previous);
       if (els.currentPingUnitOut) els.currentPingUnitOut.textContent = formatMoney(currentPingUnit);
@@ -1515,7 +1546,8 @@
       if (raw < 0) {
         els.plainAnswer.textContent = `算式結果是 ${formatMoney(raw)}，代表沒有抓到可課稅的土地漲價；本工具以 0 元顯示。`;
       } else if (increase > 0) {
-        els.plainAnswer.textContent = `答案是 ${formatMoney(increase)}。這就是這塊土地估算漲了多少。`;
+        const wan = wanText(increase);
+        els.plainAnswer.textContent = `答案是 ${formatMoney(increase)}${wan ? `（${wan}）` : ""}。這就是這塊土地估算漲了多少。`;
       } else {
         els.plainAnswer.textContent = "填入數字後，答案會自動更新。";
       }
@@ -1530,7 +1562,7 @@
         `這次土地價格：${formatMoney(current)}`,
         `上次土地價格調整後：${formatMoney(adjustedPrevious)}（物價調整 ${priceIndex || 0}%）`,
         `可扣掉的成本：${formatMoney(deductions)}`,
-        `這塊土地估算漲了：${formatMoney(increase)}`,
+        `這塊土地估算漲了：${formatMoney(increase)}${wanText(increase) ? `（${wanText(increase)}）` : ""}`,
         `漲價倍數：${formatRatio(ratio)} 倍`,
         "台南小魏 買厝作伙｜0927-617-207｜永慶不動產 小東南紡店"
       ].join("\n");
