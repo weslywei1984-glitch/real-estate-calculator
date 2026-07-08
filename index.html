@@ -3,7 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>房地稅費與貸款試算</title>
+  <title>房地稅費與貸款試算｜台南小魏 買厝作伙</title>
+  <meta name="description" content="免費試算房地合一稅、買方現金需求、房貸月付與新青安 2.0。輸入金額即時計算,含自住優惠檢核與五階段利率攤還表。台南小魏 魏泉承 0927-617-207。">
+  <meta name="theme-color" content="#0f5f55">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="房地稅費與貸款試算｜台南小魏 買厝作伙">
+  <meta property="og:description" content="免費試算房地合一稅、買方現金需求、房貸月付與新青安 2.0,輸入金額即時算出結果。">
+  <meta property="og:image" content="https://weslywei1984-glitch.github.io/real-estate-calculator/assets/hero-reference.jpg">
+  <meta property="og:url" content="https://weslywei1984-glitch.github.io/real-estate-calculator/">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M12 34 32 16l20 18v18H38V40H26v12H12Z' fill='%23f7d77a'/%3E%3C/svg%3E">
   <style>
     :root {
@@ -2092,12 +2099,24 @@
         border-top: 0;
       }
     }
+
+    .wan-hint {
+      min-height: 1em;
+      color: #8a7b55;
+      font-size: .8rem;
+      font-weight: 750;
+      line-height: 1.3;
+    }
+
+    .wan-hint:empty {
+      display: none;
+    }
   </style>
 </head>
 <body>
   <main class="shell">
     <header class="hero-image-stage">
-      <img class="hero-art" src="assets/hero-reference.png" alt="房地稅費與貸款試算，台南小魏買厝作伙，魏泉承 0927-617-207">
+      <img class="hero-art" src="assets/hero-reference.jpg" width="2048" height="684" fetchpriority="high" alt="房地稅費與貸款試算，台南小魏買厝作伙，魏泉承 0927-617-207">
       <div class="hero-copy">
         <div class="title-row">
           <h1>房地稅費<span class="title-gold">與</span>貸款試算</h1>
@@ -2113,9 +2132,6 @@
           <span>以新臺幣輸入金額，快速估算出售房地合一稅、買方準備現金與房貸月付。</span>
           <span>正式申報仍以稅務機關、地政士、銀行核定為準。</span>
         </p>
-      </div>
-      <div class="hero-person-wrap" aria-hidden="true">
-        <img class="hero-person" src="assets/xiaowei-profile.png" alt="">
       </div>
       <aside class="hero-card" aria-label="品牌視覺與資料版本">
         <div class="status" aria-label="資料版本">
@@ -2225,6 +2241,7 @@
           <div class="actions">
             <button class="primary" type="button" data-clear="tax">清空</button>
             <button class="secondary" type="button" data-reset="tax">套用範例</button>
+            <button class="secondary" type="button" data-copy="tax">複製結果</button>
           </div>
         </div>
       </form>
@@ -2291,6 +2308,13 @@
               <span>查完土地資料後再回填：</span>
               <a href="https://easymap.land.moi.gov.tw/" target="_blank" rel="noreferrer">查土地公告現值／公告地價</a>
               <a href="https://www.etax.nat.gov.tw/etwmain/etw158w/51" target="_blank" rel="noreferrer">查漲價總額／土地增值稅試算</a>
+            </div>
+            <div class="field">
+              <label for="brokerRate">仲介服務費率</label>
+              <div class="control">
+                <input id="brokerRate" type="number" min="0" max="6" step="0.1" value="2">
+                <span class="unit">%</span>
+              </div>
             </div>
             <div class="field">
               <label for="scrivenerTransfer">移轉登記地政士費</label>
@@ -2362,6 +2386,7 @@
           <div class="actions">
             <button class="primary" type="button" data-clear="buyer">清空</button>
             <button class="secondary" type="button" data-reset="buyer">套用範例</button>
+            <button class="secondary" type="button" data-copy="buyer">複製結果</button>
           </div>
         </div>
       </form>
@@ -2452,6 +2477,7 @@
           <div class="actions">
             <button class="primary" type="button" data-clear="loan">清空</button>
             <button class="secondary" type="button" data-reset="loan">套用範例</button>
+            <button class="secondary" type="button" data-copy="loan">複製結果</button>
           </div>
         </div>
       </form>
@@ -2592,6 +2618,7 @@
           <div class="actions">
             <button class="primary young-primary" type="button" data-clear="young">清空</button>
             <button class="secondary" type="button" data-reset="young">套用範例</button>
+            <button class="secondary" type="button" data-copy="young">複製結果</button>
           </div>
         </div>
       </form>
@@ -2657,6 +2684,7 @@
         mortgageSettingRatio: 1.2,
         buildingValue: 1000000,
         landDeclaredValue: 1800000,
+        brokerRate: 2,
         scrivenerTransfer: 10000,
         scrivenerLoan: 4000,
         signingFee: 1000,
@@ -2726,6 +2754,37 @@
       if (document.activeElement !== input) {
         formatNumericInput(input);
       }
+      updateWanHint(input);
+    }
+
+    function wanText(amount) {
+      if (!Number.isFinite(amount) || Math.abs(amount) < 10000) return "";
+      if (Math.abs(amount) >= 100000000) return `= ${number.format(amount / 100000000)} 億元`;
+      return `= ${number.format(amount / 10000)} 萬元`;
+    }
+
+    function updateWanHint(input) {
+      const hint = input.closest(".field")?.querySelector(".wan-hint");
+      if (!hint) return;
+      hint.textContent = wanText(parseNumericValue(input.value));
+    }
+
+    function setupWanHints() {
+      document.querySelectorAll("[data-numeric-input]").forEach(input => {
+        const control = input.closest(".control");
+        const field = input.closest(".field");
+        const unit = control?.querySelector(".unit");
+        if (!field || !unit || unit.textContent.trim() !== "元") return;
+        const hint = document.createElement("div");
+        hint.className = "wan-hint";
+        field.appendChild(hint);
+        input.addEventListener("input", () => updateWanHint(input));
+        updateWanHint(input);
+      });
+    }
+
+    function updateAllWanHints() {
+      document.querySelectorAll("[data-numeric-input]").forEach(updateWanHint);
     }
 
     function setupNumericInputs() {
@@ -2843,7 +2902,7 @@
       const mortgageSettingValue = loanAmount * value("mortgageSettingRatio");
       const buildingValue = value("buildingValue");
       const landDeclaredValue = value("landDeclaredValue");
-      const brokerRate = 2;
+      const brokerRate = clamp(value("brokerRate"), 0, 6);
       const deedTax = buildingValue * 0.06;
       const stampTax = purchasePrice * 0.001;
       const registrationFee = (buildingValue + landDeclaredValue) * 0.001;
@@ -3221,6 +3280,8 @@
         }
       });
       formatAllNumericInputs();
+      updateAllWanHints();
+      queueSave();
       runGroup(group, { loading: true, feedback: "已套用" });
     }
 
@@ -3242,6 +3303,8 @@
         select.selectedIndex = 0;
       });
       clearValidation(form);
+      updateAllWanHints();
+      queueSave();
       setResultState(group, "empty", "尚未輸入試算資料", "填寫左側欄位後，結果會自動更新。");
 
       if (!button) return;
@@ -3411,18 +3474,77 @@
       Object.keys(calculators).forEach(group => runGroup(group, options));
     }
 
+    const STORAGE_KEY = "realEstateCalcInputs.v1";
+    let saveTimer;
+
+    function saveInputs() {
+      const data = {};
+      document.querySelectorAll("form input[id], form select[id]").forEach(el => {
+        data[el.id] = el.type === "checkbox" ? el.checked : String(el.value || "").replace(/,/g, "");
+      });
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch (error) {
+        /* 私密模式或空間不足時略過 */
+      }
+    }
+
+    function queueSave() {
+      window.clearTimeout(saveTimer);
+      saveTimer = window.setTimeout(saveInputs, 150);
+    }
+
+    function restoreInputs() {
+      let data = null;
+      try {
+        data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      } catch (error) {
+        return;
+      }
+      if (!data || typeof data !== "object") return;
+      Object.entries(data).forEach(([id, saved]) => {
+        const el = document.getElementById(id);
+        if (!el || !el.closest("form")) return;
+        if (el.type === "checkbox") {
+          el.checked = Boolean(saved);
+        } else {
+          el.value = saved;
+        }
+      });
+      formatAllNumericInputs();
+    }
+
     setupNumericInputs();
+    restoreInputs();
+    setupWanHints();
     showInitialStates();
 
-    document.querySelectorAll(".tab").forEach(tab => {
-      tab.addEventListener("click", () => {
-        document.querySelectorAll(".tab").forEach(item => {
-          item.setAttribute("aria-selected", String(item === tab));
-        });
-        document.querySelectorAll("[data-panel]").forEach(panel => {
-          panel.classList.toggle("hidden", panel.dataset.panel !== tab.dataset.tab);
-        });
+    function activateTab(name, options = {}) {
+      const tab = document.querySelector(`.tab[data-tab="${name}"]`);
+      if (!tab) return;
+      document.querySelectorAll(".tab").forEach(item => {
+        item.setAttribute("aria-selected", String(item === tab));
       });
+      document.querySelectorAll("[data-panel]").forEach(panel => {
+        panel.classList.toggle("hidden", panel.dataset.panel !== name);
+      });
+      if (options.updateHash !== false) {
+        history.replaceState(null, "", `#${name}`);
+      }
+    }
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => activateTab(tab.dataset.tab));
+    });
+
+    const initialTab = location.hash.replace("#", "");
+    if (calculators[initialTab]) {
+      activateTab(initialTab, { updateHash: false });
+    }
+
+    window.addEventListener("hashchange", () => {
+      const name = location.hash.replace("#", "");
+      if (calculators[name]) activateTab(name, { updateHash: false });
     });
 
     document.querySelectorAll("form").forEach(form => {
@@ -3431,8 +3553,14 @@
         event.preventDefault();
         runGroup(group, { loading: true, feedback: "已更新" });
       });
-      form.addEventListener("input", () => scheduleGroup(group));
-      form.addEventListener("change", () => scheduleGroup(group));
+      form.addEventListener("input", () => {
+        scheduleGroup(group);
+        queueSave();
+      });
+      form.addEventListener("change", () => {
+        scheduleGroup(group);
+        queueSave();
+      });
     });
 
     document.querySelectorAll("[data-reset]").forEach(button => {
@@ -3441,6 +3569,93 @@
 
     document.querySelectorAll("[data-clear]").forEach(button => {
       button.addEventListener("click", () => clearGroup(button.dataset.clear));
+    });
+
+    const summaryTitles = {
+      tax: "房地合一稅試算",
+      buyer: "買方現金需求試算",
+      loan: "房貸月付試算",
+      young: "新青安 2.0 試算"
+    };
+
+    function buildSummary(group) {
+      const result = document.getElementById(calculators[group].resultId);
+      const parts = [`【${summaryTitles[group]}】`];
+      result.querySelectorAll(".metric, .eligibility-result").forEach(block => {
+        const rows = [];
+        block.querySelectorAll(".line").forEach(row => {
+          const name = row.querySelector("span")?.textContent.trim();
+          const amount = row.querySelector("b")?.textContent.trim();
+          if (name && amount) rows.push(`・${name}：${amount}`);
+        });
+        if (block.classList.contains("eligibility-result")) {
+          const headline = block.firstChild?.textContent?.trim();
+          if (headline) parts.push(`■ ${headline}`, ...rows);
+          return;
+        }
+        const label = block.querySelector(":scope > span")?.textContent.trim();
+        const headline = block.querySelector(":scope > strong")?.textContent.trim();
+        if (label && headline) parts.push(`■ ${label}：${headline}`, ...rows);
+        else if (label && rows.length) parts.push(`■ ${label}`, ...rows);
+      });
+      parts.push(
+        "",
+        "※ 本試算僅供參考，正式仍以稅務機關、地政士、銀行核定為準。",
+        "台南小魏 買厝作伙｜魏泉承 0927-617-207",
+        location.origin + location.pathname + `#${group}`
+      );
+      return parts.join("\n");
+    }
+
+    function fallbackCopy(text) {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      let copied = false;
+      try {
+        copied = document.execCommand("copy");
+      } catch (error) {
+        copied = false;
+      }
+      textarea.remove();
+      return copied;
+    }
+
+    function flashButton(button, text) {
+      button.dataset.originalText ||= button.textContent;
+      button.textContent = text;
+      button.classList.add("is-success");
+      window.setTimeout(() => {
+        button.textContent = button.dataset.originalText;
+        button.classList.remove("is-success");
+      }, 1200);
+    }
+
+    async function copySummary(group, button) {
+      const result = document.getElementById(calculators[group].resultId);
+      if (result.dataset.state !== "success") {
+        flashButton(button, "請先完成試算");
+        return;
+      }
+      const text = buildSummary(group);
+      let copied = false;
+      if (navigator.clipboard?.writeText) {
+        try {
+          await navigator.clipboard.writeText(text);
+          copied = true;
+        } catch (error) {
+          copied = false;
+        }
+      }
+      if (!copied) copied = fallbackCopy(text);
+      flashButton(button, copied ? "已複製，可貼到 LINE" : "複製失敗");
+    }
+
+    document.querySelectorAll("[data-copy]").forEach(button => {
+      button.addEventListener("click", () => copySummary(button.dataset.copy, button));
     });
 
     function syncBuyerDownPaymentFromRatio() {
