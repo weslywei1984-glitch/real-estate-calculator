@@ -63,14 +63,25 @@
     card("確認開啟來源中...", "台南小魏 買厝作伙 試算工具", '<div class="liff-spinner"></div>');
   }
 
-  function showNeedLine() {
+  function showNeedLine(canLogin) {
     card(
       "此工具為官方帳號好友專屬 🔒",
-      "請加入「台南小魏 買厝作伙」LINE 官方帳號，並從 LINE 內開啟本試算工具。",
+      "請加入「台南小魏 買厝作伙」LINE 官方帳號，手機從 LINE 內開啟；電腦版請用 LINE 帳號登入。",
       '<a class="liff-btn line" href="' + OA_ADD_URL + '">➕ 加入官方帳號好友</a>' +
-      '<a class="liff-btn gold" href="' + LIFF_OPEN_URL + '">已是好友，用 LINE 開啟</a>',
+      (canLogin ? '<button class="liff-btn gold" type="button" id="liffLoginBtn">🖥️ 電腦版：用 LINE 帳號登入</button>' : "") +
+      '<a class="liff-btn ghost" href="' + LIFF_OPEN_URL + '">📱 手機：用 LINE 開啟</a>',
       "台南小魏 魏泉承 0927-617-207｜永慶不動產 小東南紡店"
     );
+    var loginBtn = document.getElementById("liffLoginBtn");
+    if (loginBtn) {
+      loginBtn.addEventListener("click", function () {
+        try {
+          window.liff.login({ redirectUri: location.href });
+        } catch (error) {
+          location.href = LIFF_OPEN_URL;
+        }
+      });
+    }
   }
 
   function showNeedFriend() {
@@ -107,7 +118,7 @@
           window.liff.login({ redirectUri: location.href });
           return;
         }
-        showNeedLine();
+        showNeedLine(true); // init 成功才有辦法用 liff.login（電腦版）
         return;
       }
       window.liff.getFriendship().then(function (friendship) {
