@@ -50,9 +50,17 @@ test("年限與基準利率改由正式政策自動套用", () => {
   assert.match(html, /youngPolicy\.POLICY\.defaultBaseRate/);
 });
 
-test("方案摘要使用三點條列並顯示自備款公式", () => {
+test("方案摘要只保留貸款額度並移除欄位說明", () => {
   assert.match(html, /<ol class="base-terms">/);
-  assert.equal((html.match(/<li>/g) || []).length, 3);
-  assert.match(html, /id="youngDownPaymentFormula"/);
+  assert.equal((html.match(/<li>/g) || []).length, 1);
+  assert.doesNotMatch(html, /id="youngDownPaymentFormula"/);
+  assert.doesNotMatch(html, /貸款年限依年齡自動套用：/);
   assert.match(html, /youngPolicy\.calculateFinancing/);
+});
+
+test("申貸額度選單使用專屬字級並精簡資格結果", () => {
+  assert.match(html, /#youngApplicantType\s*\{[^}]*font-size:/s);
+  assert.doesNotMatch(html, /須為成年人/);
+  assert.match(html, /eligibility\.checks\.ageLimit/);
+  assert.match(html, /eligibility\.checks\.agePlusTerm/);
 });
