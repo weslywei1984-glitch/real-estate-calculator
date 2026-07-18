@@ -42,3 +42,17 @@ test("青安計算使用政策核心與正式五階分段", () => {
   assert.match(html, /youngGraceYears[^\n]+0,\s*5/);
   assert.match(html, /rateNumber\.format\(row\.annualRate\)/);
 });
+
+test("年限與基準利率改由正式政策自動套用", () => {
+  assert.doesNotMatch(html, /id="youngLoanYears"/);
+  assert.doesNotMatch(html, /id="youngBaseRate"/);
+  assert.match(html, /youngPolicy\.loanYearsForAge\(age\)/);
+  assert.match(html, /youngPolicy\.POLICY\.defaultBaseRate/);
+});
+
+test("方案摘要使用三點條列並顯示自備款公式", () => {
+  assert.match(html, /<ol class="base-terms">/);
+  assert.equal((html.match(/<li>/g) || []).length, 3);
+  assert.match(html, /id="youngDownPaymentFormula"/);
+  assert.match(html, /youngPolicy\.calculateFinancing/);
+});

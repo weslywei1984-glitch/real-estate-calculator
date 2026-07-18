@@ -1070,12 +1070,16 @@
       position: relative;
       z-index: 1;
       margin-top: 15px;
-      padding-top: 13px;
+      padding: 13px 0 0 1.4rem;
       border-top: 1px dashed rgba(255, 255, 255, .22);
       color: rgba(255, 255, 255, .74);
       font-size: .82rem;
       font-weight: 700;
       line-height: 1.6;
+    }
+
+    .base-terms li + li {
+      margin-top: 2px;
     }
 
     .eligibility-list {
@@ -2576,7 +2580,11 @@
             <div class="policy-stat"><span>年齡限制</span><strong>未滿 50 歲與 80 條款</strong></div>
             <div class="policy-stat"><span>所得限制</span><strong>年所得 200 萬以下</strong></div>
           </div>
-          <div class="base-terms">一般首購最高 1,000 萬 · 結婚 2 年內家庭最高 1,200 萬 · 育有未成年子女家庭最高 1,500 萬 · 成數最高 8 成 · 寬限期最長 5 年</div>
+          <ol class="base-terms">
+            <li>貸款額度：一般首購最高 1,000 萬；結婚 2 年內家庭最高 1,200 萬；育有未成年子女家庭最高 1,500 萬。</li>
+            <li>貸款成數：最高 8 成，仍須依銀行鑑價及審核結果為準。</li>
+            <li>貸款期間：最長 40 年、寬限期最長 5 年，且年齡加貸款年限不得超過 80。</li>
+          </ol>
         </div>
 
         <div class="section">
@@ -2611,28 +2619,22 @@
               </div>
             </div>
             <div class="field down-payment-field">
-              <label for="youngDownPayment">自備款</label>
+              <label for="youngDownPayment">自備款（成交總價－實際貸款）</label>
               <div class="control">
                 <input id="youngDownPayment" type="number" min="0" step="10000" value="2400000">
                 <span class="unit">元</span>
               </div>
+              <div class="field-note" id="youngDownPaymentFormula">成交總價－實際貸款（受貸款成數與額度上限影響）</div>
             </div>
             <div class="field">
-              <label for="youngApplicantType">申請身分類型</label>
+              <label for="youngApplicantType">申請貸款額度類型</label>
               <div class="control">
                 <select id="youngApplicantType">
-                  <option value="general" selected>一般首購（最高 1,000 萬）</option>
-                  <option value="newlywed">結婚 2 年內家庭（最高 1,200 萬）</option>
-                  <option value="children">育有未成年子女家庭（最高 1,500 萬）</option>
+                  <option value="general" selected>一般首購（貸款額度最高 1,000 萬）</option>
+                  <option value="newlywed">結婚 2 年內家庭（貸款額度最高 1,200 萬）</option>
+                  <option value="children">育有未成年子女家庭（貸款額度最高 1,500 萬）</option>
                 </select>
                 <span class="unit">類型</span>
-              </div>
-            </div>
-            <div class="field">
-              <label for="youngLoanYears">貸款年限</label>
-              <div class="control">
-                <input id="youngLoanYears" type="number" min="1" max="40" step="1" value="40">
-                <span class="unit">年</span>
               </div>
             </div>
             <div class="field">
@@ -2648,6 +2650,7 @@
                 <input id="youngAge" type="number" min="18" max="99" step="1" value="35">
                 <span class="unit">歲</span>
               </div>
+              <div class="field-note">貸款年限依年齡自動套用：最長 40 年，且年齡＋年限不超過 80。</div>
             </div>
             <div class="field">
               <label for="youngAnnualIncome">申貸人年收入</label>
@@ -2665,13 +2668,6 @@
                   <option value="other" selected>其他縣市（上限 2,000 萬）</option>
                 </select>
                 <span class="unit">區域</span>
-              </div>
-            </div>
-            <div class="field">
-              <label for="youngBaseRate">未補貼基準試算利率</label>
-              <div class="control">
-                <input id="youngBaseRate" type="number" min="0" step="0.001" value="2.275">
-                <span class="unit">%</span>
               </div>
             </div>
             <div class="field">
@@ -2784,13 +2780,11 @@
         youngPurchasePrice: 12000000,
         youngLoanRatio: 80,
         youngDownPayment: 2400000,
-        youngLoanYears: 40,
         youngGraceYears: 5,
         youngApplicantType: "general",
         youngAge: 35,
         youngAnnualIncome: 1200000,
         youngPriceTier: "other",
-        youngBaseRate: 2.275,
         youngMonthlyIncome: 100000,
         youngNoHome: true,
         youngSelfUse: true,
@@ -2813,8 +2807,7 @@
 
     function formatNumericInput(input) {
       if (!input || input.value === "") return;
-      const formatter = input.id === "youngBaseRate" ? rateNumber : number;
-      input.value = formatter.format(parseNumericValue(input.value));
+      input.value = number.format(parseNumericValue(input.value));
     }
 
     function formatAllNumericInputs() {
@@ -3169,26 +3162,25 @@
     function calculateYoung() {
       const purchasePrice = value("youngPurchasePrice");
       const ratio = clamp(value("youngLoanRatio"), 0, youngPolicy.POLICY.maxLtv);
-      const requestedLoan = purchasePrice * ratio / 100;
       const applicantType = selectValue("youngApplicantType");
       const applicantTypeLabels = {
         general: "一般首購",
         newlywed: "結婚 2 年內家庭",
         children: "育有未成年子女家庭"
       };
-      const loanLimit = youngPolicy.getLoanLimit(applicantType);
+      const financing = youngPolicy.calculateFinancing(purchasePrice, ratio, applicantType);
+      const {requestedLoan, principal, downPayment, capGap, loanLimit} = financing;
       const applicantTypeLabel = applicantTypeLabels[applicantType] || applicantTypeLabels.general;
-      const principal = Math.min(requestedLoan, loanLimit);
-      const downPayment = Math.max(0, purchasePrice - principal);
-      const capGap = Math.max(0, requestedLoan - principal);
-      const loanYears = clamp(value("youngLoanYears"), 1, youngPolicy.POLICY.maxLoanYears);
+      const age = Math.round(clamp(value("youngAge"), 18, 99));
+      const loanYears = youngPolicy.loanYearsForAge(age);
       const totalMonths = Math.max(12, Math.round(loanYears * 12));
       const graceMonths = Math.min(totalMonths - 1, Math.round(clamp(value("youngGraceYears"), 0, 5) * 12));
-      const age = Math.round(clamp(value("youngAge"), 18, 99));
       const annualIncome = Math.max(0, value("youngAnnualIncome"));
       const priceTier = selectValue("youngPriceTier");
-      const baseRate = Math.max(0, value("youngBaseRate"));
+      const baseRate = youngPolicy.POLICY.defaultBaseRate;
       const monthlyIncome = value("youngMonthlyIncome");
+      setNumericInputValue("youngDownPayment", downPayment);
+      updateYoungDownPaymentFormula(purchasePrice, principal, downPayment);
       const eligibility = youngPolicy.evaluateEligibility({
         age,
         loanYears,
@@ -3315,6 +3307,7 @@
           <span>整體試算</span>
           <div class="breakdown">
             ${line("貸款本金", principal)}
+            <div class="line"><span>依年齡自動套用貸款年限</span><b>${loanYears} 年</b></div>
             ${line("預估總利息", totalInterest)}
             ${line("本息合計", principal + totalInterest)}
             ${line("建議家庭月收入（以月付 40%）", suggestedIncome)}
@@ -3326,7 +3319,7 @@
         </div>
         <div class="metric">
           <span>五階段利率與月付</span>
-          <div class="policy-note">月付金已比照銀行以元為單位四捨五入；各銀行分段利率起算日與進位規則略有差異，數字可能差幾十元內，實際以核貸銀行為準。可用 <a href="https://firstloan.firstbank.com.tw/LoanRepayment/LoanTrail.action" target="_blank" rel="noreferrer">第一銀行房貸試算</a> 交叉確認。</div>
+          <div class="policy-note">依方案基準利率 ${rateNumber.format(baseRate)}% 試算，月付金以元為單位四捨五入；各銀行分段利率起算日與進位規則略有差異，實際以核貸銀行為準。可用 <a href="https://firstloan.firstbank.com.tw/LoanRepayment/LoanTrail.action" target="_blank" rel="noreferrer">第一銀行房貸試算</a> 交叉確認。</div>
         </div>
         <div class="table-wrap">
           <table class="amortization">
@@ -3379,6 +3372,9 @@
         select.selectedIndex = 0;
       });
       clearValidation(form);
+      if (group === "young") {
+        updateYoungDownPaymentFormula(0, 0, 0);
+      }
       updateAllWanHints();
       queueSave();
       setResultState(group, "empty", "🧹 已清空，重新開始", "填寫左側欄位後，結果會自動更新。");
@@ -3925,17 +3921,23 @@
       scheduleGroup("loan");
     }
 
-    function youngLoanLimit() {
-      return youngPolicy.getLoanLimit(selectValue("youngApplicantType"));
+    function updateYoungDownPaymentFormula(purchasePrice, principal, downPayment) {
+      const note = document.getElementById("youngDownPaymentFormula");
+      if (!note) return;
+      if (purchasePrice <= 0) {
+        note.textContent = "成交總價－實際貸款（取成交價×成數與身分貸款額度上限的較低者）";
+        return;
+      }
+      note.textContent = `${money.format(purchasePrice)}－${money.format(principal)}＝${money.format(downPayment)}（實際貸款取成數與額度上限較低者）`;
     }
 
     function syncYoungDownPaymentFromLoanRatio() {
       const purchasePrice = value("youngPurchasePrice");
       const ratio = clamp(value("youngLoanRatio"), 0, youngPolicy.POLICY.maxLtv);
-      const requestedLoan = purchasePrice * ratio / 100;
-      const principal = Math.min(requestedLoan, youngLoanLimit());
+      const financing = youngPolicy.calculateFinancing(purchasePrice, ratio, selectValue("youngApplicantType"));
       setNumericInputValue("youngLoanRatio", number.format(ratio));
-      setNumericInputValue("youngDownPayment", Math.max(0, Math.round(purchasePrice - principal)));
+      setNumericInputValue("youngDownPayment", financing.downPayment);
+      updateYoungDownPaymentFormula(purchasePrice, financing.principal, financing.downPayment);
       scheduleGroup("young");
     }
 
@@ -3944,9 +3946,10 @@
       const downPayment = clamp(value("youngDownPayment"), 0, purchasePrice);
       const requestedLoan = Math.max(0, purchasePrice - downPayment);
       const ratio = purchasePrice > 0 ? clamp(requestedLoan / purchasePrice * 100, 0, youngPolicy.POLICY.maxLtv) : 0;
-      const principal = Math.min(purchasePrice * ratio / 100, youngLoanLimit());
+      const financing = youngPolicy.calculateFinancing(purchasePrice, ratio, selectValue("youngApplicantType"));
       setNumericInputValue("youngLoanRatio", number.format(ratio));
-      setNumericInputValue("youngDownPayment", Math.max(0, Math.round(purchasePrice - principal)));
+      setNumericInputValue("youngDownPayment", financing.downPayment);
+      updateYoungDownPaymentFormula(purchasePrice, financing.principal, financing.downPayment);
       scheduleGroup("young");
     }
 
@@ -3959,7 +3962,6 @@
     document.getElementById("youngLoanRatio").addEventListener("input", syncYoungDownPaymentFromLoanRatio);
     document.getElementById("youngDownPayment").addEventListener("input", syncYoungLoanRatioFromDownPayment);
     document.getElementById("youngApplicantType").addEventListener("change", syncYoungDownPaymentFromLoanRatio);
-    document.getElementById("youngBaseRate").addEventListener("input", () => scheduleGroup("young"));
 
     document.getElementById("youngPriceTier").addEventListener("change", () => scheduleGroup("young"));
 

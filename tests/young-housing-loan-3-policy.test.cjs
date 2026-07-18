@@ -8,6 +8,30 @@ test("三種申請身分使用正確額度", () => {
   assert.equal(policy.getLoanLimit("children"), 15_000_000);
 });
 
+test("貸款年限依年齡自動套用 40 年與 80 條款", () => {
+  assert.equal(policy.loanYearsForAge(35), 40);
+  assert.equal(policy.loanYearsForAge(40), 40);
+  assert.equal(policy.loanYearsForAge(45), 35);
+  assert.equal(policy.loanYearsForAge(49), 31);
+});
+
+test("成交價、成數與身分額度共同決定貸款及自備款", () => {
+  assert.deepEqual(policy.calculateFinancing(13_000_000, 80, "newlywed"), {
+    requestedLoan: 10_400_000,
+    principal: 10_400_000,
+    downPayment: 2_600_000,
+    capGap: 0,
+    loanLimit: 12_000_000
+  });
+  assert.deepEqual(policy.calculateFinancing(20_000_000, 80, "newlywed"), {
+    requestedLoan: 16_000_000,
+    principal: 12_000_000,
+    downPayment: 8_000_000,
+    capGap: 4_000_000,
+    loanLimit: 12_000_000
+  });
+});
+
 test("三組區域使用正確房價上限", () => {
   assert.equal(policy.getPriceCap("taipei"), 35_000_000);
   assert.equal(policy.getPriceCap("newTaipeiHsinchu"), 25_000_000);

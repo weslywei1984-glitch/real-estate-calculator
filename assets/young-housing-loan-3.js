@@ -33,6 +33,26 @@
     return POLICY.priceCaps[region] || POLICY.priceCaps.other;
   }
 
+  function loanYearsForAge(age) {
+    const normalizedAge = Math.max(POLICY.minAge, Math.floor(Number(age) || POLICY.minAge));
+    return Math.max(1, Math.min(POLICY.maxLoanYears, POLICY.maxAgePlusTerm - normalizedAge));
+  }
+
+  function calculateFinancing(purchasePrice, loanRatio, type) {
+    const price = Math.max(0, Number(purchasePrice) || 0);
+    const ratio = Math.max(0, Math.min(POLICY.maxLtv, Number(loanRatio) || 0));
+    const loanLimit = getLoanLimit(type);
+    const requestedLoan = Math.round(price * ratio / 100);
+    const principal = Math.min(requestedLoan, loanLimit);
+    return {
+      requestedLoan,
+      principal,
+      downPayment: Math.max(0, Math.round(price - principal)),
+      capGap: Math.max(0, requestedLoan - principal),
+      loanLimit
+    };
+  }
+
   function subsidyAtMonth(month) {
     if (month <= 36) return 0.5;
     if (month <= 48) return 0.375;
@@ -64,6 +84,8 @@
     POLICY,
     getLoanLimit,
     getPriceCap,
+    loanYearsForAge,
+    calculateFinancing,
     subsidyAtMonth,
     rateAtMonth,
     evaluateEligibility
