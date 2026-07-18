@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="data:,">
   <title>土地漲多少計算器｜台南小魏</title>
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script src="assets/liff-gate.js"></script>
   <style>
     :root {
       --paper: #fffdf7;
@@ -1145,19 +1147,19 @@
             <div class="deductions">
               <div class="mini-field">
                 <label for="improvement">整理土地花的錢</label>
-                <input id="improvement" inputmode="decimal" autocomplete="off" placeholder="0">
+                <input id="improvement" inputmode="decimal" autocomplete="off" value="0" placeholder="0">
               </div>
               <div class="mini-field">
                 <label for="benefitFee">公共工程分攤費</label>
-                <input id="benefitFee" inputmode="decimal" autocomplete="off" placeholder="0">
+                <input id="benefitFee" inputmode="decimal" autocomplete="off" value="0" placeholder="0">
               </div>
               <div class="mini-field">
                 <label for="readjustment">重劃負擔費用</label>
-                <input id="readjustment" inputmode="decimal" autocomplete="off" placeholder="0">
+                <input id="readjustment" inputmode="decimal" autocomplete="off" value="0" placeholder="0">
               </div>
               <div class="mini-field">
                 <label for="donatedLand">捐給公共設施的土地價值</label>
-                <input id="donatedLand" inputmode="decimal" autocomplete="off" placeholder="0">
+                <input id="donatedLand" inputmode="decimal" autocomplete="off" value="0" placeholder="0">
               </div>
             </div>
           </details>
@@ -1229,6 +1231,10 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             複製計算摘要
           </button>
+          <button type="button" class="btn secondary" id="jpgBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            下載圖片摘要
+          </button>
           <div class="toast" id="toast" aria-live="polite"></div>
         </div>
       </aside>
@@ -1271,6 +1277,37 @@
       return `${rounded.toLocaleString("zh-TW")} 元`;
     }
 
+    function wanText(value) {
+      const abs = Math.abs(value);
+      if (!Number.isFinite(value) || abs < 10000) return "";
+      if (abs >= 100000000) {
+        return `約 ${(value / 100000000).toLocaleString("zh-TW", { maximumFractionDigits: 2 })} 億元`;
+      }
+      return `約 ${(value / 10000).toLocaleString("zh-TW", { maximumFractionDigits: 1 })} 萬元`;
+    }
+
+    let bigNumberFrame = null;
+
+    function setBigNumber(value) {
+      const el = els.increaseAmount;
+      const from = Number(el.dataset.value || 0);
+      el.dataset.value = String(value);
+      window.cancelAnimationFrame(bigNumberFrame);
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !Number.isFinite(from) || from === value) {
+        el.textContent = formatMoney(value);
+        return;
+      }
+      const startTime = performance.now();
+      const duration = 420;
+      const tick = (now) => {
+        const progress = Math.min(1, (now - startTime) / duration);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = formatMoney(from + (value - from) * eased);
+        if (progress < 1) bigNumberFrame = window.requestAnimationFrame(tick);
+      };
+      bigNumberFrame = window.requestAnimationFrame(tick);
+    }
+
     function formatRatio(value) {
       if (!Number.isFinite(value)) return "0";
       return value.toLocaleString("zh-TW", {
@@ -1305,15 +1342,15 @@
 
     function getLevel(ratio) {
       if (!Number.isFinite(ratio) || ratio <= 0) {
-        return "尚未產生漲價倍數";
+        return "⏳ 尚未產生漲價倍數";
       }
       if (ratio < 1) {
-        return "未達 100%，如果要再算土地增值稅，通常會落在第 1 級距參考區間。";
+        return "📊 未達 100%，如果要再算土地增值稅，通常會落在第 1 級距參考區間。";
       }
       if (ratio < 2) {
-        return "100% 以上未達 200%，如果要再算土地增值稅，通常會落在第 2 級距參考區間。";
+        return "📈 100% 以上未達 200%，如果要再算土地增值稅，通常會落在第 2 級距參考區間。";
       }
-      return "200% 以上，如果要再算土地增值稅，通常會落在第 3 級距參考區間。";
+      return "🚀 200% 以上，如果要再算土地增值稅，通常會落在第 3 級距參考區間。";
     }
 
     const primaryInputIds = {
@@ -1432,7 +1469,7 @@
     }
 
     function resetOutputs() {
-      els.increaseAmount.textContent = formatMoney(0);
+      setBigNumber(0);
       if (els.assessedTotalOut) els.assessedTotalOut.textContent = formatMoney(0);
       if (els.previousBaseOut) els.previousBaseOut.textContent = formatMoney(0);
       if (els.currentPingUnitOut) els.currentPingUnitOut.textContent = formatMoney(0);
@@ -1500,7 +1537,7 @@
       const currentPingUnit = mode === "unit" ? moneyFromInput("currentUnit") * 3.3058 : 0;
       const previousPingUnit = mode === "unit" ? moneyFromInput("previousUnit") * 3.3058 : 0;
 
-      els.increaseAmount.textContent = formatMoney(increase);
+      setBigNumber(increase);
       if (els.assessedTotalOut) els.assessedTotalOut.textContent = formatMoney(current);
       if (els.previousBaseOut) els.previousBaseOut.textContent = formatMoney(previous);
       if (els.currentPingUnitOut) els.currentPingUnitOut.textContent = formatMoney(currentPingUnit);
@@ -1515,7 +1552,8 @@
       if (raw < 0) {
         els.plainAnswer.textContent = `算式結果是 ${formatMoney(raw)}，代表沒有抓到可課稅的土地漲價；本工具以 0 元顯示。`;
       } else if (increase > 0) {
-        els.plainAnswer.textContent = `答案是 ${formatMoney(increase)}。這就是這塊土地估算漲了多少。`;
+        const wan = wanText(increase);
+        els.plainAnswer.textContent = `答案是 ${formatMoney(increase)}${wan ? `（${wan}）` : ""}。這就是這塊土地估算漲了多少。`;
       } else {
         els.plainAnswer.textContent = "填入數字後，答案會自動更新。";
       }
@@ -1530,7 +1568,7 @@
         `這次土地價格：${formatMoney(current)}`,
         `上次土地價格調整後：${formatMoney(adjustedPrevious)}（物價調整 ${priceIndex || 0}%）`,
         `可扣掉的成本：${formatMoney(deductions)}`,
-        `這塊土地估算漲了：${formatMoney(increase)}`,
+        `這塊土地估算漲了：${formatMoney(increase)}${wanText(increase) ? `（${wanText(increase)}）` : ""}`,
         `漲價倍數：${formatRatio(ratio)} 倍`,
         "台南小魏 買厝作伙｜0927-617-207｜永慶不動產 小東南紡店"
       ].join("\n");
@@ -1568,7 +1606,7 @@
         if (data.moneyScale) els.moneyScale.value = data.moneyScale;
         allInputIds.forEach((id) => {
           if (Object.prototype.hasOwnProperty.call(data, id) && els[id]) {
-            els[id].value = data[id];
+            els[id].value = deductionInputIds.includes(id) && data[id] === "" ? "0" : data[id];
           }
         });
         if (rawInput("area") && !rawInput("areaPing")) syncArea("area");
@@ -1607,10 +1645,10 @@
         els.currentUnit.value = "160000";
         els.previousUnit.value = "20000";
         els.priceIndex.value = "200";
-        els.improvement.value = "";
+        els.improvement.value = "0";
         els.benefitFee.value = "80000";
-        els.readjustment.value = "";
-        els.donatedLand.value = "";
+        els.readjustment.value = "0";
+        els.donatedLand.value = "0";
         setMode("unit");
         calculate();
         setButtonState(els.sampleBtn, "success");
@@ -1623,7 +1661,7 @@
       setAnswerState("loading", "正在清空欄位...");
       window.setTimeout(() => {
         allInputIds.forEach((id) => {
-          els[id].value = id === "priceIndex" ? "100" : "";
+          els[id].value = id === "priceIndex" ? "100" : deductionInputIds.includes(id) ? "0" : "";
         });
         els.moneyScale.value = "1";
         clearFieldErrors();
@@ -1655,6 +1693,123 @@
         setButtonState(els.copyBtn, copied ? "success" : "error");
         setToast(copied ? "已複製計算摘要。" : "已選取摘要，若沒有自動複製，可直接按 Ctrl+C。", copied ? "success" : "error");
       }
+    });
+
+    function downloadSummaryJpg() {
+      const lines = els.copyText.value.split("\n").filter(Boolean);
+      // 去掉標題與落款，內容區只畫計算明細
+      const rows = lines.filter((line) => !line.startsWith("土地漲價估算摘要") && !line.startsWith("台南小魏"));
+      const width = 900;
+      const scale = 2;
+      const margin = 56;
+      const bodyWidth = width - margin * 2;
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const font = "system-ui, -apple-system, 'Noto Sans TC', 'Microsoft JhengHei', sans-serif";
+
+      const layoutRows = (draw) => {
+        let y = 150 + 56;
+        rows.forEach((row) => {
+          const isAnswer = row.startsWith("這塊土地估算漲了");
+          const size = isAnswer ? 24 : 18;
+          const lineHeight = size + 14;
+          if (isAnswer && draw) {
+            ctx.fillStyle = "#fff1bf";
+            ctx.beginPath();
+            ctx.roundRect(margin - 16, y - size - 6, bodyWidth + 32, lineHeight + 14, 10);
+            ctx.fill();
+          }
+          ctx.font = `${isAnswer ? 900 : 600} ${size}px ${font}`;
+          if (draw) ctx.fillStyle = isAnswer ? "#16523d" : "#34423c";
+          let line = "";
+          for (const char of row) {
+            if (ctx.measureText(line + char).width > bodyWidth && line) {
+              if (draw) ctx.fillText(line, margin, y);
+              y += lineHeight;
+              line = char;
+            } else {
+              line += char;
+            }
+          }
+          if (line) {
+            if (draw) ctx.fillText(line, margin, y);
+            y += lineHeight;
+          }
+          if (isAnswer) y += 10;
+        });
+        return y;
+      };
+
+      const bodyEnd = layoutRows(false);
+      const noticeTop = bodyEnd + 14;
+      const footerTop = noticeTop + 66 + 26;
+      const height = footerTop + 186;
+      canvas.width = width * scale;
+      canvas.height = height * scale;
+      ctx.scale(scale, scale);
+
+      ctx.fillStyle = "#fffdf7";
+      ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = "#16523d";
+      ctx.fillRect(0, 0, width, 150);
+      ctx.fillStyle = "#f6c453";
+      ctx.font = `800 21px ${font}`;
+      ctx.fillText("台南小魏 買厝作伙", margin, 54);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `900 38px ${font}`;
+      ctx.fillText("土地漲價總數額估算", margin, 104);
+      ctx.fillStyle = "rgba(255,255,255,.78)";
+      ctx.font = `700 17px ${font}`;
+      ctx.fillText(`試算日期 ${new Date().toLocaleDateString("zh-TW")}`, margin, 134);
+
+      layoutRows(true);
+
+      ctx.fillStyle = "#fff1bf";
+      ctx.beginPath();
+      ctx.roundRect(margin, noticeTop, bodyWidth, 66, 10);
+      ctx.fill();
+      ctx.fillStyle = "#7a4b00";
+      ctx.font = `600 15px ${font}`;
+      ctx.fillText("本估算僅供參考，正式申報以地方稅稽徵機關核定資料為準。", margin + 24, noticeTop + 40);
+
+      ctx.fillStyle = "#16523d";
+      ctx.fillRect(0, footerTop, width, height - footerTop);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `900 27px ${font}`;
+      ctx.fillText("台南小魏 買厝作伙", margin, footerTop + 56);
+      ctx.font = `800 21px ${font}`;
+      ctx.fillText("魏泉承  0927-617-207", margin, footerTop + 96);
+      ctx.fillText("永慶不動產 - 小東南紡店", margin, footerTop + 130);
+      ctx.fillStyle = "#d5e4d5";
+      ctx.font = `500 15px ${font}`;
+      ctx.fillText("歡迎存檔或轉傳，買房賣房歡迎找小魏 😊", margin, footerTop + 162);
+
+      const link = document.createElement("a");
+      link.download = `台南小魏-土地漲價估算-${new Date().toISOString().slice(0, 10)}.jpg`;
+      link.href = canvas.toDataURL("image/jpeg", 0.92);
+      link.click();
+      return true;
+    }
+
+    els.jpgBtn.addEventListener("click", () => {
+      const validation = validateForm();
+      if (validation.isEmpty || !validation.isValid || !els.copyText.value.trim()) {
+        setButtonState(els.jpgBtn, "error");
+        setToast(validation.isValid ? "先填資料，才能產生圖片摘要。" : "請修正欄位後再產生圖片。", "error");
+        return;
+      }
+      setButtonState(els.jpgBtn, "loading");
+      window.setTimeout(() => {
+        try {
+          downloadSummaryJpg();
+          setButtonState(els.jpgBtn, "success");
+          setToast("已下載圖片摘要。", "success");
+        } catch (error) {
+          console.error(error);
+          setButtonState(els.jpgBtn, "error");
+          setToast("圖片產生失敗，請改用複製摘要。", "error");
+        }
+      }, 120);
     });
 
     restoreState();
