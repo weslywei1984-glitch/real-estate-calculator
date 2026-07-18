@@ -13,6 +13,13 @@ test("青安分頁使用正式 3.0 文案", () => {
   assert.doesNotMatch(html, /新青安 2\.0|研議規則情境試算|尚待行政院核定/);
 });
 
+test("主視覺資料基準同步正式方案發布日", () => {
+  assert.match(html, /class="hero-data-date"[^>]*>2026-07-16</);
+  assert.match(html, /<strong>2026-07-16<\/strong>/);
+  assert.doesNotMatch(html, /2026-06-17/);
+  assert.match(html, /\.hero-data-date\s*\{[^}]*position:\s*absolute/s);
+});
+
 test("介面提供三種額度與三組區域", () => {
   assert.match(html, /value="general"/);
   assert.match(html, /value="newlywed"/);
