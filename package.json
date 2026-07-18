@@ -6,7 +6,8 @@
   "main": "tainan-land-value-server.js",
   "scripts": {
     "start": "node tainan-land-value-server.js",
-    "dev": "node tainan-land-value-server.js"
+    "dev": "node tainan-land-value-server.js",
+    "test": "node --test tests/*.test.cjs"
   },
   "engines": {
     "node": ">=20"
