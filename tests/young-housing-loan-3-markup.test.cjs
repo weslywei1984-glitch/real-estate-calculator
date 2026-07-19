@@ -75,7 +75,33 @@ test("申貸額度選單使用專屬字級並精簡資格結果", () => {
 test("青安結果拆分總貸款、青安貸款與其他貸款", () => {
   assert.match(html, /const \{totalLoan, youngLoan, supplementalLoan, downPayment, loanLimit\}/);
   assert.match(html, /預估總貸款/);
+  assert.match(html, /line\("總貸款金額", totalLoan\)/);
   assert.match(html, /青安貸款本金/);
   assert.match(html, /其他貸款（月付另行核算）/);
   assert.match(html, /其他貸款.*未併入本表/);
+});
+
+test("指定的大額金額欄位以萬元輸入並移除重複換算提示", () => {
+  const wanFields = [
+    "salePrice",
+    "buyCost",
+    "purchasePrice",
+    "buyerDownPayment",
+    "loanPurchasePrice",
+    "loanAmount",
+    "loanDownPayment",
+    "youngPurchasePrice",
+    "youngDownPayment",
+    "youngAnnualIncome",
+    "youngMonthlyIncome"
+  ];
+
+  wanFields.forEach(id => {
+    assert.match(html, new RegExp(`<input id="${id}"[^>]*data-money-unit="wan"[^>]*>`));
+    assert.match(html, new RegExp(`<input id="${id}"[\\s\\S]{0,180}<span class="unit">萬元<\\/span>`));
+  });
+
+  assert.match(html, /el\.dataset\.moneyUnit === "wan"\s*\? numericValue \* 10000/);
+  assert.match(html, /input\.dataset\.moneyUnit === "wan"\s*\? numericValue \/ 10000/);
+  assert.match(html, /__moneyUnitVersion:\s*2/);
 });

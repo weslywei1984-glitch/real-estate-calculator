@@ -2274,15 +2274,15 @@
             <div class="field">
               <label for="salePrice">出售成交價額</label>
               <div class="control">
-                <input id="salePrice" type="number" min="0" step="10000" value="14600000">
-                <span class="unit">元</span>
+                <input id="salePrice" data-money-unit="wan" type="number" min="0" step="0.1" value="1460">
+                <span class="unit">萬元</span>
               </div>
             </div>
             <div class="field">
               <label for="buyCost">取得成本</label>
               <div class="control">
-                <input id="buyCost" type="number" min="0" step="10000" value="10000000">
-                <span class="unit">元</span>
+                <input id="buyCost" data-money-unit="wan" type="number" min="0" step="0.1" value="1000">
+                <span class="unit">萬元</span>
               </div>
             </div>
             <div class="field">
@@ -2374,8 +2374,8 @@
             <div class="field">
               <label for="purchasePrice">買賣成交總價</label>
               <div class="control">
-                <input id="purchasePrice" type="number" min="0" step="10000" value="15000000">
-                <span class="unit">元</span>
+                <input id="purchasePrice" data-money-unit="wan" type="number" min="0" step="0.1" value="1500">
+                <span class="unit">萬元</span>
               </div>
             </div>
             <div class="field">
@@ -2388,8 +2388,8 @@
             <div class="field down-payment-field">
               <label for="buyerDownPayment">自備款</label>
               <div class="control">
-                <input id="buyerDownPayment" type="number" min="0" step="10000" value="3000000">
-                <span class="unit">元</span>
+                <input id="buyerDownPayment" data-money-unit="wan" type="number" min="0" step="0.1" value="300">
+                <span class="unit">萬元</span>
               </div>
             </div>
             <div class="field">
@@ -2514,8 +2514,8 @@
             <div class="field">
               <label for="loanPurchasePrice">房屋成交總價</label>
               <div class="control">
-                <input id="loanPurchasePrice" type="number" min="0" step="10000" value="15000000">
-                <span class="unit">元</span>
+                <input id="loanPurchasePrice" data-money-unit="wan" type="number" min="0" step="0.1" value="1500">
+                <span class="unit">萬元</span>
               </div>
             </div>
             <div class="field">
@@ -2528,15 +2528,15 @@
             <div class="field">
               <label for="loanAmount">貸款本金</label>
               <div class="control">
-                <input id="loanAmount" type="number" min="0" step="10000" value="12000000">
-                <span class="unit">元</span>
+                <input id="loanAmount" data-money-unit="wan" type="number" min="0" step="0.1" value="1200">
+                <span class="unit">萬元</span>
               </div>
             </div>
             <div class="field down-payment-field">
               <label for="loanDownPayment">自備款</label>
               <div class="control">
-                <input id="loanDownPayment" type="number" min="0" step="10000" value="3000000">
-                <span class="unit">元</span>
+                <input id="loanDownPayment" data-money-unit="wan" type="number" min="0" step="0.1" value="300">
+                <span class="unit">萬元</span>
               </div>
             </div>
             <div class="field">
@@ -2632,8 +2632,8 @@
             <div class="field">
               <label for="youngPurchasePrice">房屋成交總價</label>
               <div class="control">
-                <input id="youngPurchasePrice" type="number" min="0" step="10000" value="12000000">
-                <span class="unit">元</span>
+                <input id="youngPurchasePrice" data-money-unit="wan" type="number" min="0" step="0.1" value="1200">
+                <span class="unit">萬元</span>
               </div>
             </div>
             <div class="field">
@@ -2646,8 +2646,8 @@
             <div class="field down-payment-field">
               <label for="youngDownPayment">自備款（成交總價－實際貸款）</label>
               <div class="control">
-                <input id="youngDownPayment" type="number" min="0" step="10000" value="2400000">
-                <span class="unit">元</span>
+                <input id="youngDownPayment" data-money-unit="wan" type="number" min="0" step="0.1" value="240">
+                <span class="unit">萬元</span>
               </div>
             </div>
             <div class="field">
@@ -2677,8 +2677,8 @@
             <div class="field">
               <label for="youngAnnualIncome">申貸人年收入</label>
               <div class="control">
-                <input id="youngAnnualIncome" type="number" min="0" step="10000" value="1200000">
-                <span class="unit">元</span>
+                <input id="youngAnnualIncome" data-money-unit="wan" type="number" min="0" step="0.1" value="120">
+                <span class="unit">萬元</span>
               </div>
             </div>
             <div class="field">
@@ -2695,8 +2695,8 @@
             <div class="field">
               <label for="youngMonthlyIncome">家庭每月可支配收入</label>
               <div class="control">
-                <input id="youngMonthlyIncome" type="number" min="0" step="1000" value="100000">
-                <span class="unit">元</span>
+                <input id="youngMonthlyIncome" data-money-unit="wan" type="number" min="0" step="0.1" value="10">
+                <span class="unit">萬元</span>
               </div>
             </div>
           </div>
@@ -2820,7 +2820,9 @@
 
     function value(id) {
       const el = document.getElementById(id);
-      return el.type === "checkbox" ? el.checked : parseNumericValue(el.value);
+      if (el.type === "checkbox") return el.checked;
+      const numericValue = parseNumericValue(el.value);
+      return el.dataset.moneyUnit === "wan" ? numericValue * 10000 : numericValue;
     }
 
     function selectValue(id) {
@@ -2838,7 +2840,8 @@
 
     function setNumericInputValue(id, newValue) {
       const input = document.getElementById(id);
-      input.value = newValue;
+      const numericValue = Number(newValue) || 0;
+      input.value = input.dataset.moneyUnit === "wan" ? numericValue / 10000 : numericValue;
       if (document.activeElement !== input) {
         formatNumericInput(input);
       }
@@ -3319,6 +3322,7 @@
           <strong>${money.format(Math.round(graceMonths > 0 ? firstGracePayment : firstNormalPayment))}</strong>
           <div class="breakdown">
             ${line("青安寬限期後月付", firstNormalPayment)}
+            ${line("總貸款金額", totalLoan)}
             ${line(`${applicantTypeLabel}貸款額度上限`, loanLimit)}
             ${line("青安貸款本金", youngLoan)}
             ${supplementalLoan > 0 ? line("其他貸款（月付另行核算）", supplementalLoan) : ""}
@@ -3367,6 +3371,8 @@
         if (!el) return;
         if (el.type === "checkbox") {
           el.checked = preset;
+        } else if (el.dataset.numericInput === "true") {
+          setNumericInputValue(id, preset);
         } else {
           el.value = preset;
         }
@@ -3594,7 +3600,7 @@
     let saveTimer;
 
     function saveInputs() {
-      const data = {};
+      const data = { __moneyUnitVersion: 2 };
       document.querySelectorAll("form input[id], form select[id]").forEach(el => {
         data[el.id] = el.type === "checkbox" ? el.checked : String(el.value || "").replace(/,/g, "");
       });
@@ -3618,13 +3624,17 @@
         return;
       }
       if (!data || typeof data !== "object") return;
+      const moneyUnitVersion = Number(data.__moneyUnitVersion) || 1;
       Object.entries(data).forEach(([id, saved]) => {
         const el = document.getElementById(id);
         if (!el || !el.closest("form")) return;
         if (el.type === "checkbox") {
           el.checked = Boolean(saved);
         } else {
-          el.value = saved;
+          const savedValue = moneyUnitVersion < 2 && el.dataset.moneyUnit === "wan"
+            ? parseNumericValue(saved) / 10000
+            : saved;
+          el.value = savedValue;
         }
       });
       formatAllNumericInputs();
