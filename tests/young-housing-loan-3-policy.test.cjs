@@ -17,18 +17,43 @@ test("貸款年限依年齡自動套用 40 年與 80 條款", () => {
 
 test("成交價、成數與身分額度共同決定貸款及自備款", () => {
   assert.deepEqual(policy.calculateFinancing(13_000_000, 80, "newlywed"), {
-    requestedLoan: 10_400_000,
-    principal: 10_400_000,
+    totalLoan: 10_400_000,
+    youngLoan: 10_400_000,
+    supplementalLoan: 0,
     downPayment: 2_600_000,
-    capGap: 0,
     loanLimit: 12_000_000
   });
   assert.deepEqual(policy.calculateFinancing(20_000_000, 80, "newlywed"), {
-    requestedLoan: 16_000_000,
-    principal: 12_000_000,
-    downPayment: 8_000_000,
-    capGap: 4_000_000,
+    totalLoan: 16_000_000,
+    youngLoan: 12_000_000,
+    supplementalLoan: 4_000_000,
+    downPayment: 4_000_000,
     loanLimit: 12_000_000
+  });
+});
+
+test("1,730 萬房價先依成數算總貸款再按身分拆分", () => {
+  const expectedDownPayment = 3_460_000;
+  assert.deepEqual(policy.calculateFinancing(17_300_000, 80, "general"), {
+    totalLoan: 13_840_000,
+    youngLoan: 10_000_000,
+    supplementalLoan: 3_840_000,
+    downPayment: expectedDownPayment,
+    loanLimit: 10_000_000
+  });
+  assert.deepEqual(policy.calculateFinancing(17_300_000, 80, "newlywed"), {
+    totalLoan: 13_840_000,
+    youngLoan: 12_000_000,
+    supplementalLoan: 1_840_000,
+    downPayment: expectedDownPayment,
+    loanLimit: 12_000_000
+  });
+  assert.deepEqual(policy.calculateFinancing(17_300_000, 80, "children"), {
+    totalLoan: 13_840_000,
+    youngLoan: 13_840_000,
+    supplementalLoan: 0,
+    downPayment: expectedDownPayment,
+    loanLimit: 15_000_000
   });
 });
 

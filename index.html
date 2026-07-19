@@ -3191,7 +3191,7 @@
         children: "育有未成年子女家庭"
       };
       const financing = youngPolicy.calculateFinancing(purchasePrice, ratio, applicantType);
-      const {requestedLoan, principal, downPayment, capGap, loanLimit} = financing;
+      const {totalLoan, youngLoan, supplementalLoan, downPayment, loanLimit} = financing;
       const applicantTypeLabel = applicantTypeLabels[applicantType] || applicantTypeLabels.general;
       const age = Math.round(clamp(value("youngAge"), 18, 99));
       const loanYears = youngPolicy.loanYearsForAge(age);
@@ -3228,7 +3228,7 @@
         { passed: eligibility.checks.income, text: `年所得 ${money.format(annualIncome)}（須為 ${money.format(youngPolicy.POLICY.maxAnnualIncome)} 以下）` },
         { passed: eligibility.checks.price, text: `房價 ${money.format(purchasePrice)}（${priceTierLabels[priceTier] || priceTierLabels.other}上限 ${money.format(priceCap)}）` }
       ];
-      let balance = principal;
+      let balance = youngLoan;
       let totalInterest = 0;
       let scheduledPayment = 0;
       let previousRate = null;
@@ -3306,7 +3306,7 @@
       }).join("");
 
       document.getElementById("youngResult").innerHTML = `
-        ${metric("政策上限內預估貸款", principal, "main young-main")}
+        ${metric("預估總貸款", totalLoan, "main young-main")}
         ${metric("預估自備款", downPayment)}
         <div class="eligibility-result ${eligible ? "good" : "bad"}">
           ${eligible
@@ -3315,28 +3315,31 @@
           <div class="breakdown">${eligibilityDetails}</div>
         </div>
         <div class="metric">
-          <span>寬限期月付</span>
+          <span>青安寬限期月付</span>
           <strong>${money.format(Math.round(graceMonths > 0 ? firstGracePayment : firstNormalPayment))}</strong>
           <div class="breakdown">
-            ${line("寬限期後月付", firstNormalPayment)}
+            ${line("青安寬限期後月付", firstNormalPayment)}
             ${line(`${applicantTypeLabel}貸款額度上限`, loanLimit)}
-            ${capGap > 0 ? line(`因 ${money.format(loanLimit)} 上限增加的資金缺口`, capGap) : ""}
+            ${line("青安貸款本金", youngLoan)}
+            ${supplementalLoan > 0 ? line("其他貸款（月付另行核算）", supplementalLoan) : ""}
           </div>
         </div>
         <div class="metric">
-          <span>整體試算</span>
+          <span>青安貸款試算</span>
           <div class="breakdown">
-            ${line("貸款本金", principal)}
+            ${line("青安貸款本金", youngLoan)}
+            ${line("預估總貸款", totalLoan)}
             <div class="line"><span>依年齡自動套用貸款年限</span><b>${loanYears} 年</b></div>
             ${line("預估總利息", totalInterest)}
-            ${line("本息合計", principal + totalInterest)}
-            ${line("建議家庭月收入（以月付 40%）", suggestedIncome)}
+            ${line("青安本息合計", youngLoan + totalInterest)}
+            ${line("青安月付建議家庭收入（以月付 40%）", suggestedIncome)}
           </div>
           <div class="ratio-meter">
-            <div class="line"><span>月付占輸入收入</span><b>${number.format(debtRatio)}%</b></div>
+            <div class="line"><span>青安月付占輸入收入</span><b>${number.format(debtRatio)}%</b></div>
             <div class="ratio-meter-track"><div class="ratio-meter-fill" style="width:${Math.min(debtRatio, 100)}%"></div></div>
           </div>
         </div>
+        ${supplementalLoan > 0 ? `<div class="metric warn"><div class="policy-note">其他貸款 ${money.format(supplementalLoan)} 的利率、年限與月付未併入本表，須依銀行核貸條件另行試算。</div></div>` : ""}
         <div class="metric">
           <span>五階段利率與月付</span>
           <div class="policy-note">依方案基準利率 ${rateNumber.format(baseRate)}% 試算，月付金以元為單位四捨五入；各銀行分段利率起算日與進位規則略有差異，實際以核貸銀行為準。可用 <a href="https://firstloan.firstbank.com.tw/LoanRepayment/LoanTrail.action" target="_blank" rel="noreferrer">第一銀行房貸試算</a> 交叉確認。</div>

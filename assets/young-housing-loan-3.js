@@ -42,13 +42,14 @@
     const price = Math.max(0, Number(purchasePrice) || 0);
     const ratio = Math.max(0, Math.min(POLICY.maxLtv, Number(loanRatio) || 0));
     const loanLimit = getLoanLimit(type);
-    const requestedLoan = Math.round(price * ratio / 100);
-    const principal = Math.min(requestedLoan, loanLimit);
+    const totalLoan = Math.round(price * ratio / 100);
+    const youngLoan = Math.min(totalLoan, loanLimit);
+    const supplementalLoan = Math.max(0, totalLoan - youngLoan);
     return {
-      requestedLoan,
-      principal,
-      downPayment: Math.max(0, Math.round(price - principal)),
-      capGap: Math.max(0, requestedLoan - principal),
+      totalLoan,
+      youngLoan,
+      supplementalLoan,
+      downPayment: Math.max(0, Math.round(price - totalLoan)),
       loanLimit
     };
   }

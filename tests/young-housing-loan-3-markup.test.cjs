@@ -71,3 +71,11 @@ test("申貸額度選單使用專屬字級並精簡資格結果", () => {
   assert.match(html, /eligibility\.checks\.ageLimit/);
   assert.match(html, /eligibility\.checks\.agePlusTerm/);
 });
+
+test("青安結果拆分總貸款、青安貸款與其他貸款", () => {
+  assert.match(html, /const \{totalLoan, youngLoan, supplementalLoan, downPayment, loanLimit\}/);
+  assert.match(html, /預估總貸款/);
+  assert.match(html, /青安貸款本金/);
+  assert.match(html, /其他貸款（月付另行核算）/);
+  assert.match(html, /其他貸款.*未併入本表/);
+});
