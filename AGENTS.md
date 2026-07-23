@@ -18,7 +18,7 @@
 4. 新青安 2.0(政策情境試算)
 
 其他檔案:
-- `tainan-land-value-helper.html` + `tainan-land-value-server.js`:台南公告土地現值查詢,**需要 Node 伺服器**(`npm start`,port 8787),放在 GitHub Pages 上自動查詢不會動。
+- `tainan-land-value-helper.html`:台南公告土地現值查詢。公告現值查詢用 `assets/land-values/` 的各行政區靜態資料,GitHub Pages 上可以直接用;只有「前次移轉現值」API 需要 Node 伺服器(`npm start`,port 8787),該流程目前停用中。
 - `land-increment-total.html`:土地漲價總數額試算。
 
 ## 程式慣例
