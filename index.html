@@ -2218,42 +2218,116 @@
         animation: none;
       }
     }
+
+    /* Compact mobile young-loan summary */
+    @media (max-width: 620px) {
+      .young-hero {
+        padding: 18px 16px 15px;
+      }
+
+      .young-hero::before {
+        top: 20px;
+        right: 14px;
+        width: 76px;
+        height: 76px;
+        border-radius: 22px;
+        opacity: .62;
+      }
+
+      .young-kicker {
+        margin-bottom: 6px;
+        padding: 4px 8px;
+        font-size: .72rem;
+        line-height: 1.25;
+      }
+
+      .young-hero h2 {
+        font-size: 1.3rem;
+        line-height: 1.18;
+      }
+
+      .young-hero p {
+        margin-top: 5px;
+        font-size: .78rem;
+        line-height: 1.48;
+      }
+
+      .policy-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0;
+        margin-top: 12px;
+        padding-top: 9px;
+      }
+
+      .policy-stat,
+      .policy-stat:nth-child(3) {
+        gap: 2px;
+        padding: 6px 9px;
+        border-top: 0;
+        border-left: 1px solid rgba(255, 255, 255, .14);
+      }
+
+      .policy-stat:nth-child(odd) {
+        padding-left: 0;
+        border-left: 0;
+      }
+
+      .policy-stat:nth-child(n+3) {
+        margin-top: 4px;
+        padding-top: 8px;
+        border-top: 1px solid rgba(255, 255, 255, .14);
+      }
+
+      .policy-stat span {
+        font-size: .68rem;
+        line-height: 1.2;
+      }
+
+      .policy-stat strong {
+        font-size: .84rem;
+        line-height: 1.28;
+        white-space: normal;
+      }
+
+      .base-terms {
+        margin-top: 9px;
+        padding: 8px 0 0 1.15rem;
+        font-size: .72rem;
+        line-height: 1.45;
+      }
+    }
   </style>
 </head>
 <body>
   <main class="shell">
-    <header class="hero-image-stage">
-      <img class="hero-art" src="assets/hero-reference.jpg" width="2048" height="684" fetchpriority="high" alt="房地稅費與貸款試算，台南小魏買厝作伙，魏泉承 0927-617-207">
-      <time class="hero-data-date" datetime="2026-07-16" aria-hidden="true">2026-07-16</time>
-      <div class="hero-copy">
-        <div class="title-row">
-          <h1>房地稅費<span class="title-gold">與</span>貸款試算</h1>
-          <div class="client-info" aria-label="客戶專屬聯絡資訊">
-            <span class="brand-mark" aria-hidden="true">魏</span>
-            <span class="client-copy">
-              <strong>台南小魏 買厝作伙-客戶專屬</strong>
-              <span>魏泉承 0927-617-207</span>
-            </span>
-          </div>
+    <header class="brand-hero">
+      <div class="brand-hero__content">
+        <p class="brand-hero__eyebrow">TAINAN REAL ESTATE CALCULATOR</p>
+        <h1>房地稅費與貸款試算</h1>
+        <p class="brand-hero__lead">把複雜的稅費與貸款，整理成看得懂的數字。</p>
+
+        <div class="brand-hero__identity" aria-label="客戶專屬聯絡資訊">
+          <span class="brand-mark" aria-hidden="true">魏</span>
+          <span>
+            <strong>台南小魏 買厝作伙</strong>
+            <small>魏泉承｜永慶不動產-小東南紡店｜0927-617-207</small>
+          </span>
         </div>
-        <p class="subtitle">
-          <span>以新臺幣輸入金額，快速估算出售房地合一稅、買方準備現金與房貸月付。</span>
+
+        <p class="brand-hero__notice">
+          以新臺幣輸入金額，快速估算出售房地合一稅、買方準備現金與房貸月付。
           <span>正式申報仍以稅務機關、地政士、銀行核定為準。</span>
         </p>
       </div>
-      <aside class="hero-card" aria-label="品牌視覺與資料版本">
-        <div class="status" aria-label="資料版本">
-          <span>資料基準</span>
-          <strong>2026-07-16</strong>
-        </div>
-        <div class="image2-visual" aria-hidden="true">
-          <span class="visual-sun"></span>
-          <span class="visual-hill"></span>
-          <span class="visual-house"></span>
-          <span class="visual-line"></span>
-          <strong>TAINAN REAL ESTATE</strong>
-        </div>
-      </aside>
+
+      <div class="brand-hero__portrait">
+        <img class="brand-hero__profile" src="assets/xiaowei-profile.png" width="609" height="900" fetchpriority="high" alt="台南小魏魏泉承">
+      </div>
+
+      <div class="brand-hero__baseline" aria-label="資料版本">
+        <span>資料基準</span>
+        <time class="hero-data-date" datetime="2026-07-16">2026-07-16</time>
+      </div>
     </header>
 
     <nav class="tabs" aria-label="計算器">

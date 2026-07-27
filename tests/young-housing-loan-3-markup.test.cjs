@@ -14,10 +14,8 @@ test("青安分頁使用正式 3.0 文案", () => {
 });
 
 test("主視覺資料基準同步正式方案發布日", () => {
-  assert.match(html, /class="hero-data-date"[^>]*>2026-07-16</);
-  assert.match(html, /<strong>2026-07-16<\/strong>/);
+  assert.match(html, /class="brand-hero__baseline"[\s\S]*class="hero-data-date"[^>]*>2026-07-16<\/time>/);
   assert.doesNotMatch(html, /2026-06-17/);
-  assert.match(html, /\.hero-data-date\s*\{[^}]*position:\s*absolute/s);
 });
 
 test("介面提供三種額度與三組區域", () => {
@@ -104,4 +102,15 @@ test("指定的大額金額欄位以萬元輸入並移除重複換算提示", ()
   assert.match(html, /el\.dataset\.moneyUnit === "wan"\s*\? numericValue \* 10000/);
   assert.match(html, /input\.dataset\.moneyUnit === "wan"\s*\? numericValue \/ 10000/);
   assert.match(html, /__moneyUnitVersion:\s*2/);
+});
+
+test("手機版青安方案摘要使用緊湊的兩欄排版", () => {
+  const marker = html.indexOf("/* Compact mobile young-loan summary */");
+  assert.ok(marker > -1, "應提供手機版青安摘要壓縮樣式");
+  const compactCss = html.slice(marker, marker + 2400);
+
+  assert.match(compactCss, /@media \(max-width: 620px\)/);
+  assert.match(compactCss, /\.young-hero\s*\{[^}]*padding:\s*18px 16px 15px/s);
+  assert.match(compactCss, /\.policy-stats\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/s);
+  assert.match(compactCss, /\.base-terms\s*\{[^}]*margin-top:\s*9px/s);
 });
