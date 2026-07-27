@@ -73,6 +73,7 @@ test("緊湊工具版重新配置桌機頁首與工作區", () => {
   assert.match(css, /\.workspace\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.38fr\)\s*minmax\(360px,\s*1fr\);[^}]*gap:\s*16px/s);
   assert.match(css, /\.young-hero\s*\{[^}]*background:\s*var\(--brand-paper\);[^}]*color:\s*var\(--brand-ink\)/s);
   assert.match(css, /\.tabs\s*\{[^}]*min-height:\s*48px/s);
+  assert.match(css, /\.brand-hero__baseline\s*\{[^}]*right:\s*190px/s);
 });
 
 test("緊湊工具版在手機維持單行標題與觸控尺寸", () => {
