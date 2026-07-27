@@ -57,9 +57,8 @@ test("年限與基準利率改由正式政策自動套用", () => {
   assert.match(html, /youngPolicy\.POLICY\.defaultBaseRate/);
 });
 
-test("方案摘要只保留貸款額度並移除欄位說明", () => {
-  assert.match(html, /<ol class="base-terms">/);
-  assert.equal((html.match(/<li>/g) || []).length, 1);
+test("方案摘要移除貸款額度條列與欄位說明", () => {
+  assert.doesNotMatch(html, /<ol class="base-terms">/);
   assert.doesNotMatch(html, /id="youngDownPaymentFormula"/);
   assert.doesNotMatch(html, /貸款年限依年齡自動套用：/);
   assert.match(html, /youngPolicy\.calculateFinancing/);
@@ -72,13 +71,14 @@ test("申貸額度選單使用專屬字級並精簡資格結果", () => {
   assert.match(html, /eligibility\.checks\.agePlusTerm/);
 });
 
-test("青安結果拆分總貸款、青安貸款與其他貸款", () => {
+test("青安結果拆分總貸款、青安貸款與一般房貸", () => {
   assert.match(html, /const \{totalLoan, youngLoan, supplementalLoan, downPayment, loanLimit\}/);
   assert.match(html, /預估總貸款/);
-  assert.match(html, /line\("總貸款金額", totalLoan\)/);
+  assert.match(html, /wanLine\("總貸款金額", totalLoan\)/);
   assert.match(html, /青安貸款本金/);
-  assert.match(html, /其他貸款（月付另行核算）/);
-  assert.match(html, /其他貸款.*未併入本表/);
+  assert.match(html, /一般房貸本金（利率 2\.5% 試算）/);
+  assert.match(html, /GENERAL_LOAN_RATE = 2\.5/);
+  assert.match(html, /monthlyPayment\(supplementalLoan, GENERAL_LOAN_RATE \/ 100 \/ 12, totalMonths\)/);
 });
 
 test("指定的大額金額欄位以萬元輸入並移除重複換算提示", () => {

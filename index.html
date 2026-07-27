@@ -2218,6 +2218,225 @@
         animation: none;
       }
     }
+
+    /* 快速選擇按鈕（chip）：取代部分下拉選單／純數字輸入，手機上點選更快 */
+    .chip-group {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin: 8px 0;
+    }
+
+    .chip-quick-row {
+      display: flex;
+      flex-wrap: wrap;
+      margin-top: 8px;
+      margin-bottom: 0;
+    }
+
+    .chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 9px 16px;
+      border: 1px solid rgba(33, 49, 42, .16);
+      border-radius: 999px;
+      background: linear-gradient(180deg, #ffffff, #fbf7ef);
+      color: #17211d;
+      font-size: .82rem;
+      font-weight: 800;
+      line-height: 1.2;
+      cursor: pointer;
+      transition: border-color .15s, box-shadow .15s, background .15s, transform .1s;
+    }
+
+    .chip:hover {
+      border-color: rgba(15, 95, 85, .42);
+    }
+
+    .chip:active {
+      transform: scale(.97);
+    }
+
+    .chip small {
+      font-weight: 600;
+      font-size: .68rem;
+      opacity: .68;
+    }
+
+    .chip.is-active {
+      border-color: transparent;
+      background: linear-gradient(145deg, #fff5d6, #d1a258 72%, #9b7334);
+      box-shadow: 0 10px 22px rgba(202, 161, 93, .28);
+    }
+
+    .chip-native-select {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 420px) {
+      .metric-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .chip-group:not(.chip-quick-row) {
+        grid-template-columns: 1fr;
+      }
+
+      .chip-quick-row .chip {
+        flex: 1 1 calc(50% - 8px);
+      }
+    }
+
+    [data-chip-input="youngLoanRatio"] {
+      flex-wrap: nowrap;
+    }
+
+    [data-chip-input="youngLoanRatio"] .chip {
+      flex: 1 1 0;
+    }
+
+    .eligibility-warn {
+      display: none;
+      color: var(--rose);
+      font-weight: 800;
+    }
+
+    .eligibility-item input:not(:checked) ~ span .eligibility-warn {
+      display: block;
+    }
+
+    .eligibility-item:has(input:not(:checked)) {
+      border-radius: 12px;
+      background: rgba(190, 18, 60, .06);
+    }
+
+    .young-step + .young-step {
+      margin-top: 6px;
+      padding-top: 24px;
+      border-top: 1px dashed rgba(23, 54, 75, .14);
+    }
+
+    .young-step-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .young-step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #0f5f55, #1d7f78);
+      color: #fffaf1;
+      font-size: .85rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .young-step-head h3 {
+      margin: 0;
+      font-size: 1.02rem;
+      color: #17211d;
+    }
+
+    /* 手機版整體收緊間距，避免上下滑動距離過長 */
+    @media (max-width: 620px) {
+      .workspace {
+        gap: 14px;
+      }
+
+      .panel-head {
+        padding: 14px 16px;
+      }
+
+      .section {
+        padding: 14px 16px;
+      }
+
+      .young-step + .young-step {
+        margin-top: 4px;
+        padding-top: 16px;
+      }
+
+      .young-step-head {
+        margin-bottom: 10px;
+      }
+
+      .form-grid {
+        gap: 10px;
+      }
+
+      .field {
+        gap: 4px;
+      }
+
+      .down-payment-field {
+        padding: 10px;
+      }
+
+      .eligibility-list {
+        padding: 10px;
+        gap: 8px;
+      }
+
+      .eligibility-item {
+        padding: 0;
+      }
+
+      .chip-group {
+        gap: 6px;
+      }
+
+      .chip {
+        padding: 7px 12px;
+      }
+
+      .actions {
+        margin-top: 10px;
+        gap: 8px;
+      }
+
+      .result-stack {
+        gap: 10px;
+        padding: 14px;
+      }
+
+      .metric {
+        padding: 12px;
+        gap: 6px;
+      }
+
+      .breakdown {
+        gap: 6px;
+        margin-top: 2px;
+      }
+
+      .line {
+        padding-bottom: 6px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -2607,66 +2826,29 @@
             <div class="policy-stat"><span>年齡限制</span><strong>未滿 50 歲與 80 條款</strong></div>
             <div class="policy-stat"><span>所得限制</span><strong>年所得 200 萬以下</strong></div>
           </div>
-          <ol class="base-terms">
-            <li>貸款額度：一般首購最高 1,000 萬；結婚 2 年內家庭最高 1,200 萬；育有未成年子女家庭最高 1,500 萬。</li>
-          </ol>
         </div>
 
-        <div class="section">
+        <div class="section young-step" data-step="1">
+          <div class="young-step-head">
+            <span class="young-step-badge">①</span>
+            <h3>資格快篩</h3>
+          </div>
           <div class="eligibility-list" aria-label="資格條件">
             <label class="eligibility-item">
               <input id="youngNoHome" type="checkbox" checked>
-              <span><b>無自有住宅</b><small>申貸當下本人、配偶及未成年子女名下均無自有住宅。</small></span>
+              <span><b>無自有住宅</b><small>申貸當下本人、配偶及未成年子女名下均無自有住宅。</small><small class="eligibility-warn">未勾選，不符合青安資格</small></span>
             </label>
             <label class="eligibility-item">
               <input id="youngSelfUse" type="checkbox" checked>
-              <span><b>自住使用</b><small>貸款房屋須供本人及家庭實際自住使用，並依規定切結。</small></span>
+              <span><b>自住使用</b><small>貸款房屋須供本人及家庭實際自住使用，並依規定切結。</small><small class="eligibility-warn">未勾選，不符合青安資格</small></span>
             </label>
             <label class="eligibility-item">
               <input id="youngFirstUse" type="checkbox" checked>
-              <span><b>限貸一次</b><small>每人原則上只能使用一次青安貸款優惠，不能重複申請。</small></span>
+              <span><b>限貸一次</b><small>每人原則上只能使用一次青安貸款優惠，不能重複申請。</small><small class="eligibility-warn">未勾選，不符合青安資格</small></span>
             </label>
           </div>
 
           <div class="form-grid young-fields">
-            <div class="field">
-              <label for="youngPurchasePrice">房屋成交總價</label>
-              <div class="control">
-                <input id="youngPurchasePrice" data-money-unit="wan" type="number" min="0" step="0.1" value="1200">
-                <span class="unit">萬元</span>
-              </div>
-            </div>
-            <div class="field">
-              <label for="youngLoanRatio">預估貸款成數</label>
-              <div class="control">
-                <input id="youngLoanRatio" type="number" min="0" max="80" step="1" value="80">
-                <span class="unit">%</span>
-              </div>
-            </div>
-            <div class="field down-payment-field">
-              <label for="youngDownPayment">自備款（成交總價－實際貸款）</label>
-              <div class="control">
-                <input id="youngDownPayment" data-money-unit="wan" type="number" min="0" step="0.1" value="240">
-                <span class="unit">萬元</span>
-              </div>
-            </div>
-            <div class="field">
-              <label for="youngApplicantType">申請貸款額度類型</label>
-              <div class="control">
-                <select id="youngApplicantType">
-                  <option value="general" selected>一般首購（貸款額度最高 1,000 萬）</option>
-                  <option value="newlywed">結婚 2 年內家庭（貸款額度最高 1,200 萬）</option>
-                  <option value="children">育有未成年子女家庭（貸款額度最高 1,500 萬）</option>
-                </select>
-              </div>
-            </div>
-            <div class="field">
-              <label for="youngGraceYears">寬限期</label>
-              <div class="control">
-                <input id="youngGraceYears" type="number" min="0" max="5" step="1" value="5">
-                <span class="unit">年</span>
-              </div>
-            </div>
             <div class="field">
               <label for="youngAge">申貸人年齡</label>
               <div class="control">
@@ -2681,17 +2863,83 @@
                 <span class="unit">萬元</span>
               </div>
             </div>
+            <div class="field wide">
+              <label>各縣市可買最高房價</label>
+              <div class="chip-group" data-chip-select="youngPriceTier" role="group" aria-label="各縣市可買最高房價">
+                <button type="button" class="chip is-active" data-value="other"><b>台南／其他縣市</b><small>上限 2,000 萬</small></button>
+                <button type="button" class="chip" data-value="taipei"><b>台北市</b><small>上限 3,500 萬</small></button>
+                <button type="button" class="chip" data-value="newTaipeiHsinchu"><b>新北・新竹</b><small>上限 2,500 萬</small></button>
+              </div>
+              <select id="youngPriceTier" class="chip-native-select" tabindex="-1" aria-hidden="true">
+                <option value="other" selected>台南／其他縣市（上限 2,000 萬）</option>
+                <option value="taipei">台北市（上限 3,500 萬）</option>
+                <option value="newTaipeiHsinchu">新北市、新竹縣市（上限 2,500 萬）</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="section young-step" data-step="2">
+          <div class="young-step-head">
+            <span class="young-step-badge">②</span>
+            <h3>試算貸款</h3>
+          </div>
+          <div class="form-grid young-fields">
             <div class="field">
-              <label for="youngPriceTier">房價級距</label>
+              <label for="youngPurchasePrice">房屋成交總價</label>
               <div class="control">
-                <select id="youngPriceTier">
-                  <option value="taipei">台北市（上限 3,500 萬）</option>
-                  <option value="newTaipeiHsinchu">新北市、新竹縣市（上限 2,500 萬）</option>
-                  <option value="other" selected>其他縣市（上限 2,000 萬）</option>
-                </select>
-                <span class="unit">區域</span>
+                <input id="youngPurchasePrice" data-money-unit="wan" type="number" min="0" step="0.1" value="1200">
+                <span class="unit">萬元</span>
               </div>
             </div>
+            <div class="field">
+              <label>預估貸款成數</label>
+              <div class="chip-group chip-quick-row" data-chip-input="youngLoanRatio" role="group" aria-label="快速選擇貸款成數">
+                <button type="button" class="chip" data-value="60">6 成</button>
+                <button type="button" class="chip" data-value="70">7 成</button>
+                <button type="button" class="chip is-active" data-value="80">8 成</button>
+              </div>
+              <input id="youngLoanRatio" type="hidden" value="80">
+            </div>
+            <div class="field down-payment-field">
+              <label for="youngDownPayment">自備款（成交總價－實際貸款）</label>
+              <div class="control">
+                <input id="youngDownPayment" data-money-unit="wan" type="number" min="0" step="0.1" value="240">
+                <span class="unit">萬元</span>
+              </div>
+            </div>
+            <div class="field">
+              <label>寬限期</label>
+              <div class="chip-group chip-quick-row" data-chip-input="youngGraceYears" role="group" aria-label="快速選擇寬限期">
+                <button type="button" class="chip" data-value="0">無</button>
+                <button type="button" class="chip" data-value="2">2 年</button>
+                <button type="button" class="chip" data-value="3">3 年</button>
+                <button type="button" class="chip is-active" data-value="5">5 年</button>
+              </div>
+              <input id="youngGraceYears" type="hidden" value="5">
+            </div>
+            <div class="field wide">
+              <label>申請貸款額度類型</label>
+              <div class="chip-group" data-chip-select="youngApplicantType" role="group" aria-label="申請貸款額度類型">
+                <button type="button" class="chip is-active" data-value="general"><b>一般首購</b><small>最高 1,000 萬</small></button>
+                <button type="button" class="chip" data-value="newlywed"><b>結婚 2 年內家庭</b><small>最高 1,200 萬</small></button>
+                <button type="button" class="chip" data-value="children"><b>育有未成年子女家庭</b><small>最高 1,500 萬</small></button>
+              </div>
+              <select id="youngApplicantType" class="chip-native-select" tabindex="-1" aria-hidden="true">
+                <option value="general" selected>一般首購（貸款額度最高 1,000 萬）</option>
+                <option value="newlywed">結婚 2 年內家庭（貸款額度最高 1,200 萬）</option>
+                <option value="children">育有未成年子女家庭（貸款額度最高 1,500 萬）</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="section young-step" data-step="3">
+          <div class="young-step-head">
+            <span class="young-step-badge">③</span>
+            <h3>負擔評估</h3>
+          </div>
+          <div class="form-grid young-fields">
             <div class="field">
               <label for="youngMonthlyIncome">家庭每月可支配收入</label>
               <div class="control">
@@ -2703,7 +2951,6 @@
 
           <div class="actions">
             <button class="primary young-primary" type="button" data-clear="young">清空</button>
-            <button class="secondary" type="button" data-reset="young">套用範例</button>
             <button class="secondary" type="button" data-copy="young">複製結果</button>
             <button class="secondary" type="button" data-jpg="young">存成圖片</button>
           </div>
@@ -2713,7 +2960,6 @@
       <aside class="panel young-result-panel">
         <div class="panel-head">
           <h2>青安貸款 3.0 試算結果</h2>
-          <span class="note">正式方案 · 仍須銀行審核</span>
         </div>
         <div class="result-stack" id="youngResult"></div>
       </aside>
@@ -2754,6 +3000,7 @@
     });
 
     const youngPolicy = window.YoungHousingLoan3;
+    const GENERAL_LOAN_RATE = 2.5; // 超過青安額度部分，常見一般房貸利率假設（非官方利率，僅供試算參考）
 
     const defaults = {
       tax: {
@@ -2891,6 +3138,48 @@
       });
     }
 
+    function setupChipGroups() {
+      const chipGroupSyncs = [];
+      document.querySelectorAll("[data-chip-select], [data-chip-input]").forEach(group => {
+        const selectId = group.dataset.chipSelect;
+        const inputId = group.dataset.chipInput;
+        const target = document.getElementById(selectId || inputId);
+        if (!target) return;
+        const chips = Array.from(group.querySelectorAll(".chip"));
+
+        const syncActive = () => {
+          const current = selectId ? target.value : String(parseNumericValue(target.value));
+          chips.forEach(chip => {
+            const active = chip.dataset.value === current;
+            chip.classList.toggle("is-active", active);
+            chip.setAttribute("aria-pressed", String(active));
+          });
+        };
+
+        chips.forEach(chip => {
+          chip.addEventListener("click", () => {
+            if (selectId) {
+              target.value = chip.dataset.value;
+              target.dispatchEvent(new Event("change", { bubbles: true }));
+            } else {
+              setNumericInputValue(inputId, Number(chip.dataset.value));
+              target.dispatchEvent(new Event("input", { bubbles: true }));
+            }
+            syncActive();
+          });
+        });
+
+        if (inputId) {
+          target.addEventListener("input", syncActive);
+          target.addEventListener("blur", syncActive);
+        }
+
+        syncActive();
+        chipGroupSyncs.push(syncActive);
+      });
+      window.syncAllChipGroups = () => chipGroupSyncs.forEach(sync => sync());
+    }
+
     function clamp(value, min, max) {
       return Math.min(Math.max(value, min), max);
     }
@@ -2906,6 +3195,23 @@
 
     function line(label, amount) {
       return `<div class="line"><span>${label}</span><b>${money.format(Math.round(amount))}</b></div>`;
+    }
+
+    function wanAmount(amount) {
+      return `${number.format(amount / 10000)} 萬`;
+    }
+
+    function wanMetric(label, amount, tone = "") {
+      return `
+        <div class="metric ${tone}">
+          <span>${label}</span>
+          <strong>${wanAmount(amount)}</strong>
+        </div>
+      `;
+    }
+
+    function wanLine(label, amount) {
+      return `<div class="line"><span>${label}</span><b>${wanAmount(amount)}</b></div>`;
     }
 
     function taxRate({ years, resident, selfUse, special }) {
@@ -3200,6 +3506,9 @@
       const loanYears = youngPolicy.loanYearsForAge(age);
       const totalMonths = Math.max(12, Math.round(loanYears * 12));
       const graceMonths = Math.min(totalMonths - 1, Math.round(clamp(value("youngGraceYears"), 0, 5) * 12));
+      const generalLoanPayment = supplementalLoan > 0
+        ? monthlyPayment(supplementalLoan, GENERAL_LOAN_RATE / 100 / 12, totalMonths)
+        : 0;
       const annualIncome = Math.max(0, value("youngAnnualIncome"));
       const priceTier = selectValue("youngPriceTier");
       const baseRate = youngPolicy.POLICY.defaultBaseRate;
@@ -3218,7 +3527,7 @@
       const priceTierLabels = {
         taipei: "台北市",
         newTaipeiHsinchu: "新北市、新竹縣市",
-        other: "其他縣市"
+        other: "台南／其他縣市"
       };
       const priceCap = eligibility.priceCap;
       const eligible = eligibility.eligible;
@@ -3308,34 +3617,41 @@
         `;
       }).join("");
 
-      document.getElementById("youngResult").innerHTML = `
-        ${metric("預估總貸款", totalLoan, "main young-main")}
-        ${metric("預估自備款", downPayment)}
-        <div class="eligibility-result ${eligible ? "good" : "bad"}">
-          ${eligible
-            ? "資格初步檢核：所有情境條件皆符合，仍須由承貸銀行審核。"
-            : "資格初步檢核：目前有條件未符合，可能無法使用青安貸款 3.0 優惠。"}
-          <div class="breakdown">${eligibilityDetails}</div>
+      const graceStagePayment = graceMonths > 0 ? firstGracePayment : firstNormalPayment;
+      const graceStageDisplay = supplementalLoan > 0
+        ? `${money.format(Math.round(graceStagePayment))} + ${money.format(Math.round(generalLoanPayment))}`
+        : money.format(Math.round(graceStagePayment));
+      const normalStageDisplay = supplementalLoan > 0
+        ? `${money.format(Math.round(firstNormalPayment))} + ${money.format(Math.round(generalLoanPayment))}`
+        : money.format(Math.round(firstNormalPayment));
+      const splitLoanNote = supplementalLoan > 0
+        ? `貸 ${wanAmount(totalLoan)}，超過${applicantTypeLabel}青安上限 ${wanAmount(loanLimit)}——下面用常見做法「青安 ${wanAmount(youngLoan)}＋一般房貸 ${wanAmount(supplementalLoan)}（利率 ${GENERAL_LOAN_RATE}%）」兩筆合計幫你算。想提高青安佔比，新婚或有小孩記得選上面的家庭狀況。`
+        : "";
+
+      const calculationSections = eligible ? `
+        <div class="metric-row">
+          ${wanMetric("預估總貸款", totalLoan, "main young-main")}
+          ${wanMetric("預估自備款", downPayment)}
         </div>
+        ${supplementalLoan > 0 ? `<div class="metric warn"><div class="policy-note">${splitLoanNote}</div></div>` : ""}
         <div class="metric">
-          <span>青安寬限期月付</span>
-          <strong>${money.format(Math.round(graceMonths > 0 ? firstGracePayment : firstNormalPayment))}</strong>
+          <span>青安寬限期月付${supplementalLoan > 0 ? "（青安＋一般房貸）" : ""}</span>
+          <strong>${graceStageDisplay}</strong>
           <div class="breakdown">
-            ${line("青安寬限期後月付", firstNormalPayment)}
-            ${line("總貸款金額", totalLoan)}
-            ${line(`${applicantTypeLabel}貸款額度上限`, loanLimit)}
-            ${line("青安貸款本金", youngLoan)}
-            ${supplementalLoan > 0 ? line("其他貸款（月付另行核算）", supplementalLoan) : ""}
+            <div class="line"><span>青安寬限期後月付${supplementalLoan > 0 ? "（青安＋一般房貸）" : ""}</span><b>${normalStageDisplay}</b></div>
+            ${wanLine("總貸款金額", totalLoan)}
+            ${wanLine(`${applicantTypeLabel}貸款額度上限`, loanLimit)}
+            ${wanLine("青安貸款本金", youngLoan)}
+            ${supplementalLoan > 0 ? wanLine("一般房貸本金（利率 2.5% 試算）", supplementalLoan) : ""}
+            ${supplementalLoan > 0 ? `<div class="line"><span>一般房貸月付</span><b>${money.format(Math.round(generalLoanPayment))}</b></div>` : ""}
           </div>
         </div>
         <div class="metric">
           <span>青安貸款試算</span>
           <div class="breakdown">
-            ${line("青安貸款本金", youngLoan)}
-            ${line("預估總貸款", totalLoan)}
             <div class="line"><span>依年齡自動套用貸款年限</span><b>${loanYears} 年</b></div>
-            ${line("預估總利息", totalInterest)}
-            ${line("青安本息合計", youngLoan + totalInterest)}
+            ${wanLine("預估總利息", totalInterest)}
+            ${wanLine("青安本息合計", youngLoan + totalInterest)}
             ${line("青安月付建議家庭收入（以月付 40%）", suggestedIncome)}
           </div>
           <div class="ratio-meter">
@@ -3343,7 +3659,6 @@
             <div class="ratio-meter-track"><div class="ratio-meter-fill" style="width:${Math.min(debtRatio, 100)}%"></div></div>
           </div>
         </div>
-        ${supplementalLoan > 0 ? `<div class="metric warn"><div class="policy-note">其他貸款 ${money.format(supplementalLoan)} 的利率、年限與月付未併入本表，須依銀行核貸條件另行試算。</div></div>` : ""}
         <div class="metric">
           <span>五階段利率與月付</span>
           <div class="policy-note">依方案基準利率 ${rateNumber.format(baseRate)}% 試算，月付金以元為單位四捨五入；各銀行分段利率起算日與進位規則略有差異，實際以核貸銀行為準。可用 <a href="https://firstloan.firstbank.com.tw/LoanRepayment/LoanTrail.action" target="_blank" rel="noreferrer">第一銀行房貸試算</a> 交叉確認。</div>
@@ -3362,6 +3677,16 @@
             <tbody>${tableRows}</tbody>
           </table>
         </div>
+      ` : "";
+
+      document.getElementById("youngResult").innerHTML = `
+        <div class="eligibility-result ${eligible ? "good" : "bad"}">
+          ${eligible
+            ? "資格初步檢核：所有情境條件皆符合，仍須由承貸銀行審核。"
+            : "資格初步檢核：目前有條件未符合，可能無法使用青安貸款 3.0 優惠，請先調整左側資料。"}
+          <div class="breakdown">${eligibilityDetails}</div>
+        </div>
+        ${calculationSections}
       `;
     }
 
@@ -3379,6 +3704,7 @@
       });
       formatAllNumericInputs();
       updateAllWanHints();
+      window.syncAllChipGroups?.();
       queueSave();
       runGroup(group, { loading: true, feedback: "已套用" });
     }
@@ -3402,6 +3728,7 @@
       });
       clearValidation(form);
       updateAllWanHints();
+      window.syncAllChipGroups?.();
       queueSave();
       setResultState(group, "empty", "🧹 已清空，重新開始", "填寫左側欄位後，結果會自動更新。");
 
@@ -3642,6 +3969,7 @@
 
     setupNumericInputs();
     restoreInputs();
+    setupChipGroups();
     setupWanHints();
     showInitialStates();
 
@@ -3957,6 +4285,7 @@
       const financing = youngPolicy.calculateFinancing(purchasePrice, ratio, selectValue("youngApplicantType"));
       setNumericInputValue("youngLoanRatio", number.format(ratio));
       setNumericInputValue("youngDownPayment", financing.downPayment);
+      window.syncAllChipGroups?.();
       scheduleGroup("young");
     }
 
@@ -3968,6 +4297,7 @@
       const financing = youngPolicy.calculateFinancing(purchasePrice, ratio, selectValue("youngApplicantType"));
       setNumericInputValue("youngLoanRatio", number.format(ratio));
       setNumericInputValue("youngDownPayment", financing.downPayment);
+      window.syncAllChipGroups?.();
       scheduleGroup("young");
     }
 
