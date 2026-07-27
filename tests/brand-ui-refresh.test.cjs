@@ -43,3 +43,23 @@ test("品牌主題提供可見的鍵盤焦點與減少動態效果", () => {
   assert.match(css, /:focus-visible/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
 });
+
+test("品牌主題在平板與手機提供緊湊版面", () => {
+  const marker = html.indexOf("/* Tainanwei brand tool theme */");
+  assert.ok(marker > -1, "應新增品牌工具主題");
+  const css = html.slice(marker, html.indexOf("</style>", marker));
+
+  assert.match(css, /@media \(max-width: 900px\)/);
+  assert.match(css, /@media \(max-width: 620px\)/);
+  assert.match(css, /\.brand-hero\s*\{[^}]*min-height:\s*300px/s);
+  assert.match(css, /\.tabs\s*\{[^}]*overflow-x:\s*auto/s);
+  assert.match(css, /\.tab\s*\{[^}]*min-width:\s*112px/s);
+});
+
+test("桌機頁首完整顯示人物且作用中分頁會捲入視野", () => {
+  const marker = html.indexOf("/* Tainanwei brand tool theme */");
+  const css = html.slice(marker, html.indexOf("</style>", marker));
+
+  assert.match(css, /\.brand-hero__profile\s*\{[^}]*width:\s*auto;[^}]*height:\s*calc\(100% - 18px\)/s);
+  assert.match(html, /tab\.scrollIntoView\(\{\s*block:\s*"nearest",\s*inline:\s*"center"\s*\}\)/);
+});
