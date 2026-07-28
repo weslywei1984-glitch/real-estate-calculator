@@ -3297,6 +3297,17 @@
       display: none;
     }
 
+    /* 舊金色主題殘留：徽章的金色外光暈與白色高光會漏出圓形範圍，
+       在藏青底上形成光暈，與現在的陶土色徽章不搭 */
+    .brand-mark::before,
+    .brand-mark::after {
+      display: none;
+    }
+
+    .brand-hero .brand-mark {
+      text-shadow: none;
+    }
+
     .brand-hero__content {
       z-index: 2;
       display: grid;
@@ -3847,10 +3858,10 @@
       }
 
       .brand-hero {
-        min-height: 160px;
+        min-height: 146px;
         max-height: none;
         grid-template-columns: minmax(0, 1fr) 116px;
-        padding: 13px 12px;
+        padding: 10px 12px;
         border-radius: 8px;
       }
 
@@ -3860,7 +3871,7 @@
       }
 
       .brand-hero__eyebrow {
-        margin-bottom: 3px;
+        margin-bottom: 1px;
         font-size: .56rem;
         letter-spacing: .09em;
       }
@@ -3881,8 +3892,8 @@
       .brand-hero__identity {
         gap: 5px;
         max-width: calc(100vw - 142px);
-        margin-top: 6px;
-        padding: 4px 6px 4px 5px;
+        margin-top: 4px;
+        padding: 3px 6px 3px 5px;
         border-left-width: 2px;
       }
 
@@ -3911,7 +3922,7 @@
 
       .brand-hero__tel {
         display: block;
-        padding: 2px 0;
+        padding: 1px 0;
         font-size: .8rem;
       }
 
@@ -3919,7 +3930,7 @@
         display: block;
         overflow: visible;
         max-width: none;
-        margin-top: 6px;
+        margin-top: 4px;
         font-size: .68rem;
         line-height: 1.35;
         text-overflow: clip;
@@ -3946,7 +3957,7 @@
 
       .tabs {
         min-height: 48px;
-        margin: 8px 0;
+        margin: 6px 0;
         border-radius: 8px;
       }
 
@@ -4007,12 +4018,12 @@
       }
 
       .young-hero {
-        padding: 13px;
+        padding: 11px 13px;
       }
 
       .young-kicker {
-        margin-bottom: 5px;
-        padding: 3px 6px;
+        margin-bottom: 4px;
+        padding: 2px 6px;
         font-size: .62rem;
       }
 
@@ -4021,19 +4032,20 @@
       }
 
       .young-hero p {
-        margin-top: 3px;
+        margin-top: 2px;
         font-size: .68rem;
-        line-height: 1.4;
+        line-height: 1.35;
       }
 
       .policy-stats {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        margin-top: 8px;
-        padding: 7px;
+        margin-top: 6px;
+        padding: 5px;
       }
 
       .policy-stat {
-        padding: 3px 6px;
+        gap: 1px;
+        padding: 2px 6px;
       }
 
       .policy-stat strong {

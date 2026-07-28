@@ -89,6 +89,14 @@ test("桌機頁首完整顯示人物且作用中分頁會捲入視野", () => {
   assert.match(html, /tab\.scrollIntoView\(\{\s*block:\s*"nearest",\s*inline:\s*"center"\s*\}\)/);
 });
 
+test("關閉舊金色主題殘留的徽章光暈", () => {
+  const marker = html.indexOf("/* Compact tool layout redesign */");
+  const css = html.slice(marker, html.indexOf("</style>", marker));
+
+  assert.match(css, /\.brand-mark::before,\s*\.brand-mark::after\s*\{[^}]*display:\s*none/s);
+  assert.match(css, /\.brand-hero \.brand-mark\s*\{[^}]*text-shadow:\s*none/s);
+});
+
 test("緊湊工具版重新配置桌機頁首與工作區", () => {
   const marker = html.indexOf("/* Compact tool layout redesign */");
   assert.ok(marker > -1, "應新增緊湊工具版最終樣式");
@@ -106,7 +114,7 @@ test("緊湊工具版在手機維持單行標題與觸控尺寸", () => {
   const css = html.slice(marker, html.indexOf("</style>", marker));
 
   assert.match(css, /@media \(max-width:\s*620px\)/);
-  assert.match(css, /\.brand-hero\s*\{[^}]*min-height:\s*160px;[^}]*max-height:\s*none/s);
+  assert.match(css, /\.brand-hero\s*\{[^}]*min-height:\s*146px;[^}]*max-height:\s*none/s);
   assert.match(css, /\.brand-hero h1\s*\{[^}]*white-space:\s*nowrap/s);
   assert.match(css, /\.actions button\s*\{[^}]*min-height:\s*44px/s);
 });
