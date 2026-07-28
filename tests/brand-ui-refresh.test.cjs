@@ -40,9 +40,25 @@ test("手機版顯示免責聲明且不縮到難以閱讀", () => {
   assert.match(mobile, /\.brand-hero__notice\s*\{[^}]*white-space:\s*normal/s);
   assert.match(html, /正式申報仍以稅務機關、地政士、銀行核定為準/);
 
-  // 聯絡資訊與免責文字不得再使用 .5rem 以下的字級
-  assert.match(mobile, /\.brand-hero__identity small\s*\{[^}]*font-size:\s*\.7rem/s);
-  assert.match(mobile, /\.brand-hero__notice\s*\{[^}]*font-size:\s*\.68rem/s);
+  // 手機頁首只留標題、CTA、免責聲明與電話；電話要維持可讀字級
+  assert.match(mobile, /\.brand-hero__identity strong,\s*\.brand-hero__identity small\s*\{[^}]*display:\s*none/s);
+  assert.match(mobile, /\.brand-hero__identity \.brand-hero__tel\s*\{[^}]*font-size:\s*\.92rem/s);
+});
+
+test("手機頁首壓在 160px", () => {
+  const marker = html.indexOf("/* Hero banner：把「開始試算」變成視覺主角 */");
+  const css = html.slice(marker, html.indexOf("</style>", marker));
+  assert.match(css, /\.brand-hero\s*\{[^}]*min-height:\s*160px/s);
+  // 副標與英文眉題讓位，才塞得下 CTA 與免責聲明
+  assert.match(css, /\.brand-hero__eyebrow,\s*\.brand-hero__lead\s*\{[^}]*display:\s*none/s);
+});
+
+test("手機版青安摘要要有標籤與數值的層次", () => {
+  const marker = html.indexOf("/* Hero banner：把「開始試算」變成視覺主角 */");
+  const css = html.slice(marker, html.indexOf("</style>", marker));
+  // 原本標籤 10.9px、數值 11.8px 幾乎一樣大
+  assert.match(css, /\.policy-stat span\s*\{[^}]*font-size:\s*\.66rem/s);
+  assert.match(css, /\.policy-stat strong\s*\{[^}]*font-size:\s*\.84rem/s);
 });
 
 test("移除說明句後不留無效的 intro 樣式", () => {
@@ -91,10 +107,10 @@ test("頁首有明確的行動呼籲按鈕", () => {
   // .brand-hero__content 是格線容器，沒有 justify-self 按鈕會被撐滿整欄
   assert.match(css, /\.brand-hero__cta\s*\{[^}]*justify-self:\s*start/s);
   assert.match(css, /\.brand-hero__cta\s*\{[^}]*background:\s*var\(--brand-terracotta\)/s);
-  // 每個斷點都要有可點擊高度
+  // 每個斷點都要有可點擊高度（手機 44px 是觸控下限）
   assert.match(css, /min-height:\s*52px/);
   assert.match(css, /min-height:\s*48px/);
-  assert.match(css, /min-height:\s*46px/);
+  assert.match(css, /\.brand-hero__cta\s*\{[^}]*min-height:\s*44px/s);
 });
 
 test("頁首是 banner 而非形象橫幅：三欄、大標題、貼齊底部的人像", () => {

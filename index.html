@@ -4461,58 +4461,100 @@
         font-size: 1.14rem;
       }
 
-      /* 手機頁首：CTA 佔滿寬度，聯絡資訊接在下面 */
+      /* 手機頁首壓到 160px：只留標題、CTA、免責聲明與電話。
+         副標、品牌名與店名在手機上讓位，標題與下方分頁已足以說明用途 */
       .brand-hero {
-        min-height: 0;
-        padding: 14px 14px 16px;
+        min-height: 160px;
+        padding: 11px 12px 10px;
       }
 
       .brand-hero__content {
-        padding-right: 96px;
+        padding-right: 126px;
       }
 
+      /* 英文眉題在手機讓位：下一行的中文主標已說明同一件事，
+         留著就無法在保留 CTA 與免責聲明的前提下壓到 160px */
+      .brand-hero__eyebrow,
       .brand-hero__lead {
-        display: block;
-        margin: 6px 0 0;
-        max-width: none;
-        font-size: .78rem;
-        line-height: 1.45;
+        display: none;
       }
 
       .brand-hero__cta {
-        width: calc(100% - 96px);
-        margin-top: 12px;
-        min-height: 46px;
-        padding: 0 16px;
-        font-size: .92rem;
+        width: 100%;
+        margin-top: 8px;
+        min-height: 44px;
+        padding: 0 14px;
+        font-size: .88rem;
       }
 
       .brand-hero__notice {
-        margin-top: 10px;
+        margin-top: 6px;
+        font-size: .66rem;
+        line-height: 1.3;
       }
 
       .brand-hero__identity {
-        margin-top: 10px;
+        margin-top: 4px;
       }
 
-      .brand-hero__identity strong {
-        font-size: .76rem;
-      }
-
+      .brand-hero__identity strong,
       .brand-hero__identity small {
-        font-size: .7rem;
+        display: none;
       }
 
       .brand-hero__identity .brand-hero__tel {
-        margin-top: 4px;
-        font-size: .86rem;
+        margin-top: 0;
+        padding: 0;
+        font-size: .92rem;
+      }
+
+      /* 框放小、人物放大 */
+      .brand-hero__portrait {
+        right: 0;
+        width: 122px;
+        height: 158px;
+      }
+
+      .brand-hero__profile {
+        height: 156px;
+        max-width: 122px;
+      }
+
+      /* 青安方案摘要：原本標籤 10.9px、數值 11.8px 幾乎一樣大，沒有層次。
+         這裡也要蓋掉前面無條件的 .policy-stats / .policy-stat 間距 */
+      .young-hero h2 {
+        font-size: 1.12rem;
+      }
+
+      .young-hero p {
+        font-size: .72rem;
+        line-height: 1.45;
+      }
+
+      .policy-stats {
+        margin-top: 9px;
+        padding: 6px;
+      }
+
+      .policy-stat {
+        gap: 2px;
+        padding: 5px 8px 5px 0;
+      }
+
+      .policy-stat span {
+        font-size: .66rem;
+      }
+
+      .policy-stat strong {
+        font-size: .84rem;
+        line-height: 1.3;
       }
     }
 
     /* iPhone SE 等 320px 裝置：標題會被截斷、聯絡卡會壓到人物 */
     @media (max-width: 360px) {
       .brand-hero__content {
-        padding-right: 88px;
+        padding-right: 116px;
       }
 
       .brand-hero h1 {
@@ -4532,13 +4574,13 @@
       }
 
       .brand-hero__portrait {
-        width: 98px;
-        height: 124px;
+        width: 112px;
+        height: 150px;
       }
 
       .brand-hero__profile {
-        height: 120px;
-        max-width: 98px;
+        height: 148px;
+        max-width: 112px;
       }
     }
   </style>
