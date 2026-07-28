@@ -76,6 +76,25 @@ test("兩個分頁都能用收入回推可負擔房價", () => {
   assert.match(html, /renderAffordCard\("youngAffordCard",[\s\S]{0,160}annualRate: baseRate/);
 });
 
+test("聯絡資訊是頁首的獨立區塊，桌機填在文字與人物之間", () => {
+  // 必須是 .brand-hero 的直接子元素才排得進格線
+  assert.match(html, /<\/div>\s*<div class="brand-hero__identity"/);
+  const marker = html.indexOf("/* Salary affordability + hero balance */");
+  assert.ok(marker > -1, "應有頁首平衡樣式");
+  const css = html.slice(marker, html.indexOf("</style>", marker));
+
+  assert.match(css, /@media \(min-width: 901px\)/);
+  assert.match(css, /\.brand-hero\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) 250px 150px/s);
+  // 要用同形狀選擇器才蓋得過前一層的 display: flex，否則聯絡資訊會被壓成一字寬直排
+  assert.match(css, /\.brand-hero__identity > span:last-child\s*\{[^}]*display:\s*block/s);
+});
+
+test("分頁列不換行", () => {
+  const marker = html.indexOf("/* Compact tool layout redesign */");
+  const css = html.slice(marker, html.indexOf("</style>", marker));
+  assert.match(css, /\.tabs\s*\{[^}]*flex-wrap:\s*nowrap/s);
+});
+
 test("最後一層主題採用台南小魏品牌色", () => {
   const marker = html.indexOf("/* Tainanwei brand tool theme */");
   assert.ok(marker > -1, "應新增品牌工具主題");

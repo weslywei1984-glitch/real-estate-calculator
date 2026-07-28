@@ -3456,6 +3456,8 @@
       gap: 4px;
       margin: 12px 0;
       padding: 4px;
+      /* 不換行：平板寬度下四個分頁會擠成兩排，寧可讓它們等分縮窄 */
+      flex-wrap: nowrap;
       overflow-x: auto;
       border: 1px solid var(--tool-border);
       border-radius: var(--tool-radius);
@@ -3814,8 +3816,14 @@
       .brand-hero {
         min-height: 168px;
         max-height: none;
-        grid-template-columns: minmax(0, 1fr) 205px;
+        /* 人物是絕對定位，聯絡資訊要接在文字下面，所以收成單欄 */
+        grid-template-columns: minmax(0, 1fr);
         padding: 18px 22px;
+      }
+
+      .brand-hero__identity {
+        margin-top: 8px;
+        max-width: calc(100% - 200px);
       }
 
       .brand-hero__notice {
@@ -3860,7 +3868,7 @@
       .brand-hero {
         min-height: 146px;
         max-height: none;
-        grid-template-columns: minmax(0, 1fr) 116px;
+        grid-template-columns: minmax(0, 1fr);
         padding: 10px 12px;
         border-radius: 8px;
       }
@@ -4076,16 +4084,55 @@
 
     /* 桌機頁首：人物改成真正的格線欄位，避免文字與照片中間空一大塊 */
     @media (min-width: 901px) {
+      /* 三欄：文字 ｜ 聯絡資訊 ｜ 人物。
+         原本文字與照片中間會空 400px 以上，把聯絡資訊移進來補這塊 */
       .brand-hero {
-        grid-template-columns: minmax(0, 1fr) 150px;
-        column-gap: 24px;
-        align-items: stretch;
+        grid-template-columns: minmax(0, 1fr) 250px 150px;
+        column-gap: 32px;
+        align-items: center;
       }
 
-      /* 文字不要撐到 880px 寬，行末離照片太遠會顯得空 */
       .brand-hero__content {
-        max-width: 640px;
+        max-width: 620px;
         padding-right: 0;
+      }
+
+      .brand-hero__identity {
+        align-self: center;
+        justify-self: stretch;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 10px 14px 10px 11px;
+      }
+
+      .brand-hero__identity .brand-mark {
+        flex: none;
+      }
+
+      /* 要用同樣的 > span:last-child 形狀才蓋得過前一層的 display: flex，
+         否則三行會被排成一列、被壓成一字寬而直排 */
+      .brand-hero__identity > span:last-child {
+        display: block;
+        min-width: 0;
+      }
+
+      .brand-hero__identity strong {
+        display: block;
+        font-size: .84rem;
+      }
+
+      .brand-hero__identity small {
+        display: block;
+        overflow: visible;
+        font-size: .68rem;
+        white-space: normal;
+      }
+
+      .brand-hero__tel {
+        display: block;
+        margin-top: 2px;
+        font-size: .92rem;
       }
 
       .brand-hero__portrait {
@@ -4238,6 +4285,31 @@
         font-size: 1.14rem;
       }
     }
+
+    /* iPhone SE 等 320px 裝置：標題會被截斷、聯絡卡會壓到人物 */
+    @media (max-width: 360px) {
+      .brand-hero__content {
+        padding-right: 88px;
+      }
+
+      .brand-hero h1 {
+        font-size: clamp(.98rem, 5.2vw, 1.16rem);
+      }
+
+      .brand-hero__identity {
+        max-width: calc(100vw - 148px);
+      }
+
+      .brand-hero__portrait {
+        width: 98px;
+        height: 124px;
+      }
+
+      .brand-hero__profile {
+        height: 120px;
+        max-width: 98px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -4248,19 +4320,19 @@
         <h1>房地稅費與貸款試算</h1>
         <p class="brand-hero__lead">把複雜的稅費與貸款，整理成看得懂的數字。</p>
 
-        <div class="brand-hero__identity" aria-label="客戶專屬聯絡資訊">
-          <span class="brand-mark" aria-hidden="true">魏</span>
-          <span class="brand-hero__identity-text">
-            <strong>台南小魏 買厝作伙</strong>
-            <small>魏泉承｜永慶不動產-小東南紡店</small>
-            <a class="brand-hero__tel" href="tel:+886927617207" aria-label="撥打電話 0927-617-207">0927-617-207</a>
-          </span>
-        </div>
-
         <p class="brand-hero__notice">
           <span class="brand-hero__notice-intro">以新臺幣輸入金額，快速估算出售房地合一稅、買方準備現金與房貸月付。</span>
           <span class="brand-hero__notice-legal">正式申報仍以稅務機關、地政士、銀行核定為準。</span>
         </p>
+      </div>
+
+      <div class="brand-hero__identity" aria-label="客戶專屬聯絡資訊">
+        <span class="brand-mark" aria-hidden="true">魏</span>
+        <span class="brand-hero__identity-text">
+          <strong>台南小魏 買厝作伙</strong>
+          <small>魏泉承｜永慶不動產-小東南紡店</small>
+          <a class="brand-hero__tel" href="tel:+886927617207" aria-label="撥打電話 0927-617-207">0927-617-207</a>
+        </span>
       </div>
 
       <div class="brand-hero__portrait">
