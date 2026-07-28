@@ -4510,14 +4510,14 @@
 
       /* 電話改成和 CTA 同樣式的按鈕 */
       .brand-hero__identity .brand-hero__tel {
-        display: flex;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 7px;
-        width: 100%;
+        width: auto;
         min-height: 44px;
         margin-top: 0;
-        padding: 0 14px;
+        padding: 0 18px;
         border-radius: 9px;
         background: var(--brand-terracotta);
         color: #fff;
@@ -4551,13 +4551,36 @@
 
       /* 青安方案摘要：原本標籤 10.9px、數值 11.8px 幾乎一樣大，沒有層次。
          這裡也要蓋掉前面無條件的 .policy-stats / .policy-stat 間距 */
+
+      /* 手機移除重複的標籤：標題本身已寫「青安貸款 3.0」 */
+      .young-kicker {
+        display: none;
+      }
+
+      /* 申請期間接在標題後面，其餘說明在結果區的利率備註已有交代 */
       .young-hero h2 {
+        display: inline;
         font-size: 1.12rem;
       }
 
-      .young-hero p {
-        font-size: .72rem;
+      .young-note {
+        display: inline;
+        margin-left: 5px;
+        font-size: .68rem;
         line-height: 1.45;
+      }
+
+      .young-note-lead,
+      .young-note-tail {
+        display: none;
+      }
+
+      .young-note-period::before {
+        content: "（";
+      }
+
+      .young-note-period::after {
+        content: "）";
       }
 
       .policy-stats {
@@ -4580,6 +4603,38 @@
         font-size: .84rem;
         line-height: 1.3;
       }
+
+      /* 年齡限制／所得限制往上靠，不要跟上一列離太開 */
+      .policy-stat:nth-child(n+3) {
+        margin-top: 0;
+        padding-top: 5px;
+      }
+
+      /* 資格說明縮成一行（24～25 字，需 10.9px 以下）。
+         不可用 white-space: nowrap：面板是 overflow hidden，
+         窄螢幕會把文字直接裁掉而不是換行 */
+      .eligibility-item small {
+        font-size: .63rem;
+        line-height: 1.35;
+      }
+
+      /* 金額單位接在數字後面，不另起一行 */
+      .afford-stat strong {
+        display: inline;
+        margin-top: 0;
+      }
+
+      .afford-stat small {
+        display: inline;
+        margin-left: 4px;
+      }
+    }
+
+    /* 361～374px（部分 Android）用 10.08px 資格說明會換行，再降一級 */
+    @media (max-width: 374px) {
+      .eligibility-item small {
+        font-size: .6rem;
+      }
     }
 
     /* iPhone SE 等 320px 裝置：標題會被截斷、聯絡卡會壓到人物 */
@@ -4597,6 +4652,7 @@
         font-size: .68rem;
         line-height: 1.4;
       }
+
 
       .brand-hero__identity {
         max-width: none;
@@ -5009,7 +5065,7 @@
         <div class="young-hero">
           <div class="young-kicker">青安貸款 3.0 · 正式方案試算</div>
           <h2>青安貸款 3.0</h2>
-          <p>依行政院正式核定方案建立試算，申請期間為 2026/8/1～2029/7/31；實際核貸條件與利率仍以承貸銀行審核為準。</p>
+          <p class="young-note"><span class="young-note-lead">依行政院正式核定方案建立試算，</span><span class="young-note-period">申請期間為 2026/8/1～2029/7/31</span><span class="young-note-tail">；實際核貸條件與利率仍以承貸銀行審核為準。</span></p>
           <div class="policy-stats" aria-label="青安貸款3.0主要條件">
             <div class="policy-stat"><span>利息補貼</span><strong>3＋3 年階梯補貼</strong></div>
             <div class="policy-stat"><span>貸款年限</span><strong>最長 40 年</strong></div>
