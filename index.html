@@ -1715,27 +1715,6 @@
       border-radius: inherit;
     }
 
-    .hero-data-date {
-      position: absolute;
-      z-index: 2;
-      top: 22.8%;
-      left: 80.75%;
-      display: flex;
-      align-items: center;
-      width: 13.55%;
-      height: 8.5%;
-      padding-left: .3%;
-      border-radius: 3px;
-      background: linear-gradient(100deg, #1f3b2f, #223c33);
-      color: #fffaf1;
-      font-size: clamp(.58rem, 2.05vw, 1.68rem);
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: .01em;
-      white-space: nowrap;
-      pointer-events: none;
-    }
-
     .hero-image-stage .hero-copy,
     .hero-image-stage .hero-person-wrap,
     .hero-image-stage .hero-card {
@@ -2701,46 +2680,6 @@
       filter: drop-shadow(0 18px 24px rgba(0, 0, 0, .24));
     }
 
-    .brand-hero__baseline {
-      position: absolute;
-      top: 26px;
-      right: 28px;
-      z-index: 3;
-      display: grid;
-      gap: 3px;
-      min-width: 136px;
-      padding: 10px 14px;
-      border: 1px solid rgba(255, 255, 255, .24);
-      color: #fff;
-      background: rgba(11, 31, 44, .76);
-      backdrop-filter: blur(8px);
-    }
-
-    .brand-hero__baseline span {
-      color: #e98767;
-      font-size: .68rem;
-      font-weight: 850;
-      letter-spacing: .12em;
-    }
-
-    .brand-hero__baseline time {
-      color: #fff;
-      font-size: .94rem;
-      font-weight: 850;
-      line-height: 1.2;
-    }
-
-    .hero-data-date {
-      position: static;
-      inset: auto;
-      overflow: visible;
-      width: auto;
-      height: auto;
-      clip: auto;
-      clip-path: none;
-      white-space: normal;
-    }
-
     .tabs {
       margin: 16px 0;
       padding: 5px;
@@ -3077,11 +3016,6 @@
         font-size: clamp(2.4rem, 6vw, 3.8rem);
       }
 
-      .brand-hero__baseline {
-        top: 18px;
-        right: 20px;
-      }
-
       .workspace {
         grid-template-columns: 1fr;
       }
@@ -3184,23 +3118,6 @@
         object-fit: contain;
         object-position: bottom right;
         filter: drop-shadow(0 12px 18px rgba(0, 0, 0, .2));
-      }
-
-      .brand-hero__baseline {
-        top: 12px;
-        right: 12px;
-        min-width: 90px;
-        padding: 6px 8px;
-        backdrop-filter: none;
-      }
-
-      .brand-hero__baseline span {
-        font-size: .52rem;
-        letter-spacing: .08em;
-      }
-
-      .brand-hero__baseline time {
-        font-size: .7rem;
       }
 
       .tabs {
@@ -3364,7 +3281,7 @@
 
     .brand-hero {
       min-height: 184px;
-      max-height: 184px;
+      max-height: none;
       grid-template-columns: minmax(0, 1fr) 240px;
       align-items: stretch;
       padding: 22px 28px;
@@ -3464,6 +3381,23 @@
       white-space: nowrap;
     }
 
+    .brand-hero__tel {
+      display: inline-block;
+      padding: 1px 0;
+      color: #f7ab8e;
+      font-size: .74rem;
+      font-weight: 800;
+      letter-spacing: .01em;
+      white-space: nowrap;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .brand-hero__tel:hover,
+    .brand-hero__tel:focus-visible {
+      color: #ffd3c1;
+    }
+
     .brand-hero__notice {
       display: flex;
       flex-direction: row;
@@ -3477,8 +3411,12 @@
       line-height: 1.35;
     }
 
-    .brand-hero__notice span {
-      color: rgba(255, 250, 242, .52);
+    .brand-hero__notice-intro {
+      color: rgba(255, 250, 242, .68);
+    }
+
+    .brand-hero__notice-legal {
+      color: rgba(255, 250, 242, .58);
     }
 
     .brand-hero__portrait {
@@ -3500,30 +3438,6 @@
       object-fit: contain;
       object-position: bottom center;
       filter: drop-shadow(0 8px 15px rgba(0, 0, 0, .2));
-    }
-
-    .brand-hero__baseline {
-      top: 14px;
-      right: 190px;
-      z-index: 3;
-      min-width: 112px;
-      padding: 6px 9px;
-      border: 1px solid rgba(255, 255, 255, .2);
-      border-radius: 6px;
-      background: rgba(16, 39, 56, .84);
-      box-shadow: none;
-      backdrop-filter: none;
-    }
-
-    .brand-hero__baseline span {
-      color: #e98b69;
-      font-size: .52rem;
-      letter-spacing: .08em;
-    }
-
-    .brand-hero__baseline time {
-      color: #fffaf2;
-      font-size: .72rem;
     }
 
     .tabs {
@@ -3888,9 +3802,13 @@
 
       .brand-hero {
         min-height: 168px;
-        max-height: 168px;
+        max-height: none;
         grid-template-columns: minmax(0, 1fr) 205px;
         padding: 18px 22px;
+      }
+
+      .brand-hero__notice {
+        flex-wrap: wrap;
       }
 
       .brand-hero__content {
@@ -3911,11 +3829,6 @@
         height: 160px;
       }
 
-      .brand-hero__baseline {
-        top: 10px;
-        right: 164px;
-      }
-
       .workspace {
         grid-template-columns: minmax(0, 1fr);
         gap: 14px;
@@ -3934,8 +3847,8 @@
       }
 
       .brand-hero {
-        min-height: 150px;
-        max-height: 150px;
+        min-height: 160px;
+        max-height: none;
         grid-template-columns: minmax(0, 1fr) 116px;
         padding: 13px 12px;
         border-radius: 8px;
@@ -3947,8 +3860,8 @@
       }
 
       .brand-hero__eyebrow {
-        margin-bottom: 2px;
-        font-size: .48rem;
+        margin-bottom: 3px;
+        font-size: .56rem;
         letter-spacing: .09em;
       }
 
@@ -3960,15 +3873,15 @@
         white-space: nowrap;
       }
 
+      /* 手機空間有限：標語讓位給電話與免責聲明 */
       .brand-hero__lead {
-        margin: 4px 0 6px;
-        font-size: .59rem;
-        line-height: 1.3;
+        display: none;
       }
 
       .brand-hero__identity {
         gap: 5px;
         max-width: calc(100vw - 142px);
+        margin-top: 6px;
         padding: 4px 6px 4px 5px;
         border-left-width: 2px;
       }
@@ -3986,26 +3899,36 @@
 
       .brand-hero__identity strong {
         display: block;
-        font-size: .61rem;
+        font-size: .72rem;
       }
 
       .brand-hero__identity small {
         display: block;
-        font-size: .5rem;
+        overflow: visible;
+        font-size: .68rem;
+        white-space: normal;
+      }
+
+      .brand-hero__tel {
+        display: block;
+        padding: 2px 0;
+        font-size: .8rem;
       }
 
       .brand-hero__notice {
         display: block;
-        overflow: hidden;
-        max-width: calc(100vw - 142px);
-        margin-top: 5px;
-        font-size: .49rem;
-        line-height: 1.3;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        overflow: visible;
+        max-width: none;
+        margin-top: 6px;
+        font-size: .68rem;
+        line-height: 1.35;
+        text-overflow: clip;
+        white-space: normal;
       }
 
-      .brand-hero__notice span {
+      /* 手機只保留法定免責聲明，說明句在標題已能理解。
+         需寫成 span.xxx 才能蓋過前一層的 .brand-hero__notice span */
+      .brand-hero__notice span.brand-hero__notice-intro {
         display: none;
       }
 
@@ -4019,22 +3942,6 @@
         right: 0;
         height: 142px;
         max-width: 116px;
-      }
-
-      .brand-hero__baseline {
-        top: auto;
-        right: 6px;
-        bottom: 7px;
-        min-width: 74px;
-        padding: 4px 6px;
-      }
-
-      .brand-hero__baseline span {
-        display: none;
-      }
-
-      .brand-hero__baseline time {
-        font-size: .56rem;
       }
 
       .tabs {
@@ -4164,25 +4071,21 @@
 
         <div class="brand-hero__identity" aria-label="客戶專屬聯絡資訊">
           <span class="brand-mark" aria-hidden="true">魏</span>
-          <span>
+          <span class="brand-hero__identity-text">
             <strong>台南小魏 買厝作伙</strong>
-            <small>魏泉承｜永慶不動產-小東南紡店｜0927-617-207</small>
+            <small>魏泉承｜永慶不動產-小東南紡店</small>
+            <a class="brand-hero__tel" href="tel:+886927617207" aria-label="撥打電話 0927-617-207">0927-617-207</a>
           </span>
         </div>
 
         <p class="brand-hero__notice">
-          以新臺幣輸入金額，快速估算出售房地合一稅、買方準備現金與房貸月付。
-          <span>正式申報仍以稅務機關、地政士、銀行核定為準。</span>
+          <span class="brand-hero__notice-intro">以新臺幣輸入金額，快速估算出售房地合一稅、買方準備現金與房貸月付。</span>
+          <span class="brand-hero__notice-legal">正式申報仍以稅務機關、地政士、銀行核定為準。</span>
         </p>
       </div>
 
       <div class="brand-hero__portrait">
         <img class="brand-hero__profile" src="assets/xiaowei-profile.png" width="609" height="900" fetchpriority="high" alt="台南小魏魏泉承">
-      </div>
-
-      <div class="brand-hero__baseline" aria-label="資料版本">
-        <span>資料基準</span>
-        <time class="hero-data-date" datetime="2026-07-16">2026-07-16</time>
       </div>
     </header>
 
