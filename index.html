@@ -4083,7 +4083,25 @@
     /* Salary affordability + hero balance */
 
     /* 桌機頁首：人物改成真正的格線欄位，避免文字與照片中間空一大塊 */
-    @media (min-width: 901px) {
+    /* 901～1079px：寬度還不夠排三欄（文字欄只剩 341px，標題會被截斷），
+       維持單欄、聯絡資訊接在文字下面 */
+    @media (min-width: 901px) and (max-width: 1079px) {
+      .brand-hero {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .brand-hero__content {
+        max-width: none;
+        padding-right: 240px;
+      }
+
+      .brand-hero__identity {
+        margin-top: 10px;
+        max-width: calc(100% - 250px);
+      }
+    }
+
+    @media (min-width: 1080px) {
       /* 三欄：文字 ｜ 聯絡資訊 ｜ 人物。
          原本文字與照片中間會空 400px 以上，把聯絡資訊移進來補這塊 */
       .brand-hero {
@@ -4092,9 +4110,44 @@
         align-items: center;
       }
 
+      /* 放大文字填滿左欄：原本副標 13px、說明 10px，
+         在 1440px 螢幕上又小又離聯絡卡很遠 */
       .brand-hero__content {
-        max-width: 620px;
+        max-width: none;
         padding-right: 0;
+      }
+
+      .brand-hero__eyebrow {
+        margin-bottom: 5px;
+        font-size: .74rem;
+        letter-spacing: .18em;
+      }
+
+      .brand-hero h1 {
+        font-size: clamp(2.4rem, 4.2vw, 3.15rem);
+      }
+
+      .brand-hero__lead {
+        margin: 8px 0 10px;
+        font-size: 1.02rem;
+        line-height: 1.45;
+      }
+
+      /* 改回一般文字流：flex 會讓兩段各自換行，變成參差的兩欄 */
+      .brand-hero__notice {
+        display: block;
+        margin-top: 10px;
+        font-size: .8rem;
+        line-height: 1.55;
+        text-wrap: balance;
+      }
+
+      .brand-hero__notice > span {
+        display: inline;
+      }
+
+      .brand-hero__notice-legal::before {
+        content: "　";
       }
 
       .brand-hero__identity {
@@ -4155,10 +4208,6 @@
 
       .brand-hero__notice {
         max-width: none;
-      }
-
-      .brand-hero__lead {
-        max-width: 560px;
       }
     }
 

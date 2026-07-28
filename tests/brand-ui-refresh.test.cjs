@@ -83,10 +83,24 @@ test("聯絡資訊是頁首的獨立區塊，桌機填在文字與人物之間",
   assert.ok(marker > -1, "應有頁首平衡樣式");
   const css = html.slice(marker, html.indexOf("</style>", marker));
 
-  assert.match(css, /@media \(min-width: 901px\)/);
+  // 三欄只在 1080px 以上啟用：901～1079px 文字欄只剩 341px，標題會被截斷
+  assert.match(css, /@media \(min-width: 901px\) and \(max-width: 1079px\)/);
+  assert.match(css, /@media \(min-width: 1080px\)/);
   assert.match(css, /\.brand-hero\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) 250px 150px/s);
   // 要用同形狀選擇器才蓋得過前一層的 display: flex，否則聯絡資訊會被壓成一字寬直排
   assert.match(css, /\.brand-hero__identity > span:last-child\s*\{[^}]*display:\s*block/s);
+});
+
+test("桌機頁首文字放大到可讀字級", () => {
+  const marker = html.indexOf("/* Salary affordability + hero balance */");
+  const css = html.slice(marker, html.indexOf("</style>", marker));
+
+  // 原本副標 .82rem(13px)、說明 .62rem(10px)，在桌機上偏小
+  assert.match(css, /\.brand-hero__lead\s*\{[^}]*font-size:\s*1\.02rem/s);
+  assert.match(css, /\.brand-hero__notice\s*\{[^}]*font-size:\s*\.8rem/s);
+  assert.match(css, /\.brand-hero__eyebrow\s*\{[^}]*font-size:\s*\.74rem/s);
+  // 說明改回一般文字流，否則 flex 會讓兩段各自換行成參差兩欄
+  assert.match(css, /\.brand-hero__notice\s*\{[^}]*display:\s*block/s);
 });
 
 test("分頁列不換行", () => {
