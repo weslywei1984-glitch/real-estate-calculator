@@ -38,13 +38,15 @@ test("手機版顯示免責聲明且不縮到難以閱讀", () => {
   // 法定免責聲明在手機必須可見，且允許換行不被截斷
   assert.doesNotMatch(mobile, /\.brand-hero__notice-legal\s*\{[^}]*display:\s*none/s);
   assert.match(mobile, /\.brand-hero__notice\s*\{[^}]*white-space:\s*normal/s);
-  // 必須用 span.xxx 才蓋得過前一層的 .brand-hero__notice span { display: block }
-  assert.match(mobile, /\.brand-hero__notice span\.brand-hero__notice-intro\s*\{[^}]*display:\s*none/s);
+  assert.match(html, /正式申報仍以稅務機關、地政士、銀行核定為準/);
 
   // 聯絡資訊與免責文字不得再使用 .5rem 以下的字級
-  assert.match(mobile, /\.brand-hero__identity small\s*\{[^}]*font-size:\s*\.68rem/s);
-  assert.match(mobile, /\.brand-hero__tel\s*\{[^}]*font-size:\s*\.8rem/s);
+  assert.match(mobile, /\.brand-hero__identity small\s*\{[^}]*font-size:\s*\.7rem/s);
   assert.match(mobile, /\.brand-hero__notice\s*\{[^}]*font-size:\s*\.68rem/s);
+});
+
+test("移除說明句後不留無效的 intro 樣式", () => {
+  assert.doesNotMatch(html, /notice-intro/);
 });
 
 test("沒有寬限期時不顯示寬限期月付，也不硬切在第 36 期", () => {
@@ -76,31 +78,47 @@ test("兩個分頁都能用收入回推可負擔房價", () => {
   assert.match(html, /renderAffordCard\("youngAffordCard",[\s\S]{0,160}annualRate: baseRate/);
 });
 
-test("聯絡資訊是頁首的獨立區塊，桌機填在文字與人物之間", () => {
-  // 必須是 .brand-hero 的直接子元素才排得進格線
-  assert.match(html, /<\/div>\s*<div class="brand-hero__identity"/);
-  const marker = html.indexOf("/* Salary affordability + hero balance */");
-  assert.ok(marker > -1, "應有頁首平衡樣式");
+test("頁首有明確的行動呼籲按鈕", () => {
+  assert.match(html, /<button class="brand-hero__cta" type="button" id="heroCta">立即開始試算/);
+  // 點了要捲到分頁列並把游標帶進第一個欄位
+  assert.match(html, /getElementById\("heroCta"\)\?\.addEventListener\("click"/);
+  assert.match(html, /tabs\?\.scrollIntoView/);
+
+  const marker = html.indexOf("/* Hero banner：把「開始試算」變成視覺主角 */");
+  assert.ok(marker > -1, "應有 hero banner 樣式");
   const css = html.slice(marker, html.indexOf("</style>", marker));
 
-  // 三欄只在 1080px 以上啟用：901～1079px 文字欄只剩 341px，標題會被截斷
-  assert.match(css, /@media \(min-width: 901px\) and \(max-width: 1079px\)/);
-  assert.match(css, /@media \(min-width: 1080px\)/);
-  assert.match(css, /\.brand-hero\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) 250px 150px/s);
-  // 要用同形狀選擇器才蓋得過前一層的 display: flex，否則聯絡資訊會被壓成一字寬直排
-  assert.match(css, /\.brand-hero__identity > span:last-child\s*\{[^}]*display:\s*block/s);
+  // .brand-hero__content 是格線容器，沒有 justify-self 按鈕會被撐滿整欄
+  assert.match(css, /\.brand-hero__cta\s*\{[^}]*justify-self:\s*start/s);
+  assert.match(css, /\.brand-hero__cta\s*\{[^}]*background:\s*var\(--brand-terracotta\)/s);
+  // 每個斷點都要有可點擊高度
+  assert.match(css, /min-height:\s*52px/);
+  assert.match(css, /min-height:\s*48px/);
+  assert.match(css, /min-height:\s*46px/);
 });
 
-test("桌機頁首文字放大到可讀字級", () => {
-  const marker = html.indexOf("/* Salary affordability + hero balance */");
+test("頁首是 banner 而非形象橫幅：三欄、大標題、貼齊底部的人像", () => {
+  assert.match(html, /<\/div>\s*<div class="brand-hero__identity"/);
+  const marker = html.indexOf("/* Hero banner：把「開始試算」變成視覺主角 */");
   const css = html.slice(marker, html.indexOf("</style>", marker));
 
-  // 原本副標 .82rem(13px)、說明 .62rem(10px)，在桌機上偏小
-  assert.match(css, /\.brand-hero__lead\s*\{[^}]*font-size:\s*1\.02rem/s);
-  assert.match(css, /\.brand-hero__notice\s*\{[^}]*font-size:\s*\.8rem/s);
-  assert.match(css, /\.brand-hero__eyebrow\s*\{[^}]*font-size:\s*\.74rem/s);
-  // 說明改回一般文字流，否則 flex 會讓兩段各自換行成參差兩欄
-  assert.match(css, /\.brand-hero__notice\s*\{[^}]*display:\s*block/s);
+  assert.match(css, /@media \(min-width: 901px\) and \(max-width: 1079px\)/);
+  assert.match(css, /@media \(min-width: 1080px\)/);
+  assert.match(css, /\.brand-hero\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) auto 210px/s);
+  assert.match(css, /\.brand-hero\s*\{[^}]*min-height:\s*320px/s);
+  // 主標 60–72px、說明 19–22px
+  assert.match(css, /\.brand-hero h1\s*\{[^}]*font-size:\s*clamp\(3\.2rem, 4\.6vw, 4\.3rem\)/s);
+  assert.match(css, /\.brand-hero__lead\s*\{[^}]*font-size:\s*1\.24rem/s);
+  // 極淡格線與人像光暈
+  assert.match(css, /\.brand-hero::before\s*\{[^}]*background-image:/s);
+  assert.match(css, /\.brand-hero__portrait::before\s*\{[^}]*radial-gradient/s);
+});
+
+test("不可用 .brand-hero > * 疊 position", () => {
+  const marker = html.indexOf("/* Hero banner：把「開始試算」變成視覺主角 */");
+  const css = html.slice(marker, html.indexOf("</style>", marker));
+  // 會蓋掉人像的 absolute，1080px 以下人像改佔一整列，頁首高度暴增
+  assert.doesNotMatch(css, /\.brand-hero > \*\s*\{[^}]*position:/s);
 });
 
 test("分頁列不換行", () => {

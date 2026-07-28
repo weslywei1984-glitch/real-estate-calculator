@@ -3422,10 +3422,6 @@
       line-height: 1.35;
     }
 
-    .brand-hero__notice-intro {
-      color: rgba(255, 250, 242, .68);
-    }
-
     .brand-hero__notice-legal {
       color: rgba(255, 250, 242, .58);
     }
@@ -3826,6 +3822,27 @@
         max-width: calc(100% - 200px);
       }
 
+      .brand-hero__lead {
+        margin: 8px 0 0;
+        max-width: calc(100% - 200px);
+        font-size: .96rem;
+        line-height: 1.5;
+      }
+
+      .brand-hero__cta {
+        margin-top: 14px;
+        min-height: 48px;
+        padding: 0 24px;
+        font-size: .98rem;
+      }
+
+      .brand-hero__notice {
+        display: block;
+        max-width: calc(100% - 200px);
+        margin-top: 10px;
+        font-size: .74rem;
+      }
+
       .brand-hero__notice {
         flex-wrap: wrap;
       }
@@ -3943,12 +3960,6 @@
         line-height: 1.35;
         text-overflow: clip;
         white-space: normal;
-      }
-
-      /* 手機只保留法定免責聲明，說明句在標題已能理解。
-         需寫成 span.xxx 才能蓋過前一層的 .brand-hero__notice span */
-      .brand-hero__notice span.brand-hero__notice-intro {
-        display: none;
       }
 
       .brand-hero__portrait {
@@ -4080,134 +4091,250 @@
       }
     }
 
-    /* Salary affordability + hero balance */
+    /* Hero banner：把「開始試算」變成視覺主角 */
 
-    /* 桌機頁首：人物改成真正的格線欄位，避免文字與照片中間空一大塊 */
+    .brand-hero {
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 極淡格線，避免深藍背景太平 */
+    .brand-hero::before {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      inset: 0;
+      display: block;
+      background-image:
+        linear-gradient(90deg, rgba(255, 255, 255, .035) 1px, transparent 1px),
+        linear-gradient(rgba(255, 255, 255, .035) 1px, transparent 1px);
+      background-size: 56px 56px;
+      -webkit-mask-image: linear-gradient(100deg, #000 12%, transparent 68%);
+      mask-image: linear-gradient(100deg, #000 12%, transparent 68%);
+      pointer-events: none;
+    }
+
+    /* 不能用 .brand-hero > * 疊 position：那會把人像的 absolute 一起蓋掉，
+       1080px 以下人像會改佔一整列，頁首高度暴增到 578px */
+    .brand-hero__identity {
+      position: relative;
+      z-index: 2;
+    }
+
+    .brand-hero__lead {
+      color: rgba(255, 250, 242, .84);
+      text-wrap: balance;
+    }
+
+    .brand-hero__cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      /* .brand-hero__content 是格線容器，不加會被撐滿整欄 */
+      justify-self: start;
+      width: auto;
+      gap: 8px;
+      border: 0;
+      border-radius: 9px;
+      background: var(--brand-terracotta);
+      color: #fff;
+      font-family: inherit;
+      font-weight: 850;
+      letter-spacing: .02em;
+      cursor: pointer;
+      transition: background .16s ease, transform .16s ease, box-shadow .16s ease;
+    }
+
+    .brand-hero__cta span {
+      transition: transform .16s ease;
+    }
+
+    .brand-hero__cta:hover {
+      background: var(--brand-terracotta-dark);
+      box-shadow: 0 10px 26px rgba(185, 79, 44, .34);
+      transform: translateY(-1px);
+    }
+
+    .brand-hero__cta:hover span {
+      transform: translateX(3px);
+    }
+
+    .brand-hero__cta:focus-visible {
+      outline: 2px solid #ffd3c1;
+      outline-offset: 3px;
+    }
+
+    /* 聯絡資訊改成無框小字，不再做成名片卡 */
+    .brand-hero__identity {
+      display: block;
+      width: auto;
+      max-width: none;
+      padding: 0;
+      border: 0;
+      background: none;
+      box-shadow: none;
+    }
+
+    .brand-hero__identity strong {
+      display: block;
+      color: #fffaf2;
+      font-size: .88rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .brand-hero__identity small {
+      display: block;
+      overflow: visible;
+      margin-top: 3px;
+      color: rgba(255, 250, 242, .72);
+      font-size: .78rem;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+
+    .brand-hero__identity .brand-hero__tel {
+      display: block;
+      margin-top: 6px;
+      font-size: 1.02rem;
+    }
+
+    /* 人物後方極淡橘色光暈 */
+    .brand-hero__portrait::before {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      right: -6%;
+      bottom: -14%;
+      width: 128%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(233, 135, 103, .20), rgba(233, 135, 103, .05) 55%, transparent 72%);
+      pointer-events: none;
+    }
+
+    .brand-hero__profile {
+      position: relative;
+      z-index: 1;
+    }
+
     /* 901～1079px：寬度還不夠排三欄（文字欄只剩 341px，標題會被截斷），
        維持單欄、聯絡資訊接在文字下面 */
     @media (min-width: 901px) and (max-width: 1079px) {
       .brand-hero {
         grid-template-columns: minmax(0, 1fr);
+        padding: 30px 40px;
       }
 
       .brand-hero__content {
         max-width: none;
-        padding-right: 240px;
+        padding-right: 230px;
+      }
+
+      .brand-hero h1 {
+        font-size: clamp(2.5rem, 5vw, 3.2rem);
+      }
+
+      .brand-hero__lead {
+        margin: 10px 0 0;
+        max-width: 560px;
+        font-size: 1.06rem;
+        line-height: 1.5;
+      }
+
+      .brand-hero__cta {
+        margin-top: 16px;
+        min-height: 48px;
+        padding: 0 26px;
+        font-size: 1rem;
+      }
+
+      .brand-hero__notice {
+        display: block;
+        margin-top: 12px;
+        font-size: .76rem;
       }
 
       .brand-hero__identity {
-        margin-top: 10px;
-        max-width: calc(100% - 250px);
+        margin-top: 14px;
       }
     }
 
     @media (min-width: 1080px) {
-      /* 三欄：文字 ｜ 聯絡資訊 ｜ 人物。
-         原本文字與照片中間會空 400px 以上，把聯絡資訊移進來補這塊 */
+      /* 三欄：文字 ｜ 聯絡資訊 ｜ 人物 */
       .brand-hero {
-        grid-template-columns: minmax(0, 1fr) 250px 150px;
-        column-gap: 32px;
+        grid-template-columns: minmax(0, 1fr) auto 210px;
+        column-gap: 44px;
         align-items: center;
+        min-height: 320px;
+        padding: 32px 56px;
       }
 
-      /* 放大文字填滿左欄：原本副標 13px、說明 10px，
-         在 1440px 螢幕上又小又離聯絡卡很遠 */
       .brand-hero__content {
         max-width: none;
         padding-right: 0;
       }
 
       .brand-hero__eyebrow {
-        margin-bottom: 5px;
-        font-size: .74rem;
-        letter-spacing: .18em;
+        margin-bottom: 8px;
+        font-size: .8rem;
+        letter-spacing: .2em;
       }
 
       .brand-hero h1 {
-        font-size: clamp(2.4rem, 4.2vw, 3.15rem);
+        font-size: clamp(3.2rem, 4.6vw, 4.3rem);
+        line-height: 1.06;
       }
 
       .brand-hero__lead {
-        margin: 8px 0 10px;
-        font-size: 1.02rem;
-        line-height: 1.45;
+        margin: 14px 0 0;
+        max-width: 620px;
+        font-size: 1.24rem;
+        line-height: 1.52;
       }
 
-      /* 改回一般文字流：flex 會讓兩段各自換行，變成參差的兩欄 */
+      .brand-hero__cta {
+        margin-top: 18px;
+        min-height: 52px;
+        padding: 0 30px;
+        font-size: 1.08rem;
+      }
+
       .brand-hero__notice {
         display: block;
-        margin-top: 10px;
-        font-size: .8rem;
-        line-height: 1.55;
-        text-wrap: balance;
-      }
-
-      .brand-hero__notice > span {
-        display: inline;
-      }
-
-      .brand-hero__notice-legal::before {
-        content: "　";
+        max-width: 620px;
+        margin-top: 12px;
+        font-size: .78rem;
+        line-height: 1.5;
       }
 
       .brand-hero__identity {
         align-self: center;
-        justify-self: stretch;
-        width: 100%;
-        max-width: none;
-        margin: 0;
-        padding: 10px 14px 10px 11px;
-      }
-
-      .brand-hero__identity .brand-mark {
-        flex: none;
-      }
-
-      /* 要用同樣的 > span:last-child 形狀才蓋得過前一層的 display: flex，
-         否則三行會被排成一列、被壓成一字寬而直排 */
-      .brand-hero__identity > span:last-child {
-        display: block;
-        min-width: 0;
-      }
-
-      .brand-hero__identity strong {
-        display: block;
-        font-size: .84rem;
-      }
-
-      .brand-hero__identity small {
-        display: block;
-        overflow: visible;
-        font-size: .68rem;
-        white-space: normal;
-      }
-
-      .brand-hero__tel {
-        display: block;
-        margin-top: 2px;
-        font-size: .92rem;
+        justify-self: end;
+        text-align: right;
       }
 
       .brand-hero__portrait {
         position: relative;
         right: auto;
         bottom: auto;
-        align-self: stretch;
-        width: 150px;
-        height: auto;
+        align-self: end;
+        width: 210px;
+        height: calc(100% + 40px);
         min-height: 0;
+        margin-bottom: -40px;
       }
 
       .brand-hero__profile {
         position: absolute;
         right: 0;
-        bottom: -22px;
-        height: calc(100% + 22px);
-        max-height: none;
-      }
-
-      .brand-hero__notice {
+        bottom: 0;
+        width: auto;
+        height: 100%;
         max-width: none;
+        max-height: none;
+        object-fit: contain;
+        object-position: bottom right;
       }
     }
 
@@ -4333,6 +4460,53 @@
       .afford-stat strong {
         font-size: 1.14rem;
       }
+
+      /* 手機頁首：CTA 佔滿寬度，聯絡資訊接在下面 */
+      .brand-hero {
+        min-height: 0;
+        padding: 14px 14px 16px;
+      }
+
+      .brand-hero__content {
+        padding-right: 96px;
+      }
+
+      .brand-hero__lead {
+        display: block;
+        margin: 6px 0 0;
+        max-width: none;
+        font-size: .78rem;
+        line-height: 1.45;
+      }
+
+      .brand-hero__cta {
+        width: calc(100% - 96px);
+        margin-top: 12px;
+        min-height: 46px;
+        padding: 0 16px;
+        font-size: .92rem;
+      }
+
+      .brand-hero__notice {
+        margin-top: 10px;
+      }
+
+      .brand-hero__identity {
+        margin-top: 10px;
+      }
+
+      .brand-hero__identity strong {
+        font-size: .76rem;
+      }
+
+      .brand-hero__identity small {
+        font-size: .7rem;
+      }
+
+      .brand-hero__identity .brand-hero__tel {
+        margin-top: 4px;
+        font-size: .86rem;
+      }
     }
 
     /* iPhone SE 等 320px 裝置：標題會被截斷、聯絡卡會壓到人物 */
@@ -4347,6 +4521,14 @@
 
       .brand-hero__identity {
         max-width: calc(100vw - 148px);
+      }
+
+      /* 320px：按鈕文字會被擠成直排 */
+      .brand-hero__cta {
+        width: 100%;
+        padding: 0 10px;
+        font-size: .84rem;
+        white-space: nowrap;
       }
 
       .brand-hero__portrait {
@@ -4367,21 +4549,19 @@
       <div class="brand-hero__content">
         <p class="brand-hero__eyebrow">TAINAN REAL ESTATE CALCULATOR</p>
         <h1>房地稅費與貸款試算</h1>
-        <p class="brand-hero__lead">把複雜的稅費與貸款，整理成看得懂的數字。</p>
+        <p class="brand-hero__lead">房地合一稅、買方稅費、貸款月付與可負擔總價，一次整理成看得懂的數字。</p>
+
+        <button class="brand-hero__cta" type="button" id="heroCta">立即開始試算 <span aria-hidden="true">→</span></button>
 
         <p class="brand-hero__notice">
-          <span class="brand-hero__notice-intro">以新臺幣輸入金額，快速估算出售房地合一稅、買方準備現金與房貸月付。</span>
           <span class="brand-hero__notice-legal">正式申報仍以稅務機關、地政士、銀行核定為準。</span>
         </p>
       </div>
 
       <div class="brand-hero__identity" aria-label="客戶專屬聯絡資訊">
-        <span class="brand-mark" aria-hidden="true">魏</span>
-        <span class="brand-hero__identity-text">
-          <strong>台南小魏 買厝作伙</strong>
-          <small>魏泉承｜永慶不動產-小東南紡店</small>
-          <a class="brand-hero__tel" href="tel:+886927617207" aria-label="撥打電話 0927-617-207">0927-617-207</a>
-        </span>
+        <strong>台南小魏｜買厝作伙</strong>
+        <small>永慶不動產・小東南紡店</small>
+        <a class="brand-hero__tel" href="tel:+886927617207" aria-label="撥打電話 0927-617-207">0927-617-207</a>
       </div>
 
       <div class="brand-hero__portrait">
@@ -6338,6 +6518,19 @@
 
     bindSalarySlider("loanSalarySlider", "loanSalary", "loan");
     bindSalarySlider("youngSalarySlider", "youngMonthlyIncome", "young");
+
+    // 立即開始試算：捲到分頁列，並把游標帶到目前計算器的第一個欄位
+    document.getElementById("heroCta")?.addEventListener("click", () => {
+      const tabs = document.querySelector(".tabs");
+      tabs?.scrollIntoView({ behavior: "smooth", block: "start" });
+      const activePanel = document.querySelector("[data-panel]:not(.hidden)");
+      const firstInput = activePanel?.querySelector("input:not([type=hidden]):not([type=range]), select");
+      if (!firstInput) return;
+      window.setTimeout(() => {
+        firstInput.focus({ preventScroll: true });
+        firstInput.select?.();
+      }, 420);
+    });
 
     document.addEventListener("pointerdown", event => {
       const target = event.target.closest(".metric, .check-row, .lookup-links, .tab, button");
