@@ -85,14 +85,33 @@ test("拆分貸款時直接給出兩筆相加的合計", () => {
   assert.match(html, /normalStageDisplay = supplementalLoan > 0\s*\?\s*sumDisplay\(firstNormalPayment, generalLoanPayment\)/);
 });
 
-test("寬限期前後月付各自獨立成區塊，且不再重複列一般房貸月付", () => {
-  assert.match(html, /<span>青安寬限期後月付\$\{supplementalLoan > 0[^<]*<\/span>\s*<strong>\$\{normalStageDisplay\}<\/strong>/);
+test("明細不再重複列一般房貸月付", () => {
   assert.doesNotMatch(html, /<span>一般房貸月付<\/span>/);
 });
 
 test("五階段表格改用標題，不再放大段說明", () => {
-  assert.match(html, /<h3 class="table-title">五階段利率與月付<\/h3>\s*<div class="table-wrap">/);
+  assert.match(html, /<h3 class="table-title">青安-五階段利率與月付<\/h3>\s*<div class="table-wrap">/);
   assert.doesNotMatch(html, /firstloan\.firstbank\.com\.tw/);
+});
+
+test("青安金額上色、寬限期後的「後」標紅", () => {
+  assert.match(html, /<span class="amount-young">\$\{money\.format\(x\)\}<\/span> \+ /);
+  assert.match(html, /youngOnly = amount => `<span class="amount-young">/);
+  assert.match(html, /青安寬限期<b class="mark-after">後<\/b>月付/);
+
+  // 要蓋過標籤用的 .metric span，且字級字重要跟 strong 一致
+  assert.match(html, /\.metric strong \.amount-young\s*\{[^}]*color:\s*var\(--brand-terracotta\)/s);
+  assert.match(html, /\.metric strong \.amount-young\s*\{[^}]*font-size:\s*inherit/s);
+});
+
+test("數字動畫不可清掉含標記的金額", () => {
+  // animateResultNumbers 用 textContent 覆寫，會把上色 span 整個砍掉
+  assert.match(html, /if \(el\.children\.length\) return;\s*const finalText = el\.textContent;/);
+});
+
+test("寬限期前後月付合併在同一區塊，資格檢核排在表格之後", () => {
+  assert.match(html, /<span class="metric-split">青安寬限期/);
+  assert.match(html, /innerHTML = eligible\s*\?\s*`\$\{calculationSections\}\$\{eligibilityBlock\}`\s*:\s*eligibilityBlock/);
 });
 
 test("指定的大額金額欄位以萬元輸入並移除重複換算提示", () => {
