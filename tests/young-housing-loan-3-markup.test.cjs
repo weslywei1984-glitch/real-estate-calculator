@@ -78,6 +78,23 @@ test("青安結果拆分總貸款、青安貸款與一般房貸", () => {
   assert.match(html, /monthlyPayment\(supplementalLoan, GENERAL_LOAN_RATE \/ 100 \/ 12, totalMonths\)/);
 });
 
+test("拆分貸款時直接給出兩筆相加的合計", () => {
+  // 相加的是「已四捨五入的兩個數」，否則畫面上的算式會差 1 元對不起來
+  assert.match(html, /const sumDisplay = \(a, b\) => \{[\s\S]*?const x = Math\.round\(a\);[\s\S]*?const y = Math\.round\(b\);[\s\S]*?money\.format\(x \+ y\)/);
+  assert.match(html, /graceStageDisplay = supplementalLoan > 0\s*\?\s*sumDisplay\(graceStagePayment, generalLoanPayment\)/);
+  assert.match(html, /normalStageDisplay = supplementalLoan > 0\s*\?\s*sumDisplay\(firstNormalPayment, generalLoanPayment\)/);
+});
+
+test("寬限期前後月付各自獨立成區塊，且不再重複列一般房貸月付", () => {
+  assert.match(html, /<span>青安寬限期後月付\$\{supplementalLoan > 0[^<]*<\/span>\s*<strong>\$\{normalStageDisplay\}<\/strong>/);
+  assert.doesNotMatch(html, /<span>一般房貸月付<\/span>/);
+});
+
+test("五階段表格改用標題，不再放大段說明", () => {
+  assert.match(html, /<h3 class="table-title">五階段利率與月付<\/h3>\s*<div class="table-wrap">/);
+  assert.doesNotMatch(html, /firstloan\.firstbank\.com\.tw/);
+});
+
 test("指定的大額金額欄位以萬元輸入並移除重複換算提示", () => {
   const wanFields = [
     "salePrice",

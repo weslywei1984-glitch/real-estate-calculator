@@ -4346,6 +4346,14 @@
       letter-spacing: .01em;
     }
 
+    .table-title {
+      margin: 2px 0 -2px;
+      color: var(--brand-navy);
+      font-size: .9rem;
+      font-weight: 800;
+      letter-spacing: .01em;
+    }
+
     .field-hint {
       margin-left: 6px;
       color: var(--brand-muted);
@@ -5946,11 +5954,18 @@
       }).join("");
 
       const graceStagePayment = graceMonths > 0 ? firstGracePayment : firstNormalPayment;
+      // 兩筆相加後直接給出合計。刻意加「已四捨五入的兩個數」而不是
+      // 先相加再四捨五入，否則畫面上的算式可能差 1 元對不起來
+      const sumDisplay = (a, b) => {
+        const x = Math.round(a);
+        const y = Math.round(b);
+        return `${money.format(x)} + ${money.format(y)} = ${money.format(x + y)}`;
+      };
       const graceStageDisplay = supplementalLoan > 0
-        ? `${money.format(Math.round(graceStagePayment))} + ${money.format(Math.round(generalLoanPayment))}`
+        ? sumDisplay(graceStagePayment, generalLoanPayment)
         : money.format(Math.round(graceStagePayment));
       const normalStageDisplay = supplementalLoan > 0
-        ? `${money.format(Math.round(firstNormalPayment))} + ${money.format(Math.round(generalLoanPayment))}`
+        ? sumDisplay(firstNormalPayment, generalLoanPayment)
         : money.format(Math.round(firstNormalPayment));
       const splitLoanNote = supplementalLoan > 0
         ? `貸 ${wanAmount(totalLoan)}，超過${applicantTypeLabel}青安上限 ${wanAmount(loanLimit)}——下面用常見做法「青安 ${wanAmount(youngLoan)}＋一般房貸 ${wanAmount(supplementalLoan)}（利率 ${GENERAL_LOAN_RATE}%）」兩筆合計幫你算。想提高青安佔比，新婚或有小孩記得選上面的家庭狀況。`
@@ -5965,13 +5980,15 @@
         <div class="metric">
           <span>青安寬限期月付${supplementalLoan > 0 ? "（青安＋一般房貸）" : ""}</span>
           <strong>${graceStageDisplay}</strong>
+        </div>
+        <div class="metric">
+          <span>青安寬限期後月付${supplementalLoan > 0 ? "（青安＋一般房貸）" : ""}</span>
+          <strong>${normalStageDisplay}</strong>
           <div class="breakdown">
-            <div class="line"><span>青安寬限期後月付${supplementalLoan > 0 ? "（青安＋一般房貸）" : ""}</span><b>${normalStageDisplay}</b></div>
             ${wanLine("總貸款金額", totalLoan)}
             ${wanLine(`${applicantTypeLabel}貸款額度上限`, loanLimit)}
             ${wanLine("青安貸款本金", youngLoan)}
             ${supplementalLoan > 0 ? wanLine("一般房貸本金（利率 2.5% 試算）", supplementalLoan) : ""}
-            ${supplementalLoan > 0 ? `<div class="line"><span>一般房貸月付</span><b>${money.format(Math.round(generalLoanPayment))}</b></div>` : ""}
           </div>
         </div>
         <div class="metric">
@@ -5987,10 +6004,7 @@
             <div class="ratio-meter-track"><div class="ratio-meter-fill" style="width:${Math.min(debtRatio, 100)}%"></div></div>
           </div>
         </div>
-        <div class="metric">
-          <span>五階段利率與月付</span>
-          <div class="policy-note">依方案基準利率 ${rateNumber.format(baseRate)}% 試算，月付金以元為單位四捨五入；各銀行分段利率起算日與進位規則略有差異，實際以核貸銀行為準。可用 <a href="https://firstloan.firstbank.com.tw/LoanRepayment/LoanTrail.action" target="_blank" rel="noreferrer">第一銀行房貸試算</a> 交叉確認。</div>
-        </div>
+        <h3 class="table-title">五階段利率與月付</h3>
         <div class="table-wrap">
           <table class="amortization">
             <thead>
