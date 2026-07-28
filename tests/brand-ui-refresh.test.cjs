@@ -40,17 +40,36 @@ test("手機版顯示免責聲明且不縮到難以閱讀", () => {
   assert.match(mobile, /\.brand-hero__notice\s*\{[^}]*white-space:\s*normal/s);
   assert.match(html, /正式申報仍以稅務機關、地政士、銀行核定為準/);
 
-  // 手機頁首只留標題、CTA、免責聲明與電話；電話要維持可讀字級
+  // 手機頁首只留標題、副標、免責聲明與電話按鈕
   assert.match(mobile, /\.brand-hero__identity strong,\s*\.brand-hero__identity small\s*\{[^}]*display:\s*none/s);
-  assert.match(mobile, /\.brand-hero__identity \.brand-hero__tel\s*\{[^}]*font-size:\s*\.92rem/s);
 });
 
-test("手機頁首壓在 160px", () => {
+test("手機頁首 180px，電話取代 CTA 成為按鈕", () => {
   const marker = html.indexOf("/* Hero banner：把「開始試算」變成視覺主角 */");
   const css = html.slice(marker, html.indexOf("</style>", marker));
-  assert.match(css, /\.brand-hero\s*\{[^}]*min-height:\s*160px/s);
-  // 副標與英文眉題讓位，才塞得下 CTA 與免責聲明
-  assert.match(css, /\.brand-hero__eyebrow,\s*\.brand-hero__lead\s*\{[^}]*display:\s*none/s);
+
+  assert.match(css, /\.brand-hero\s*\{[^}]*min-height:\s*180px/s);
+  // 手機不放「立即開始試算」：分頁列本來就緊接在下面
+  assert.match(css, /\.brand-hero__eyebrow,\s*\.brand-hero__cta\s*\{[^}]*display:\s*none/s);
+  assert.match(css, /\.brand-hero__lead\s*\{[^}]*display:\s*block/s);
+
+  // 電話要是橘色按鈕、44px 觸控高度
+  assert.match(css, /\.brand-hero__identity \.brand-hero__tel\s*\{[^}]*background:\s*var\(--brand-terracotta\)/s);
+  assert.match(css, /\.brand-hero__identity \.brand-hero__tel\s*\{[^}]*min-height:\s*44px/s);
+  // justify-self 要覆寫舊層的 start，否則按鈕只有文字寬
+  assert.match(css, /\.brand-hero__identity\s*\{[^}]*justify-self:\s*stretch/s);
+});
+
+test("青安摘要的分隔線不貼到文字", () => {
+  const marker = html.indexOf("/* Hero banner：把「開始試算」變成視覺主角 */");
+  const css = html.slice(marker, html.indexOf("</style>", marker));
+  // 分隔線是 border-left，padding-left 設 0 文字就會貼著線（桌機與手機都會）
+  const rules = css.match(/\.policy-stat\s*\{[^}]*\}/gs) || [];
+  assert.ok(rules.length >= 2, "桌機與手機都應有 .policy-stat 規則");
+  rules.forEach(rule => {
+    assert.doesNotMatch(rule, /padding:[^;]*\s0(px)?\s*;/);
+  });
+  assert.match(css, /\.policy-stat\s*\{[^}]*padding:\s*4px 8px 4px 13px/s);
 });
 
 test("手機版青安摘要要有標籤與數值的層次", () => {
@@ -107,10 +126,9 @@ test("頁首有明確的行動呼籲按鈕", () => {
   // .brand-hero__content 是格線容器，沒有 justify-self 按鈕會被撐滿整欄
   assert.match(css, /\.brand-hero__cta\s*\{[^}]*justify-self:\s*start/s);
   assert.match(css, /\.brand-hero__cta\s*\{[^}]*background:\s*var\(--brand-terracotta\)/s);
-  // 每個斷點都要有可點擊高度（手機 44px 是觸控下限）
+  // 桌機與平板的可點擊高度（手機改用電話按鈕，見另一則測試）
   assert.match(css, /min-height:\s*52px/);
   assert.match(css, /min-height:\s*48px/);
-  assert.match(css, /\.brand-hero__cta\s*\{[^}]*min-height:\s*44px/s);
 });
 
 test("頁首是 banner 而非形象橫幅：三欄、大標題、貼齊底部的人像", () => {

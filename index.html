@@ -4427,8 +4427,10 @@
       margin-top: 10px;
     }
 
+    /* 左內距不可為 0：分隔線畫在左緣，文字會貼著線。
+       最左欄的 padding-left 由 :first-child / :nth-child(odd) 歸零 */
     .policy-stat {
-      padding: 5px 10px 5px 0;
+      padding: 5px 10px 5px 14px;
     }
 
     @media (max-width: 620px) {
@@ -4464,37 +4466,41 @@
       /* 手機頁首壓到 160px：只留標題、CTA、免責聲明與電話。
          副標、品牌名與店名在手機上讓位，標題與下方分頁已足以說明用途 */
       .brand-hero {
-        min-height: 160px;
-        padding: 11px 12px 10px;
+        min-height: 180px;
+        padding: 11px 12px 12px;
       }
 
       .brand-hero__content {
         padding-right: 126px;
       }
 
-      /* 英文眉題在手機讓位：下一行的中文主標已說明同一件事，
-         留著就無法在保留 CTA 與免責聲明的前提下壓到 160px */
+      /* 英文眉題在手機讓位；「立即開始試算」也不放在這裡：
+         下方分頁列本來就緊接著，手機上更該優先給撥打電話 */
       .brand-hero__eyebrow,
-      .brand-hero__lead {
+      .brand-hero__cta {
         display: none;
       }
 
-      .brand-hero__cta {
-        width: 100%;
-        margin-top: 8px;
-        min-height: 44px;
-        padding: 0 14px;
-        font-size: .88rem;
+      .brand-hero__lead {
+        display: block;
+        margin: 6px 0 0;
+        max-width: none;
+        font-size: .74rem;
+        line-height: 1.45;
       }
 
       .brand-hero__notice {
-        margin-top: 6px;
+        margin-top: 7px;
         font-size: .66rem;
         line-height: 1.3;
       }
 
+      /* justify-self 要覆寫掉舊層的 start，否則按鈕只有文字寬；
+         padding-right 讓按鈕對齊文字欄，不會壓到人像 */
       .brand-hero__identity {
-        margin-top: 4px;
+        justify-self: stretch;
+        margin-top: 9px;
+        padding-right: 126px;
       }
 
       .brand-hero__identity strong,
@@ -4502,10 +4508,33 @@
         display: none;
       }
 
+      /* 電話改成和 CTA 同樣式的按鈕 */
       .brand-hero__identity .brand-hero__tel {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        width: 100%;
+        min-height: 44px;
         margin-top: 0;
-        padding: 0;
-        font-size: .92rem;
+        padding: 0 14px;
+        border-radius: 9px;
+        background: var(--brand-terracotta);
+        color: #fff;
+        font-size: .94rem;
+        font-weight: 850;
+        letter-spacing: .02em;
+        text-decoration: none;
+      }
+
+      .brand-hero__identity .brand-hero__tel::before {
+        content: "☎";
+        font-size: 1.05em;
+        line-height: 1;
+      }
+
+      .brand-hero__identity .brand-hero__tel:active {
+        background: var(--brand-terracotta-dark);
       }
 
       /* 框放小、人物放大 */
@@ -4532,13 +4561,15 @@
       }
 
       .policy-stats {
-        margin-top: 9px;
-        padding: 6px;
+        margin-top: 8px;
+        padding: 4px 5px;
       }
 
+      /* padding-left 不能設 0：分隔線就畫在左緣，文字會貼著線。
+         左欄的 padding-left 由 .policy-stat:nth-child(odd) 歸零 */
       .policy-stat {
         gap: 2px;
-        padding: 5px 8px 5px 0;
+        padding: 4px 8px 4px 13px;
       }
 
       .policy-stat span {
@@ -4561,8 +4592,15 @@
         font-size: clamp(.98rem, 5.2vw, 1.16rem);
       }
 
+      /* 窄螢幕副標會多一行，頁首就撐過 180px */
+      .brand-hero__lead {
+        font-size: .68rem;
+        line-height: 1.4;
+      }
+
       .brand-hero__identity {
-        max-width: calc(100vw - 148px);
+        max-width: none;
+        padding-right: 116px;
       }
 
       /* 320px：按鈕文字會被擠成直排 */
