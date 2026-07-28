@@ -31,8 +31,9 @@ test("頁首電話可直接撥打", () => {
 
 test("手機版顯示免責聲明且不縮到難以閱讀", () => {
   const marker = html.indexOf("/* Compact tool layout redesign */");
-  const css = html.slice(marker, html.indexOf("</style>", marker));
-  const mobile = css.slice(css.lastIndexOf("@media (max-width: 620px)"));
+  // 直接在整層樣式裡找：這層可能有多個 620px 區塊，
+  // 用 lastIndexOf 定位會在新增區塊後失效
+  const mobile = html.slice(marker, html.indexOf("</style>", marker));
 
   // 法定免責聲明在手機必須可見，且允許換行不被截斷
   assert.doesNotMatch(mobile, /\.brand-hero__notice-legal\s*\{[^}]*display:\s*none/s);
@@ -44,6 +45,35 @@ test("手機版顯示免責聲明且不縮到難以閱讀", () => {
   assert.match(mobile, /\.brand-hero__identity small\s*\{[^}]*font-size:\s*\.68rem/s);
   assert.match(mobile, /\.brand-hero__tel\s*\{[^}]*font-size:\s*\.8rem/s);
   assert.match(mobile, /\.brand-hero__notice\s*\{[^}]*font-size:\s*\.68rem/s);
+});
+
+test("沒有寬限期時不顯示寬限期月付，也不硬切在第 36 期", () => {
+  assert.match(html, /const hasGrace = graceMonths > 0/);
+  assert.match(html, /const periodBreak = hasGrace \? graceMonths : totalMonths/);
+  assert.match(html, /metric\("每月月付", firstNormalPayment, "main"\)/);
+  assert.doesNotMatch(html, /Math\.min\(36, totalMonths\)/);
+});
+
+test("貸款分頁年利率預設為 2.5", () => {
+  assert.match(html, /<input id="annualRate"[^>]*value="2\.5"/);
+  assert.match(html, /annualRate:\s*2\.5/);
+});
+
+test("兩個分頁都能用收入回推可負擔房價", () => {
+  // 月付抓收入 1/3 ～ 2/5，再用現值公式回推貸款本金
+  assert.match(html, /AFFORD_RATIO_LOW = 1 \/ 3/);
+  assert.match(html, /AFFORD_RATIO_HIGH = 2 \/ 5/);
+  assert.match(html, /function loanFromPayment\(payment, monthlyRate, months\)/);
+  assert.match(html, /payment \* \(1 - Math\.pow\(1 \+ monthlyRate, -months\)\) \/ monthlyRate/);
+
+  assert.match(html, /id="loanSalary"/);
+  assert.match(html, /id="loanAffordCard"/);
+  assert.match(html, /id="youngAffordCard"/);
+  assert.match(html, /renderAffordCard\("loanAffordCard"/);
+  assert.match(html, /renderAffordCard\("youngAffordCard"/);
+
+  // 青安要用補貼期滿後的基準利率，不能用首期補貼利率（會高估負擔能力）
+  assert.match(html, /renderAffordCard\("youngAffordCard",[\s\S]{0,160}annualRate: baseRate/);
 });
 
 test("最後一層主題採用台南小魏品牌色", () => {

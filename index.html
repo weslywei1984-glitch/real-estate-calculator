@@ -4071,6 +4071,173 @@
         padding: 7px 9px;
       }
     }
+
+    /* Salary affordability + hero balance */
+
+    /* 桌機頁首：人物改成真正的格線欄位，避免文字與照片中間空一大塊 */
+    @media (min-width: 901px) {
+      .brand-hero {
+        grid-template-columns: minmax(0, 1fr) 150px;
+        column-gap: 24px;
+        align-items: stretch;
+      }
+
+      /* 文字不要撐到 880px 寬，行末離照片太遠會顯得空 */
+      .brand-hero__content {
+        max-width: 640px;
+        padding-right: 0;
+      }
+
+      .brand-hero__portrait {
+        position: relative;
+        right: auto;
+        bottom: auto;
+        align-self: stretch;
+        width: 150px;
+        height: auto;
+        min-height: 0;
+      }
+
+      .brand-hero__profile {
+        position: absolute;
+        right: 0;
+        bottom: -22px;
+        height: calc(100% + 22px);
+        max-height: none;
+      }
+
+      .brand-hero__notice {
+        max-width: none;
+      }
+
+      .brand-hero__lead {
+        max-width: 560px;
+      }
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      color: var(--brand-navy);
+      font-size: .95rem;
+      font-weight: 800;
+      letter-spacing: .01em;
+    }
+
+    .field-hint {
+      margin-left: 6px;
+      color: var(--brand-muted);
+      font-size: .72rem;
+      font-weight: 500;
+    }
+
+    .salary-slider {
+      width: 100%;
+      height: 22px;
+      margin-top: 8px;
+      padding: 0;
+      background: transparent;
+      accent-color: var(--brand-terracotta);
+      cursor: pointer;
+    }
+
+    .afford-card {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border: 1px solid var(--tool-border);
+      border-radius: var(--tool-radius);
+      background: #fff;
+    }
+
+    .afford-headline {
+      margin: 0;
+      color: var(--brand-navy);
+      font-size: 1.28rem;
+      font-weight: 850;
+      line-height: 1.38;
+      letter-spacing: -.01em;
+    }
+
+    .afford-note {
+      margin: 8px 0 0;
+      color: var(--brand-muted);
+      font-size: .76rem;
+      line-height: 1.55;
+    }
+
+    .afford-stat {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 9px 14px;
+      border: 1px solid var(--tool-border);
+      border-radius: 8px;
+      background: var(--tool-soft-navy);
+    }
+
+    .afford-stat span {
+      display: block;
+      color: var(--brand-muted);
+      font-size: .72rem;
+    }
+
+    .afford-stat strong {
+      display: block;
+      margin-top: 2px;
+      color: var(--brand-navy);
+      font-size: 1.3rem;
+      font-weight: 850;
+      line-height: 1.2;
+    }
+
+    .afford-stat small {
+      color: var(--brand-muted);
+      font-size: .68rem;
+    }
+
+    .afford-empty {
+      margin: 0;
+      color: var(--brand-muted);
+      font-size: .8rem;
+    }
+
+    /* 項目間距：政策摘要與步驟之間別擠在一起，也別空太多 */
+    .policy-stats {
+      margin-top: 10px;
+    }
+
+    .policy-stat {
+      padding: 5px 10px 5px 0;
+    }
+
+    @media (max-width: 620px) {
+      .section-title {
+        margin-bottom: 10px;
+        font-size: .88rem;
+      }
+
+      .field-hint {
+        display: block;
+        margin: 2px 0 0;
+        font-size: .68rem;
+      }
+
+      .afford-card {
+        margin-top: 12px;
+        padding: 13px 14px;
+      }
+
+      .afford-headline {
+        font-size: 1.06rem;
+        line-height: 1.42;
+      }
+
+      .afford-note {
+        font-size: .7rem;
+      }
+
+      .afford-stat strong {
+        font-size: 1.14rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -4387,7 +4554,7 @@
             <div class="field">
               <label for="annualRate">年利率</label>
               <div class="control">
-                <input id="annualRate" type="number" min="0" step="0.01" value="2.2">
+                <input id="annualRate" type="number" min="0" step="0.01" value="2.5">
                 <span class="unit">%</span>
               </div>
             </div>
@@ -4423,6 +4590,22 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <div class="section">
+          <h3 class="section-title">用薪水回推能買多少</h3>
+          <div class="field salary-field">
+            <label for="loanSalary">我每個月薪水（含獎金）<span class="field-hint">家庭一起買，可以填兩人加總</span></label>
+            <div class="control">
+              <input id="loanSalary" data-money-unit="wan" type="number" min="0" step="0.1" value="6">
+              <span class="unit">萬</span>
+            </div>
+            <input class="salary-slider" id="loanSalarySlider" type="range" min="2" max="30" step="0.5" value="6" aria-label="每月薪水快速調整">
+          </div>
+          <div class="afford-card" id="loanAffordCard"></div>
+        </div>
+
+        <div class="section">
           <div class="actions">
             <button class="primary" type="button" data-clear="loan">清空</button>
             <button class="secondary" type="button" data-reset="loan">套用範例</button>
@@ -4566,14 +4749,17 @@
             <h3>負擔評估</h3>
           </div>
           <div class="form-grid young-fields">
-            <div class="field">
-              <label for="youngMonthlyIncome">家庭每月可支配收入</label>
+            <div class="field salary-field">
+              <label for="youngMonthlyIncome">家庭每月可支配收入<span class="field-hint">家庭一起買，可以填兩人加總</span></label>
               <div class="control">
                 <input id="youngMonthlyIncome" data-money-unit="wan" type="number" min="0" step="0.1" value="10">
                 <span class="unit">萬元</span>
               </div>
+              <input class="salary-slider" id="youngSalarySlider" type="range" min="2" max="30" step="0.5" value="10" aria-label="每月可支配收入快速調整">
             </div>
           </div>
+
+          <div class="afford-card" id="youngAffordCard"></div>
 
           <div class="actions">
             <button class="primary young-primary" type="button" data-clear="young">清空</button>
@@ -4665,11 +4851,12 @@
         loanLtvRatio: 80,
         loanAmount: 12000000,
         loanDownPayment: 3000000,
-        annualRate: 2.2,
+        annualRate: 2.5,
         loanYears: 30,
         graceYears: 0,
         loanMode: "levelPayment",
-        extraPayment: 0
+        extraPayment: 0,
+        loanSalary: 60000
       },
       young: {
         youngPurchasePrice: 12000000,
@@ -4981,6 +5168,47 @@
       return principal * monthlyRate * factor / (factor - 1);
     }
 
+    // 用月付回推貸得到的本金（本息平均攤還的現值）
+    function loanFromPayment(payment, monthlyRate, months) {
+      if (payment <= 0 || months <= 0) return 0;
+      if (monthlyRate === 0) return payment * months;
+      return payment * (1 - Math.pow(1 + monthlyRate, -months)) / monthlyRate;
+    }
+
+    // 房貸負擔率：月付抓月收入的 1/3 ～ 2/5
+    const AFFORD_RATIO_LOW = 1 / 3;
+    const AFFORD_RATIO_HIGH = 2 / 5;
+
+    const wanLabel = amount => `${number.format(Math.round(amount / 10000))} 萬`;
+
+    function renderAffordCard(cardId, options) {
+      const card = document.getElementById(cardId);
+      if (!card) return;
+      const {salary, annualRate, years, downPayment, rateNote} = options;
+      const months = Math.max(1, Math.round(years * 12));
+      const monthlyRate = annualRate / 100 / 12;
+
+      if (salary <= 0) {
+        card.innerHTML = `<p class="afford-empty">填入每月收入，就會算出大概買得起多少價位的房子。</p>`;
+        return;
+      }
+
+      const payLow = salary * AFFORD_RATIO_LOW;
+      const payHigh = salary * AFFORD_RATIO_HIGH;
+      const priceLow = loanFromPayment(payLow, monthlyRate, months) + downPayment;
+      const priceHigh = loanFromPayment(payHigh, monthlyRate, months) + downPayment;
+
+      card.innerHTML = `
+        <h4 class="afford-headline">以你的收入，大概買得起 ${wanLabel(priceLow)}～${wanLabel(priceHigh)} 的房子。</h4>
+        <p class="afford-note">這是抓每月房貸落在收入三到四成推算的（${rateNote}），含你的自備款 ${wanLabel(downPayment)}。房價裡的裝潢、稅費要另外抓喔。</p>
+        <div class="afford-stat">
+          <span>每月要繳</span>
+          <strong>${number.format(Math.round(payLow))}～${number.format(Math.round(payHigh))}</strong>
+          <small>元（每月大概要繳）</small>
+        </div>
+      `;
+    }
+
     function calculateLoan() {
       const purchasePrice = value("loanPurchasePrice");
       const principal = value("loanAmount");
@@ -5044,7 +5272,10 @@
       const firstNormalPayment = firstNormalMonth ? firstNormalMonth.payment : 0;
       const firstGracePayment = graceMonths > 0 && rows[0] ? rows[0].payment : firstNormalPayment;
       const paidMonths = rows.length ? rows[rows.length - 1].month : 0;
-      const periodBreak = graceMonths > 0 ? graceMonths : Math.min(36, totalMonths);
+      // 沒有寬限期時不要硬切在第 36 期：那個切點沒有任何意義，
+      // 只會讓人以為月付從第 37 期開始改變
+      const hasGrace = graceMonths > 0;
+      const periodBreak = hasGrace ? graceMonths : totalMonths;
       const summarizePeriod = (start, end, label) => {
         const periodRows = rows.filter(row => row.month >= start && row.month <= end);
         if (!periodRows.length) return "";
@@ -5067,13 +5298,14 @@
         `;
       };
       const tableRows = [
-        summarizePeriod(1, periodBreak, `${graceMonths > 0 ? "寬限期：" : ""}第 1～${periodBreak} 期`),
+        summarizePeriod(1, periodBreak, `${hasGrace ? "寬限期：" : ""}第 1～${periodBreak} 期`),
         totalMonths > periodBreak ? summarizePeriod(periodBreak + 1, totalMonths, `第 ${periodBreak + 1}～${totalMonths} 期`) : ""
       ].join("");
 
       document.getElementById("loanResult").innerHTML = `
-        ${metric("寬限期月付", firstGracePayment, "main")}
-        ${metric("寬限期後月付", firstNormalPayment)}
+        ${hasGrace
+          ? `${metric("寬限期月付", firstGracePayment, "main")}${metric("寬限期後月付", firstNormalPayment)}`
+          : metric("每月月付", firstNormalPayment, "main")}
         <div class="metric">
           <span>自備款</span>
           <strong>${money.format(Math.round(downPayment))}</strong>
@@ -5097,7 +5329,7 @@
         <div class="metric">
           <span>攤還期數</span>
           <strong>${paidMonths} 期</strong>
-          <div class="note">${graceMonths > 0 ? `前 ${graceMonths} 期為寬限期，只付利息；寬限期後開始攤還本金。` : "未設定寬限期，所以兩個月付數字相同。"}</div>
+          <div class="note">${hasGrace ? `前 ${graceMonths} 期為寬限期，只付利息；寬限期後開始攤還本金。` : "沒有寬限期，從第 1 期就開始還本金，每期月付都一樣。"}</div>
         </div>
         <div class="table-wrap">
           <table class="amortization">
@@ -5114,6 +5346,14 @@
           </table>
         </div>
       `;
+
+      renderAffordCard("loanAffordCard", {
+        salary: value("loanSalary"),
+        annualRate: value("annualRate"),
+        years: value("loanYears"),
+        downPayment,
+        rateNote: `利率 ${number.format(value("annualRate"))}%、還 ${Math.round(value("loanYears"))} 年`
+      });
     }
 
     function calculateYoung() {
@@ -5314,6 +5554,16 @@
         </div>
         ${calculationSections}
       `;
+
+      // 用補貼結束後的基準利率回推，而不是首期補貼利率：
+      // 3＋3 年補貼到期後利率會跳回基準，用低利率推會高估負擔能力
+      renderAffordCard("youngAffordCard", {
+        salary: monthlyIncome,
+        annualRate: baseRate,
+        years: loanYears,
+        downPayment,
+        rateNote: `補貼期滿後利率 ${rateNumber.format(baseRate)}%、還 ${loanYears} 年`
+      });
     }
 
     function resetGroup(group) {
@@ -5942,6 +6192,31 @@
     document.getElementById("youngApplicantType").addEventListener("change", syncYoungDownPaymentFromLoanRatio);
 
     document.getElementById("youngPriceTier").addEventListener("change", () => scheduleGroup("young"));
+
+    // 薪水滑桿與數字欄位雙向同步（滑桿以「萬」為單位，欄位存的是元）
+    function bindSalarySlider(sliderId, inputId, group) {
+      const slider = document.getElementById(sliderId);
+      const input = document.getElementById(inputId);
+      if (!slider || !input) return;
+
+      const syncSliderFromInput = () => {
+        const wan = parseNumericValue(input.value);
+        if (wan > 0) slider.value = String(clamp(wan, Number(slider.min), Number(slider.max)));
+      };
+
+      slider.addEventListener("input", () => {
+        setNumericInputValue(inputId, Number(slider.value) * 10000);
+        updateAllWanHints();
+        queueSave();
+        scheduleGroup(group);
+      });
+      input.addEventListener("input", syncSliderFromInput);
+      syncSliderFromInput();
+      window.syncSalarySliders = (window.syncSalarySliders || []).concat(syncSliderFromInput);
+    }
+
+    bindSalarySlider("loanSalarySlider", "loanSalary", "loan");
+    bindSalarySlider("youngSalarySlider", "youngMonthlyIncome", "young");
 
     document.addEventListener("pointerdown", event => {
       const target = event.target.closest(".metric, .check-row, .lookup-links, .tab, button");
