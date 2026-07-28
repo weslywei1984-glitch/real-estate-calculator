@@ -4618,6 +4618,31 @@
         line-height: 1.35;
       }
 
+      /* 第一項的左框線被 @media(max-width:900px) 的
+         .eligibility-item:first-child { border-left: 0 } 蓋掉（權重較高），
+         只補回寬度與線型，顏色仍由勾選／hover 狀態決定 */
+      .eligibility-item,
+      .eligibility-item:first-child {
+        border-left-width: 1px;
+        border-left-style: solid;
+      }
+
+      /* 快選 chip 排成一排等寬：寬限期原本會折成 2×2，
+         跟上面三個一排的成數不一致 */
+      .chip-quick-row {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(0, 1fr);
+        gap: 6px;
+      }
+
+      .chip-quick-row .chip {
+        flex: none;
+        justify-content: center;
+        padding: 7px 4px;
+        text-align: center;
+      }
+
       /* 金額單位接在數字後面，不另起一行 */
       .afford-stat strong {
         display: inline;

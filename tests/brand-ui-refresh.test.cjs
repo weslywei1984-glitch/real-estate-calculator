@@ -60,6 +60,20 @@ test("手機頁首 180px，電話取代 CTA 成為按鈕", () => {
   assert.match(css, /\.brand-hero__identity\s*\{[^}]*justify-self:\s*stretch/s);
 });
 
+test("手機資格項目四邊都有框線、快選 chip 排成一排", () => {
+  const marker = html.indexOf("/* Hero banner：把「開始試算」變成視覺主角 */");
+  const css = html.slice(marker, html.indexOf("</style>", marker));
+
+  // 前一層 @media(max-width:900px) 的 :first-child { border-left: 0 } 權重較高
+  assert.match(css, /\.eligibility-item,\s*\.eligibility-item:first-child\s*\{[^}]*border-left-width:\s*1px/s);
+  // 只補寬度與線型，顏色留給勾選／hover 狀態
+  assert.doesNotMatch(css, /\.eligibility-item,\s*\.eligibility-item:first-child\s*\{[^}]*border-left-color/s);
+
+  // 寬限期原本會折成 2×2
+  assert.match(css, /\.chip-quick-row\s*\{[^}]*grid-auto-flow:\s*column/s);
+  assert.match(css, /\.chip-quick-row \.chip\s*\{[^}]*justify-content:\s*center/s);
+});
+
 test("青安摘要的分隔線不貼到文字", () => {
   const marker = html.indexOf("/* Hero banner：把「開始試算」變成視覺主角 */");
   const css = html.slice(marker, html.indexOf("</style>", marker));
