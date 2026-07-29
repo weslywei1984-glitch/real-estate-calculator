@@ -169,6 +169,28 @@ test("不可用 .brand-hero > * 疊 position", () => {
   assert.doesNotMatch(css, /\.brand-hero > \*\s*\{[^}]*position:/s);
 });
 
+test("手機浮動聯絡列：電話與 LINE", () => {
+  assert.match(html, /<div class="float-contact" id="floatContact"/);
+  assert.match(html, /href="tel:\+886927617207"[^>]*aria-label="撥打電話/);
+  // LINE 官方帳號要跟好友鎖定畫面同一組
+  assert.match(html, /href="https:\/\/line\.me\/R\/ti\/p\/@tainanwei"/);
+  assert.match(html, /<svg class="float-contact__icon"/);
+
+  const marker = html.indexOf("/* 手機浮動聯絡列");
+  assert.ok(marker > -1, "應有浮動聯絡列樣式");
+  const css = html.slice(marker, html.indexOf("</style>", marker));
+  // 桌機不顯示
+  assert.match(css, /\.float-contact\s*\{\s*display:\s*none;\s*\}/);
+  assert.match(css, /\.float-contact__btn\s*\{[^}]*background:\s*var\(--brand-terracotta\)/s);
+  assert.match(css, /\.float-contact__btn\s*\{[^}]*min-height:\s*48px/s);
+  // 不可蓋住頁尾
+  assert.match(css, /\.shell\s*\{\s*padding-bottom:\s*84px;\s*\}/);
+
+  // 用 scroll 事件而非 IntersectionObserver：後者在畫面未合成時不回呼
+  assert.match(html, /window\.addEventListener\("scroll", update, \{ passive: true \}\)/);
+  assert.doesNotMatch(html, /new IntersectionObserver\(entries =>[\s\S]{0,200}floatContact/);
+});
+
 test("圖片摘要要收錄區塊內的每一組金額", () => {
   // 寬限期前後月付併在同一張卡，querySelector 只抓第一組會整組漏掉
   assert.doesNotMatch(html, /const headline = block\.querySelector\(":scope > strong"\)/);
