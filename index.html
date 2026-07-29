@@ -4663,6 +4663,19 @@
         display: none;
       }
 
+      /* 資格清單：外層容器的內距與項目自己的框線疊在一起顯得擠，
+         收掉外框改用項目間距拉開 */
+      .eligibility-list {
+        gap: 10px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+      }
+
+      .young-step-head {
+        margin-bottom: 12px;
+      }
+
       /* 面板標題與副標同一行：≤900px 那層把 .panel-head 改成直排了 */
       .panel-head {
         flex-direction: row;

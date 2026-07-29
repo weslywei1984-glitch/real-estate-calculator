@@ -1102,6 +1102,54 @@
         font-size: clamp(1.45rem, 9vw, 2rem);
       }
     }
+
+    /* 浮動聯絡列：原本的聯絡資訊區塊移除後，這裡是唯一的聯絡入口，
+       所以各尺寸都顯示（主計算器頁的頁首另有聯絡資訊，那邊才只在手機顯示） */
+    .float-contact {
+      position: fixed;
+      z-index: 900;
+      right: 12px;
+      bottom: 12px;
+      left: 12px;
+      display: flex;
+      gap: 8px;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .float-contact__btn {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 48px;
+      padding: 0 12px;
+      border-radius: 10px;
+      background: var(--teal);
+      color: #fff;
+      font-size: .9rem;
+      font-weight: 850;
+      letter-spacing: .02em;
+      text-decoration: none;
+      box-shadow: 0 8px 22px rgba(23, 59, 53, .28);
+    }
+
+    .float-contact__btn:hover,
+    .float-contact__btn:active {
+      background: var(--deep);
+    }
+
+    .float-contact__icon {
+      flex: none;
+      font-size: 1.05em;
+      line-height: 1;
+    }
+
+    /* 避免浮動列蓋住頁尾內容 */
+    .shell {
+      padding-bottom: 84px;
+    }
   </style>
 </head>
 <body>
@@ -1119,34 +1167,6 @@
         </div>
       </section>
 
-      <aside class="brand-panel" aria-label="台南小魏聯絡資訊">
-        <div class="brand-top">
-          <span class="contact-badge">聯絡資訊</span>
-          <div class="brand-name">
-            <strong>魏泉承</strong>
-            <span>台南小魏 買厝作伙</span>
-            <div class="contact-list">
-              <div class="contact-line"><b>電話</b><span>0927-617-207</span></div>
-              <div class="contact-line"><b>服務店</b><span>永慶不動產-小東南紡店</span></div>
-            </div>
-          </div>
-        </div>
-        <p class="quick-note">客人查完官方資料後，只要回填三個資料，就能快速看懂這塊土地這次總額、上次總額與差額。</p>
-        <div class="status-strip" aria-label="查詢重點">
-          <div class="status-chip">
-            <small>地號格式</small>
-            <b>母號 4 碼</b>
-          </div>
-          <div class="status-chip">
-            <small>子號格式</small>
-            <b>子號 4 碼</b>
-          </div>
-          <div class="status-chip">
-            <small>當期年度</small>
-            <b>115 年</b>
-          </div>
-        </div>
-      </aside>
     </header>
 
     <div class="workspace">
@@ -1420,6 +1440,19 @@
       本頁固定查詢 115 年當期資料，官方頁面說明地號母子號各 4 碼。
     </section>
   </main>
+
+  <div class="float-contact" aria-label="聯絡台南小魏">
+    <a class="float-contact__btn" href="tel:+886927617207" aria-label="撥打電話 0927-617-207">
+      <span class="float-contact__icon" aria-hidden="true">☎</span>
+      <span>撥打電話</span>
+    </a>
+    <a class="float-contact__btn" href="https://line.me/R/ti/p/@tainanwei" target="_blank" rel="noreferrer" aria-label="用 LINE 詢問台南小魏">
+      <svg class="float-contact__icon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+        <path d="M12 3C6.9 3 2.8 6.3 2.8 10.4c0 2.4 1.3 4.5 3.4 5.9-.1.6-.5 1.9-.6 2.2-.1.4.1.5.4.4.3-.1 2.6-1.7 3.6-2.4.8.1 1.5.2 2.4.2 5.1 0 9.2-3.3 9.2-7.4S17.1 3 12 3z"/>
+      </svg>
+      <span>LINE 詢問</span>
+    </a>
+  </div>
 
   <script src="assets/tainan-sections.js"></script>
   <script src="assets/tainan-land-value-files.js"></script>
