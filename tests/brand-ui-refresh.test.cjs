@@ -169,6 +169,23 @@ test("不可用 .brand-hero > * 疊 position", () => {
   assert.doesNotMatch(css, /\.brand-hero > \*\s*\{[^}]*position:/s);
 });
 
+test("存成圖片在手機要走系統分享面板", () => {
+  // a[download] 在 LINE 內建瀏覽器（iOS WKWebView）會被忽略，檔案存不進相簿
+  assert.match(html, /const isTouch = window\.matchMedia\("\(pointer: coarse\)"\)\.matches/);
+  assert.match(html, /navigator\.canShare\(\{ files: \[file\] \}\)/);
+  assert.match(html, /await navigator\.share\(\{ files: \[file\], title: fileName \}\)/);
+  // 觸控裝置不可退回 a[download]
+  assert.match(html, /if \(!isTouch && "download" in link\)/);
+  // 使用者自己取消分享不該再彈備援
+  assert.match(html, /if \(error && error\.name === "AbortError"\) return "shared"/);
+  // 最後備援：長按儲存
+  assert.match(html, /function showImageSaveFallback\(url, fileName\)/);
+  assert.match(html, /長按下面的圖片/);
+  // 改成非同步後呼叫端要接 promise
+  assert.match(html, /async function downloadResultJpg\(group\)/);
+  assert.match(html, /downloadResultJpg\(group\)\.then\(outcome =>/);
+});
+
 test("分頁列不換行", () => {
   const marker = html.indexOf("/* Compact tool layout redesign */");
   const css = html.slice(marker, html.indexOf("</style>", marker));
