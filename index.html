@@ -4631,7 +4631,7 @@
         justify-self: center;
         width: 136px;
         height: 136px;
-        margin-bottom: 14px;
+        margin-bottom: 4px;
       }
 
       .brand-hero__profile {
@@ -4657,17 +4657,17 @@
       .brand-hero__badge {
         display: inline-block;
         margin: 0 0 10px;
-        padding: 5px 14px;
+        padding: 7px 18px;
         border-radius: 20px;
         background: rgba(233, 135, 103, .14);
         color: #f0a184;
-        font-size: .7rem;
-        font-weight: 700;
+        font-size: .86rem;
+        font-weight: 800;
         letter-spacing: .02em;
       }
 
       .brand-hero h1 {
-        font-size: clamp(1.44rem, 7vw, 1.78rem);
+        font-size: clamp(1.72rem, 8.4vw, 2.15rem);
         line-height: 1.2;
         letter-spacing: -.02em;
         white-space: normal;
@@ -4822,14 +4822,18 @@
       }
 
       .brand-hero h1 {
-        font-size: clamp(1.24rem, 6.6vw, 1.44rem);
+        font-size: clamp(1.5rem, 7.6vw, 1.72rem);
+      }
+
+      .brand-hero__badge {
+        font-size: .78rem;
+        padding: 6px 15px;
       }
 
       .brand-hero__lead {
         font-size: .74rem;
         line-height: 1.45;
       }
-
     }
   </style>
 </head>
@@ -5925,10 +5929,10 @@
         </div>
         <div class="metric">
           <span>總利息與月付範圍</span>
-          <strong>${wanAmount(totalInterest)}</strong>
+          <strong>${money.format(Math.round(totalInterest))}</strong>
           <div class="breakdown">
-            ${wanLine("貸款本金", principal)}
-            ${wanLine("還款總額", principal + totalInterest)}
+            ${line("貸款本金", principal)}
+            ${line("還款總額", principal + totalInterest)}
             ${line("最高月付", maxPayment)}
             ${line("最低月付", Number.isFinite(minPayment) ? minPayment : 0)}
           </div>
