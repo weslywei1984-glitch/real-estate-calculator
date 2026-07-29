@@ -40,11 +40,9 @@ test("手機版顯示免責聲明且不縮到難以閱讀", () => {
   assert.match(mobile, /\.brand-hero__notice\s*\{[^}]*white-space:\s*normal/s);
   assert.match(html, /正式申報仍以稅務機關、地政士、銀行核定為準/);
 
-  // 手機頁首只留標題、副標、免責聲明與電話按鈕
-  assert.match(mobile, /\.brand-hero__identity strong,\s*\.brand-hero__identity small\s*\{[^}]*display:\s*none/s);
 });
 
-test("手機頁首 180px，電話取代 CTA 成為按鈕", () => {
+test("手機頁首 180px，只留標題、副標與免責聲明", () => {
   const marker = html.indexOf("/* Hero banner：把「開始試算」變成視覺主角 */");
   const css = html.slice(marker, html.indexOf("</style>", marker));
 
@@ -52,12 +50,6 @@ test("手機頁首 180px，電話取代 CTA 成為按鈕", () => {
   // 手機不放「立即開始試算」：分頁列本來就緊接在下面
   assert.match(css, /\.brand-hero__eyebrow,\s*\.brand-hero__cta\s*\{[^}]*display:\s*none/s);
   assert.match(css, /\.brand-hero__lead\s*\{[^}]*display:\s*block/s);
-
-  // 電話要是橘色按鈕、44px 觸控高度
-  assert.match(css, /\.brand-hero__identity \.brand-hero__tel\s*\{[^}]*background:\s*var\(--brand-terracotta\)/s);
-  assert.match(css, /\.brand-hero__identity \.brand-hero__tel\s*\{[^}]*min-height:\s*44px/s);
-  // justify-self 要覆寫舊層的 start，否則按鈕只有文字寬
-  assert.match(css, /\.brand-hero__identity\s*\{[^}]*justify-self:\s*stretch/s);
 });
 
 test("手機資格項目四邊都有框線、快選 chip 排成一排", () => {
@@ -192,9 +184,19 @@ test("手機浮動聯絡列：電話與 LINE", () => {
   // 不可蓋住頁尾
   assert.match(css, /\.shell\s*\{\s*padding-bottom:\s*84px;\s*\}/);
 
-  // 用 scroll 事件而非 IntersectionObserver：後者在畫面未合成時不回呼
-  assert.match(html, /window\.addEventListener\("scroll", update, \{ passive: true \}\)/);
-  assert.doesNotMatch(html, /new IntersectionObserver\(entries =>[\s\S]{0,200}floatContact/);
+  // 頁首已不放電話，浮動列要一進站就在，不再等捲動
+  assert.doesNotMatch(html, /setupFloatContact/);
+  assert.doesNotMatch(css, /\.float-contact\.is-visible/);
+});
+
+test("手機頁首不再重複放電話按鈕", () => {
+  const marker = html.indexOf("/* Hero banner：把「開始試算」變成視覺主角 */");
+  const css = html.slice(marker, html.indexOf("</style>", marker));
+  // 手機的電話入口由底部浮動列負責
+  assert.match(css, /\.brand-hero__identity\s*\{\s*display:\s*none;\s*\}/);
+  assert.doesNotMatch(css, /\.brand-hero__identity \.brand-hero__tel\s*\{[^}]*background:\s*var\(--brand-terracotta\)/s);
+  // 桌機的聯絡資訊要保留
+  assert.match(html, /<div class="brand-hero__identity" aria-label="客戶專屬聯絡資訊">/);
 });
 
 test("圖片摘要要收錄區塊內的每一組金額", () => {

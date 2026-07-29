@@ -4384,6 +4384,7 @@
     }
 
     @media (max-width: 620px) {
+      /* 頁首已不放電話，浮動列一進站就要在，不再等捲過頁首 */
       .float-contact {
         position: fixed;
         z-index: 900;
@@ -4392,16 +4393,6 @@
         left: 12px;
         display: flex;
         gap: 8px;
-        opacity: 0;
-        transform: translateY(12px);
-        transition: opacity .18s ease, transform .18s ease;
-        pointer-events: none;
-      }
-
-      .float-contact.is-visible {
-        opacity: 1;
-        transform: none;
-        pointer-events: auto;
       }
 
       .float-contact__btn {
@@ -4435,13 +4426,6 @@
       /* 避免浮動列蓋住頁尾內容 */
       .shell {
         padding-bottom: 84px;
-      }
-    }
-
-    @media (max-width: 620px) and (prefers-reduced-motion: reduce) {
-      .float-contact {
-        transition: none;
-        transform: none;
       }
     }
 
@@ -4640,44 +4624,10 @@
 
       /* justify-self 要覆寫掉舊層的 start，否則按鈕只有文字寬；
          padding-right 讓按鈕對齊文字欄，不會壓到人像 */
+      /* 聯絡資訊整區隱藏：手機的電話入口改由底部浮動列負責，
+         留在頁首會有兩顆一樣的電話鈕 */
       .brand-hero__identity {
-        justify-self: stretch;
-        margin-top: 9px;
-        padding-right: 126px;
-      }
-
-      .brand-hero__identity strong,
-      .brand-hero__identity small {
         display: none;
-      }
-
-      /* 電話改成和 CTA 同樣式的按鈕 */
-      .brand-hero__identity .brand-hero__tel {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 7px;
-        width: auto;
-        min-height: 44px;
-        margin-top: 0;
-        padding: 0 18px;
-        border-radius: 9px;
-        background: var(--brand-terracotta);
-        color: #fff;
-        font-size: .94rem;
-        font-weight: 850;
-        letter-spacing: .02em;
-        text-decoration: none;
-      }
-
-      .brand-hero__identity .brand-hero__tel::before {
-        content: "☎";
-        font-size: 1.05em;
-        line-height: 1;
-      }
-
-      .brand-hero__identity .brand-hero__tel:active {
-        background: var(--brand-terracotta-dark);
       }
 
       /* 框放小、人物放大 */
@@ -6932,21 +6882,6 @@
 
     bindSalarySlider("loanSalarySlider", "loanSalary", "loan");
     bindSalarySlider("youngSalarySlider", "youngMonthlyIncome", "young");
-
-    // 浮動聯絡列：頁首還看得到時先不顯示，捲過去才浮出來。
-    // 用 scroll 事件而非 IntersectionObserver：後者在畫面未合成時不會回呼
-    (function setupFloatContact() {
-      const bar = document.getElementById("floatContact");
-      const hero = document.querySelector(".brand-hero");
-      if (!bar || !hero) return;
-      const update = () => {
-        const passed = hero.getBoundingClientRect().bottom <= 40;
-        bar.classList.toggle("is-visible", passed);
-      };
-      window.addEventListener("scroll", update, { passive: true });
-      window.addEventListener("resize", update);
-      update();
-    })();
 
     // 立即開始試算：捲到分頁列，並把游標帶到目前計算器的第一個欄位
     document.getElementById("heroCta")?.addEventListener("click", () => {
