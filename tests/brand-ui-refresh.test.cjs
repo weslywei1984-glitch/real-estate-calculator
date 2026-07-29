@@ -169,6 +169,12 @@ test("不可用 .brand-hero > * 疊 position", () => {
   assert.doesNotMatch(css, /\.brand-hero > \*\s*\{[^}]*position:/s);
 });
 
+test("資格說明字色要過 AA 對比", () => {
+  // #738092 對淡橘底只有 3.77:1，字級縮到 10px 後更吃力
+  assert.doesNotMatch(html, /\.eligibility-item small\s*\{[^}]*color:\s*#738092/s);
+  assert.match(html, /\.eligibility-item small\s*\{[^}]*color:\s*#5a6675/s);
+});
+
 test("手機浮動聯絡列：電話與 LINE", () => {
   assert.match(html, /<div class="float-contact" id="floatContact"/);
   assert.match(html, /href="tel:\+886927617207"[^>]*aria-label="撥打電話/);
