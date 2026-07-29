@@ -4629,15 +4629,15 @@
         bottom: auto;
         order: -1;
         justify-self: center;
-        width: 68px;
-        height: 68px;
-        margin-bottom: 12px;
+        width: 136px;
+        height: 136px;
+        margin-bottom: 14px;
       }
 
       .brand-hero__profile {
         position: static;
-        width: 68px;
-        height: 68px;
+        width: 136px;
+        height: 136px;
         max-width: none;
         border-radius: 50%;
         border: 2px solid rgba(233, 135, 103, .55);
@@ -4685,30 +4685,9 @@
         line-height: 1.55;
       }
 
+      /* 手機不放這兩顆：分頁列就在下面，聯絡入口也已在底部浮動列 */
       .brand-hero__actions {
-        display: flex;
-        justify-self: center;
-        gap: 8px;
-        margin-top: 14px;
-      }
-
-      .brand-hero__cta {
-        display: inline-flex;
-        min-height: 46px;
-        margin-top: 0;
-        padding: 0 18px;
-        font-size: .88rem;
-      }
-
-      .brand-hero__cta.brand-hero__cta--ghost {
-        display: inline-flex;
-        border: 1px solid rgba(255, 250, 242, .34);
-        background: transparent;
-        color: #fffaf2;
-      }
-
-      .brand-hero__cta--ghost:active {
-        background: rgba(255, 250, 242, .1);
+        display: none;
       }
 
       .brand-hero__notice {
@@ -4851,19 +4830,6 @@
         line-height: 1.45;
       }
 
-      /* 兩顆並排在 320px 會擠成直排，改為上下各佔滿 */
-      .brand-hero__actions {
-        flex-direction: column;
-        align-self: stretch;
-        width: 100%;
-      }
-
-      .brand-hero__cta {
-        width: 100%;
-        padding: 0 10px;
-        font-size: .84rem;
-        white-space: nowrap;
-      }
     }
   </style>
 </head>
@@ -4915,21 +4881,21 @@
             <div class="field">
               <label for="salePrice">出售成交價額</label>
               <div class="control">
-                <input id="salePrice" data-money-unit="wan" type="number" min="0" step="0.1" value="1460">
+                <input id="salePrice" data-money-unit="wan" type="number" min="0" step="0.1" value="0">
                 <span class="unit">萬元</span>
               </div>
             </div>
             <div class="field">
               <label for="buyCost">取得成本</label>
               <div class="control">
-                <input id="buyCost" data-money-unit="wan" type="number" min="0" step="0.1" value="1000">
+                <input id="buyCost" data-money-unit="wan" type="number" min="0" step="0.1" value="0">
                 <span class="unit">萬元</span>
               </div>
             </div>
             <div class="field">
               <label for="sellExpense">取得、改良與移轉費用</label>
               <div class="control">
-                <input id="sellExpense" type="number" min="0" step="1000" value="450000">
+                <input id="sellExpense" type="number" min="0" step="1000" value="0">
                 <span class="unit">元</span>
               </div>
             </div>
@@ -4948,7 +4914,7 @@
             <div class="field">
               <label for="holdingYears">持有年數</label>
               <div class="control">
-                <input id="holdingYears" type="number" min="0" step="0.1" value="5.5">
+                <input id="holdingYears" type="number" min="0" step="0.1" value="0">
                 <span class="unit">年</span>
               </div>
             </div>
@@ -4989,7 +4955,6 @@
 
           <div class="actions">
             <button class="primary" type="button" data-clear="tax">清空</button>
-            <button class="secondary" type="button" data-reset="tax">套用範例</button>
             <button class="secondary" type="button" data-copy="tax">複製結果</button>
             <button class="secondary" type="button" data-jpg="tax">存成圖片</button>
           </div>
@@ -5022,8 +4987,8 @@
             <div class="field">
               <label for="loanRatio">預估貸款成數</label>
               <div class="control">
-                <input id="loanRatio" type="number" min="0" max="100" step="1" value="80">
-                <span class="unit">%</span>
+                <input id="loanRatio" type="number" min="0" max="10" step="0.1" value="8">
+                <span class="unit">成</span>
               </div>
             </div>
             <div class="field down-payment-field">
@@ -5034,11 +4999,12 @@
               </div>
             </div>
             <div class="field">
-              <label for="mortgageSettingRatio">抵押權設定金額倍率</label>
-              <div class="control">
-                <input id="mortgageSettingRatio" type="number" min="0" step="0.1" value="1.2">
-                <span class="unit">倍</span>
+              <label>抵押權設定金額倍率</label>
+              <div class="chip-group chip-quick-row" data-chip-input="mortgageSettingRatio" role="group" aria-label="抵押權設定金額倍率">
+                <button type="button" class="chip" data-value="1.2">1.2 倍</button>
+                <button type="button" class="chip" data-value="0">不設定</button>
               </div>
+              <input id="mortgageSettingRatio" type="hidden" value="1.2">
             </div>
             <div class="field">
               <label for="buildingValue">房屋評定現值／契價</label>
@@ -5046,7 +5012,7 @@
                 <input id="buildingValue" type="number" min="0" step="1000" value="1000000">
                 <span class="unit">元</span>
               </div>
-              <div class="field-note">兩格都要填：這格看房屋稅單的「課稅現值」，用來算契稅 6%</div>
+              <div class="field-note">填房屋稅單的「課稅現值」，下面自動算契稅</div>
             </div>
             <div class="field">
               <label for="landDeclaredValue">土地申報地價總額</label>
@@ -5054,7 +5020,7 @@
                 <input id="landDeclaredValue" type="number" min="0" step="1000" value="1800000">
                 <span class="unit">元</span>
               </div>
-              <div class="field-note">這格是公告地價 × 持有面積(m²)，用來算買賣登記規費 0.1%</div>
+              <div class="field-note">填公告地價 × 持有面積(m²)，下面自動算買賣登記規費</div>
             </div>
             <div class="lookup-links field wide" aria-label="土地公告地價查詢連結">
               <span>查完土地資料後回填上面兩格：</span>
@@ -5162,8 +5128,8 @@
             <div class="field">
               <label for="loanLtvRatio">預估貸款成數</label>
               <div class="control">
-                <input id="loanLtvRatio" type="number" min="0" max="100" step="1" value="80">
-                <span class="unit">%</span>
+                <input id="loanLtvRatio" type="number" min="0" max="10" step="0.1" value="8">
+                <span class="unit">成</span>
               </div>
             </div>
             <div class="field">
@@ -5237,7 +5203,6 @@
         <div class="section">
           <div class="actions">
             <button class="primary" type="button" data-clear="loan">清空</button>
-            <button class="secondary" type="button" data-reset="loan">套用範例</button>
             <button class="secondary" type="button" data-copy="loan">複製結果</button>
             <button class="secondary" type="button" data-jpg="loan">存成圖片</button>
           </div>
@@ -5458,11 +5423,11 @@
 
     const defaults = {
       tax: {
-        salePrice: 14600000,
-        buyCost: 10000000,
-        sellExpense: 450000,
+        salePrice: 0,
+        buyCost: 0,
+        sellExpense: 0,
         landGain: 0,
-        holdingYears: 5.5,
+        holdingYears: 0,
         residentType: "resident",
         selfUseRegistered: false,
         selfUseSixYears: false,
@@ -5472,7 +5437,7 @@
       },
       buyer: {
         purchasePrice: 15000000,
-        loanRatio: 80,
+        loanRatio: 8,
         buyerDownPayment: 3000000,
         mortgageSettingRatio: 1.2,
         buildingValue: 1000000,
@@ -5490,7 +5455,7 @@
       },
       loan: {
         loanPurchasePrice: 15000000,
-        loanLtvRatio: 80,
+        loanLtvRatio: 8,
         loanAmount: 12000000,
         loanDownPayment: 3000000,
         annualRate: 2.5,
@@ -5854,7 +5819,7 @@
     function calculateLoan() {
       const purchasePrice = value("loanPurchasePrice");
       const principal = value("loanAmount");
-      const actualLoanRatio = purchasePrice > 0 ? principal / purchasePrice * 100 : 0;
+      const actualLoanRatio = purchasePrice > 0 ? principal / purchasePrice * 10 : 0;
       const downPayment = Math.max(0, purchasePrice - principal);
       const overLoanAmount = Math.max(0, principal - purchasePrice);
       const monthlyRate = value("annualRate") / 100 / 12;
@@ -5950,20 +5915,20 @@
           : metric("每月月付", firstNormalPayment, "main")}
         <div class="metric">
           <span>自備款</span>
-          <strong>${money.format(Math.round(downPayment))}</strong>
+          <strong>${wanAmount(downPayment)}</strong>
           <div class="breakdown">
-            ${line("房屋成交總價", purchasePrice)}
-            ${line("貸款本金", principal)}
-            <div class="line"><span>實際貸款成數</span><b>${number.format(actualLoanRatio)}%</b></div>
-            ${overLoanAmount > 0 ? line("貸款超過房價金額", overLoanAmount) : ""}
+            ${wanLine("房屋成交總價", purchasePrice)}
+            ${wanLine("貸款本金", principal)}
+            <div class="line"><span>實際貸款成數</span><b>${number.format(actualLoanRatio)} 成</b></div>
+            ${overLoanAmount > 0 ? wanLine("貸款超過房價金額", overLoanAmount) : ""}
           </div>
         </div>
         <div class="metric">
           <span>總利息與月付範圍</span>
-          <strong>${money.format(Math.round(totalInterest))}</strong>
+          <strong>${wanAmount(totalInterest)}</strong>
           <div class="breakdown">
-            ${line("貸款本金", principal)}
-            ${line("還款總額", principal + totalInterest)}
+            ${wanLine("貸款本金", principal)}
+            ${wanLine("還款總額", principal + totalInterest)}
             ${line("最高月付", maxPayment)}
             ${line("最低月付", Number.isFinite(minPayment) ? minPayment : 0)}
           </div>
@@ -6843,10 +6808,11 @@
       });
     });
 
+    // 成數以「成」為單位（8 成 = 80%），換算時除以 10
     function syncBuyerDownPaymentFromRatio() {
       const purchasePrice = value("purchasePrice");
-      const ratio = clamp(value("loanRatio"), 0, 100);
-      const loanAmount = purchasePrice * ratio / 100;
+      const ratio = clamp(value("loanRatio"), 0, 10);
+      const loanAmount = purchasePrice * ratio / 10;
       setNumericInputValue("loanRatio", number.format(ratio));
       setNumericInputValue("buyerDownPayment", Math.max(0, Math.round(purchasePrice - loanAmount)));
       scheduleGroup("buyer");
@@ -6858,7 +6824,7 @@
       const loanAmount = Math.max(0, purchasePrice - downPayment);
       setNumericInputValue("buyerDownPayment", Math.round(downPayment));
       if (purchasePrice > 0) {
-        setNumericInputValue("loanRatio", number.format(loanAmount / purchasePrice * 100));
+        setNumericInputValue("loanRatio", number.format(loanAmount / purchasePrice * 10));
       }
       scheduleGroup("buyer");
     }
@@ -6869,8 +6835,8 @@
 
     function syncLoanAmountFromPrice() {
       const purchasePrice = value("loanPurchasePrice");
-      const ratio = clamp(value("loanLtvRatio"), 0, 100);
-      const principal = Math.round(purchasePrice * ratio / 100);
+      const ratio = clamp(value("loanLtvRatio"), 0, 10);
+      const principal = Math.round(purchasePrice * ratio / 10);
       setNumericInputValue("loanAmount", principal);
       setNumericInputValue("loanDownPayment", Math.max(0, Math.round(purchasePrice - principal)));
       scheduleGroup("loan");
@@ -6881,7 +6847,7 @@
       const principal = value("loanAmount");
       setNumericInputValue("loanDownPayment", Math.max(0, Math.round(purchasePrice - principal)));
       if (purchasePrice > 0) {
-        setNumericInputValue("loanLtvRatio", number.format(principal / purchasePrice * 100));
+        setNumericInputValue("loanLtvRatio", number.format(principal / purchasePrice * 10));
       }
       scheduleGroup("loan");
     }
@@ -6893,7 +6859,7 @@
       setNumericInputValue("loanDownPayment", Math.round(downPayment));
       setNumericInputValue("loanAmount", principal);
       if (purchasePrice > 0) {
-        setNumericInputValue("loanLtvRatio", number.format(principal / purchasePrice * 100));
+        setNumericInputValue("loanLtvRatio", number.format(principal / purchasePrice * 10));
       }
       scheduleGroup("loan");
     }

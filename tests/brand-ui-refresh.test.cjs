@@ -177,6 +177,41 @@ test("資格說明字色要過 AA 對比", () => {
   assert.match(html, /\.eligibility-item small\s*\{[^}]*color:\s*#5a6675/s);
 });
 
+test("貸款成數以「成」為單位，不用百分比", () => {
+  assert.match(html, /<input id="loanRatio"[^>]*max="10"[^>]*value="8">\s*<span class="unit">成<\/span>/);
+  assert.match(html, /<input id="loanLtvRatio"[^>]*max="10"[^>]*value="8">\s*<span class="unit">成<\/span>/);
+  assert.match(html, /loanRatio:\s*8,/);
+  assert.match(html, /loanLtvRatio:\s*8,/);
+  // 8 成 = 80%，換算除以 10
+  assert.match(html, /const loanAmount = purchasePrice \* ratio \/ 10;/);
+  assert.match(html, /const principal = Math\.round\(purchasePrice \* ratio \/ 10\);/);
+  assert.match(html, /actualLoanRatio = purchasePrice > 0 \? principal \/ purchasePrice \* 10 : 0/);
+  assert.match(html, /實際貸款成數<\/span><b>\$\{number\.format\(actualLoanRatio\)\} 成<\/b>/);
+});
+
+test("貸款結果金額以萬顯示", () => {
+  assert.match(html, /<span>自備款<\/span>\s*<strong>\$\{wanAmount\(downPayment\)\}<\/strong>/);
+  assert.match(html, /wanLine\("房屋成交總價", purchasePrice\)/);
+  assert.match(html, /wanLine\("貸款本金", principal\)/);
+  assert.match(html, /<strong>\$\{wanAmount\(totalInterest\)\}<\/strong>/);
+});
+
+test("房地合一稅欄位預設為 0，且移除兩個套用範例", () => {
+  ["salePrice", "buyCost", "sellExpense", "holdingYears"].forEach(id => {
+    assert.match(html, new RegExp(`<input id="${id}"[^>]*value="0">`));
+  });
+  assert.match(html, /salePrice:\s*0,[\s\S]{0,120}holdingYears:\s*0,/);
+  assert.doesNotMatch(html, /data-reset="tax"/);
+  assert.doesNotMatch(html, /data-reset="loan"/);
+});
+
+test("抵押權設定倍率改為 1.2 或不設定兩個選項", () => {
+  assert.match(html, /data-chip-input="mortgageSettingRatio"/);
+  assert.match(html, /class="chip" data-value="1\.2">1\.2 倍<\/button>/);
+  assert.match(html, /class="chip" data-value="0">不設定<\/button>/);
+  assert.match(html, /<input id="mortgageSettingRatio" type="hidden" value="1\.2">/);
+});
+
 test("手機浮動聯絡列：電話與 LINE", () => {
   assert.match(html, /<div class="float-contact" id="floatContact"/);
   assert.match(html, /href="tel:\+886927617207"[^>]*aria-label="撥打電話/);
