@@ -7,7 +7,8 @@ const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
 
 test("品牌頁首使用可維護文字與透明人物素材", () => {
   assert.match(html, /<header class="brand-hero">/);
-  assert.match(html, /<h1>房地稅費與貸款試算<\/h1>/);
+  // 標題後半在手機會上強調色，所以包了 span
+  assert.match(html, /<h1>房地稅費與<span class="brand-hero__accent">貸款試算<\/span><\/h1>/);
   assert.match(html, /src="assets\/xiaowei-profile\.png"/);
   assert.doesNotMatch(html, /class="hero-art"/);
 });
@@ -42,14 +43,23 @@ test("手機版顯示免責聲明且不縮到難以閱讀", () => {
 
 });
 
-test("手機頁首 180px，只留標題、副標與免責聲明", () => {
+test("手機頁首改為置中式 banner：頭像、膠囊標籤、雙按鈕", () => {
+  assert.match(html, /<p class="brand-hero__badge">台南小魏 買厝作伙<\/p>/);
+  assert.match(html, /<div class="brand-hero__actions">/);
+  assert.match(html, /brand-hero__cta--ghost"[^>]*href="https:\/\/line\.me\/R\/ti\/p\/@tainanwei"/);
+
   const marker = html.indexOf("/* Hero banner：把「開始試算」變成視覺主角 */");
   const css = html.slice(marker, html.indexOf("</style>", marker));
 
-  assert.match(css, /\.brand-hero\s*\{[^}]*min-height:\s*180px/s);
-  // 手機不放「立即開始試算」：分頁列本來就緊接在下面
-  assert.match(css, /\.brand-hero__eyebrow,\s*\.brand-hero__cta\s*\{[^}]*display:\s*none/s);
-  assert.match(css, /\.brand-hero__lead\s*\{[^}]*display:\s*block/s);
+  // 膠囊與 ghost 按鈕是手機專用；ghost 要寫成 .brand-hero__cta.brand-hero__cta--ghost
+  // 才蓋得過後面同權重的 .brand-hero__cta { display: inline-flex }
+  assert.match(css, /\.brand-hero__cta\.brand-hero__cta--ghost\s*\{\s*display:\s*none;\s*\}/);
+
+  // 手機：置中、人像變圓形頭像並靠 order 排到最前
+  assert.match(css, /\.brand-hero\s*\{[^}]*display:\s*grid;[^}]*text-align:\s*center/s);
+  assert.match(css, /\.brand-hero__portrait\s*\{[^}]*order:\s*-1/s);
+  assert.match(css, /\.brand-hero__profile\s*\{[^}]*border-radius:\s*50%/s);
+  assert.match(css, /\.brand-hero__accent\s*\{\s*color:/);
 });
 
 test("手機資格項目四邊都有框線、快選 chip 排成一排", () => {

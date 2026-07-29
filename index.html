@@ -4127,11 +4127,28 @@
       text-wrap: balance;
     }
 
+    /* 桌機沿用原本的左置版面：膠囊標籤與 LINE 副按鈕都是手機專用。
+       ghost 要寫成 .brand-hero__cta.brand-hero__cta--ghost，否則會被
+       後面同權重的 .brand-hero__cta { display: inline-flex } 蓋掉 */
+    .brand-hero__badge {
+      display: none;
+    }
+
+    .brand-hero__cta.brand-hero__cta--ghost {
+      display: none;
+    }
+
+    .brand-hero__actions {
+      display: flex;
+      /* .brand-hero__content 是格線容器，不加會被撐滿整欄 */
+      justify-self: start;
+      gap: 10px;
+    }
+
     .brand-hero__cta {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      /* .brand-hero__content 是格線容器，不加會被撐滿整欄 */
       justify-self: start;
       width: auto;
       gap: 8px;
@@ -4590,56 +4607,119 @@
         font-size: 1.14rem;
       }
 
-      /* 手機頁首壓到 160px：只留標題、CTA、免責聲明與電話。
-         副標、品牌名與店名在手機上讓位，標題與下方分頁已足以說明用途 */
+      /* 手機頁首：置中式 hero banner（頭像 → 標籤 → 標題 → 說明 → 雙按鈕） */
+      /* 必須明確指定 grid：這個斷點的 .brand-hero 是 block，order 不會生效 */
       .brand-hero {
-        min-height: 180px;
-        padding: 11px 12px 12px;
+        display: grid;
+        min-height: 0;
+        grid-template-columns: minmax(0, 1fr);
+        padding: 20px 16px 18px;
+        text-align: center;
       }
 
       .brand-hero__content {
-        padding-right: 126px;
+        justify-items: center;
+        padding-right: 0;
       }
 
-      /* 英文眉題在手機讓位；「立即開始試算」也不放在這裡：
-         下方分頁列本來就緊接著，手機上更該優先給撥打電話 */
-      .brand-hero__eyebrow,
-      .brand-hero__cta {
+      /* 人像改成置中圓形頭像，並用 order 排到最前面 */
+      .brand-hero__portrait {
+        position: relative;
+        right: auto;
+        bottom: auto;
+        order: -1;
+        justify-self: center;
+        width: 68px;
+        height: 68px;
+        margin-bottom: 12px;
+      }
+
+      .brand-hero__profile {
+        position: static;
+        width: 68px;
+        height: 68px;
+        max-width: none;
+        border-radius: 50%;
+        border: 2px solid rgba(233, 135, 103, .55);
+        object-fit: cover;
+        object-position: 50% 6%;
+        filter: none;
+      }
+
+      .brand-hero__portrait::before {
         display: none;
+      }
+
+      .brand-hero__eyebrow {
+        display: none;
+      }
+
+      .brand-hero__badge {
+        display: inline-block;
+        margin: 0 0 10px;
+        padding: 5px 14px;
+        border-radius: 20px;
+        background: rgba(233, 135, 103, .14);
+        color: #f0a184;
+        font-size: .7rem;
+        font-weight: 700;
+        letter-spacing: .02em;
+      }
+
+      .brand-hero h1 {
+        font-size: clamp(1.44rem, 7vw, 1.78rem);
+        line-height: 1.2;
+        letter-spacing: -.02em;
+        white-space: normal;
+      }
+
+      .brand-hero__accent {
+        color: #f0a184;
       }
 
       .brand-hero__lead {
         display: block;
-        margin: 6px 0 0;
-        max-width: none;
-        font-size: .74rem;
-        line-height: 1.45;
+        margin: 10px auto 0;
+        max-width: 300px;
+        font-size: .8rem;
+        line-height: 1.55;
+      }
+
+      .brand-hero__actions {
+        display: flex;
+        justify-self: center;
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .brand-hero__cta {
+        display: inline-flex;
+        min-height: 46px;
+        margin-top: 0;
+        padding: 0 18px;
+        font-size: .88rem;
+      }
+
+      .brand-hero__cta.brand-hero__cta--ghost {
+        display: inline-flex;
+        border: 1px solid rgba(255, 250, 242, .34);
+        background: transparent;
+        color: #fffaf2;
+      }
+
+      .brand-hero__cta--ghost:active {
+        background: rgba(255, 250, 242, .1);
       }
 
       .brand-hero__notice {
-        margin-top: 7px;
+        margin-top: 12px;
         font-size: .66rem;
-        line-height: 1.3;
+        line-height: 1.35;
       }
 
-      /* justify-self 要覆寫掉舊層的 start，否則按鈕只有文字寬；
-         padding-right 讓按鈕對齊文字欄，不會壓到人像 */
-      /* 聯絡資訊整區隱藏：手機的電話入口改由底部浮動列負責，
-         留在頁首會有兩顆一樣的電話鈕 */
+      /* 聯絡資訊整區隱藏：手機的電話入口由底部浮動列負責 */
       .brand-hero__identity {
         display: none;
-      }
-
-      /* 框放小、人物放大 */
-      .brand-hero__portrait {
-        right: 0;
-        width: 122px;
-        height: 158px;
-      }
-
-      .brand-hero__profile {
-        height: 156px;
-        max-width: 122px;
       }
 
       /* 青安方案摘要：原本標籤 10.9px、數值 11.8px 幾乎一樣大，沒有層次。
@@ -4755,44 +4835,34 @@
       }
     }
 
-    /* iPhone SE 等 320px 裝置：標題會被截斷、聯絡卡會壓到人物 */
+    /* iPhone SE 等窄螢幕：置中版面下只需縮字級，不再需要
+       padding-right 與大尺寸人像（那是舊的左文右像版面留下的） */
     @media (max-width: 360px) {
-      .brand-hero__content {
-        padding-right: 116px;
+      .brand-hero {
+        padding: 18px 12px 16px;
       }
 
       .brand-hero h1 {
-        font-size: clamp(.98rem, 5.2vw, 1.16rem);
+        font-size: clamp(1.24rem, 6.6vw, 1.44rem);
       }
 
-      /* 窄螢幕副標會多一行，頁首就撐過 180px */
       .brand-hero__lead {
-        font-size: .68rem;
-        line-height: 1.4;
+        font-size: .74rem;
+        line-height: 1.45;
       }
 
-
-      .brand-hero__identity {
-        max-width: none;
-        padding-right: 116px;
+      /* 兩顆並排在 320px 會擠成直排，改為上下各佔滿 */
+      .brand-hero__actions {
+        flex-direction: column;
+        align-self: stretch;
+        width: 100%;
       }
 
-      /* 320px：按鈕文字會被擠成直排 */
       .brand-hero__cta {
         width: 100%;
         padding: 0 10px;
         font-size: .84rem;
         white-space: nowrap;
-      }
-
-      .brand-hero__portrait {
-        width: 112px;
-        height: 150px;
-      }
-
-      .brand-hero__profile {
-        height: 148px;
-        max-width: 112px;
       }
     }
   </style>
@@ -4802,10 +4872,14 @@
     <header class="brand-hero">
       <div class="brand-hero__content">
         <p class="brand-hero__eyebrow">TAINAN REAL ESTATE CALCULATOR</p>
-        <h1>房地稅費與貸款試算</h1>
+        <p class="brand-hero__badge">台南小魏 買厝作伙</p>
+        <h1>房地稅費與<span class="brand-hero__accent">貸款試算</span></h1>
         <p class="brand-hero__lead">房地合一稅、買方稅費、貸款月付與可負擔總價，一次整理成看得懂的數字。</p>
 
-        <button class="brand-hero__cta" type="button" id="heroCta">立即開始試算 <span aria-hidden="true">→</span></button>
+        <div class="brand-hero__actions">
+          <button class="brand-hero__cta" type="button" id="heroCta">立即開始試算 <span aria-hidden="true">→</span></button>
+          <a class="brand-hero__cta brand-hero__cta--ghost" href="https://line.me/R/ti/p/@tainanwei" target="_blank" rel="noreferrer">LINE 詢問</a>
+        </div>
 
         <p class="brand-hero__notice">
           <span class="brand-hero__notice-legal">正式申報仍以稅務機關、地政士、銀行核定為準。</span>
