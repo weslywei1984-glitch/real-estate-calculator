@@ -4446,6 +4446,15 @@
       }
     }
 
+    /* 查詢連結：桌機維持原本的並排文字連結（display: contents 讓包裝層不影響版面） */
+    .lookup-buttons {
+      display: contents;
+    }
+
+    .lookup-icon {
+      flex: none;
+    }
+
     /* 存圖備援：長按儲存 */
     .image-save-overlay {
       position: fixed;
@@ -4613,7 +4622,7 @@
         display: grid;
         min-height: 0;
         grid-template-columns: minmax(0, 1fr);
-        padding: 20px 16px 18px;
+        padding: 12px 16px 16px;
         text-align: center;
       }
 
@@ -4652,6 +4661,39 @@
 
       .brand-hero__eyebrow {
         display: none;
+      }
+
+      /* 面板標題與副標同一行：≤900px 那層把 .panel-head 改成直排了 */
+      .panel-head {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 8px;
+      }
+
+      /* 兩個查詢連結改成並排按鈕 */
+      .lookup-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .lookup-links .lookup-buttons a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 42px;
+        padding: 0 8px;
+        border: 1px solid rgba(16, 39, 56, .18);
+        border-bottom-color: rgba(16, 39, 56, .18);
+        border-radius: 8px;
+        background: #fff;
+        font-size: .72rem;
+        line-height: 1.25;
+        text-align: center;
       }
 
       .brand-hero__badge {
@@ -4912,8 +4954,10 @@
             </div>
             <div class="lookup-links field wide" aria-label="土地稅務查詢連結">
               <span>查完資料後再回填：</span>
-              <a href="https://weslywei1984-glitch.github.io/real-estate-calculator/tainan-land-value-helper.html" target="_blank" rel="noreferrer">查土地公告現值</a>
-              <a href="https://weslywei1984-glitch.github.io/real-estate-calculator/land-increment-total.html" target="_blank" rel="noreferrer">查土地漲價總數額</a>
+              <div class="lookup-buttons">
+                <a href="https://weslywei1984-glitch.github.io/real-estate-calculator/tainan-land-value-helper.html" target="_blank" rel="noreferrer"><svg class="lookup-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>查土地公告現值</a>
+                <a href="https://weslywei1984-glitch.github.io/real-estate-calculator/land-increment-total.html" target="_blank" rel="noreferrer"><svg class="lookup-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18 10 11l4 4 6-8"/><path d="M20 7h-4.5M20 7v4.5"/></svg>查土地漲價總數額</a>
+              </div>
             </div>
             <div class="field">
               <label for="holdingYears">持有年數</label>
@@ -4976,7 +5020,7 @@
     <section class="workspace hidden" data-panel="buyer">
       <form class="panel" id="buyerForm">
         <div class="panel-head">
-          <h2>買方現金需求</h2>
+          <h2>買方所需費用</h2>
           <span class="note">稅費、規費與常見代辦費</span>
         </div>
         <div class="section">
@@ -5028,7 +5072,7 @@
             </div>
             <div class="lookup-links field wide" aria-label="土地公告地價查詢連結">
               <span>查完土地資料後回填上面兩格：</span>
-              <a href="https://easymap.land.moi.gov.tw/" target="_blank" rel="noreferrer">查土地公告現值／公告地價</a>
+              <a href="https://land-query.tainan.gov.tw/query/rwd/valueprice.jsp?menu=false" target="_blank" rel="noreferrer">查土地公告現值／公告地價</a>
             </div>
             <div class="field">
               <label for="scrivenerTransfer">移轉登記地政士費</label>

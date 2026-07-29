@@ -206,6 +206,29 @@ test("房地合一稅欄位預設為 0，且移除兩個套用範例", () => {
   assert.doesNotMatch(html, /data-reset="loan"/);
 });
 
+test("買方面板標題改為買方所需費用", () => {
+  assert.match(html, /<h2>買方所需費用<\/h2>/);
+  assert.doesNotMatch(html, /<h2>買方現金需求<\/h2>/);
+});
+
+test("手機的面板副標與標題同一行、查詢連結變並排按鈕", () => {
+  const marker = html.indexOf("/* Hero banner：把「開始試算」變成視覺主角 */");
+  const css = html.slice(marker, html.indexOf("</style>", marker));
+
+  // ≤900px 那層把 .panel-head 改成直排，手機要轉回同一行
+  assert.match(css, /\.panel-head\s*\{[^}]*flex-direction:\s*row/s);
+  // 桌機用 display: contents 讓包裝層不影響原本的文字連結版面
+  assert.match(html, /\.lookup-buttons\s*\{\s*display:\s*contents;\s*\}/);
+  assert.match(css, /\.lookup-buttons\s*\{[^}]*grid-template-columns:\s*1fr 1fr/s);
+  assert.match(html, /<svg class="lookup-icon"/);
+});
+
+test("土地查詢連結指向台南市公告土地現值及公告地價", () => {
+  // 舊的 easymap.land.moi.gov.tw 會轉到地籍圖首頁，頁面沒有地價資訊
+  assert.doesNotMatch(html, /easymap\.land\.moi\.gov\.tw/);
+  assert.match(html, /href="https:\/\/land-query\.tainan\.gov\.tw\/query\/rwd\/valueprice\.jsp\?menu=false"/);
+});
+
 test("抵押權設定倍率改為 1.2 或不設定兩個選項", () => {
   assert.match(html, /data-chip-input="mortgageSettingRatio"/);
   assert.match(html, /class="chip" data-value="1\.2">1\.2 倍<\/button>/);
