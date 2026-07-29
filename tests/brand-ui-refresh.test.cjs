@@ -169,6 +169,15 @@ test("不可用 .brand-hero > * 疊 position", () => {
   assert.doesNotMatch(css, /\.brand-hero > \*\s*\{[^}]*position:/s);
 });
 
+test("圖片摘要要收錄區塊內的每一組金額", () => {
+  // 寬限期前後月付併在同一張卡，querySelector 只抓第一組會整組漏掉
+  assert.doesNotMatch(html, /const headline = block\.querySelector\(":scope > strong"\)/);
+  assert.match(html, /\[\.\.\.block\.children\]\.forEach\(child => \{[\s\S]*?child\.tagName === "STRONG"/);
+  // 只有說明文字的區塊（青安＋一般房貸拆分）也要留下
+  assert.match(html, /const note = block\.querySelector\(":scope > \.policy-note"\)/);
+  assert.match(html, /parts\.push\(`※ \$\{note\}`\)/);
+});
+
 test("存成圖片在手機要走系統分享面板", () => {
   // a[download] 在 LINE 內建瀏覽器（iOS WKWebView）會被忽略，檔案存不進相簿
   assert.match(html, /const isTouch = window\.matchMedia\("\(pointer: coarse\)"\)\.matches/);

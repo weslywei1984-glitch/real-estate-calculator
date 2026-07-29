@@ -6482,10 +6482,29 @@
           if (headline) parts.push(`■ ${headline}`, ...rows);
           return;
         }
-        const label = block.querySelector(":scope > span")?.textContent.trim();
-        const headline = block.querySelector(":scope > strong")?.textContent.trim();
-        if (label && headline) parts.push(`■ ${label}：${headline}`, ...rows);
-        else if (label && rows.length) parts.push(`■ ${label}`, ...rows);
+        // 一個區塊可能有多組「標籤＋金額」（例如寬限期前後月付併在同一張卡），
+        // 用 querySelector 只會抓到第一組，後面的會整組漏掉
+        const heads = [];
+        let pendingLabel = null;
+        [...block.children].forEach(child => {
+          if (child.tagName === "SPAN") {
+            if (pendingLabel) heads.push(`■ ${pendingLabel}`);
+            pendingLabel = child.textContent.trim();
+          } else if (child.tagName === "STRONG") {
+            const value = child.textContent.trim();
+            heads.push(pendingLabel ? `■ ${pendingLabel}：${value}` : `■ ${value}`);
+            pendingLabel = null;
+          }
+        });
+        if (pendingLabel && rows.length) heads.push(`■ ${pendingLabel}`);
+
+        if (heads.length) {
+          parts.push(...heads, ...rows);
+          return;
+        }
+        // 只有說明文字的區塊（例如青安＋一般房貸的拆分說明）也要留下
+        const note = block.querySelector(":scope > .policy-note")?.textContent.trim();
+        if (note) parts.push(`※ ${note}`);
       });
       return parts;
     }
