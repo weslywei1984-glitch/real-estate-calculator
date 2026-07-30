@@ -1038,11 +1038,17 @@
 
       .hero {
         gap: 12px;
+        /* 基準層的 min-height: 310px 沒被覆寫，手機的框才會空一大塊 */
+        min-height: auto;
       }
 
       .hero-main {
         min-height: auto;
-        padding: 20px;
+        padding: 16px 14px;
+      }
+
+      .hero-content {
+        gap: 12px;
       }
 
       .lead {
@@ -1081,10 +1087,11 @@
         width: 100%;
       }
 
-      /* 頁首兩顆連結並排等寬、縮小一級 */
+      /* 頁首連結：移除官方查詢後只剩一顆，用 auto-fit 讓一顆時佔滿、
+         兩顆時自動並排等寬 */
       .hero-actions {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
         gap: 8px;
       }
 
@@ -1183,7 +1190,6 @@
           <h1><span>用地號查詢公告現值</span><span class="title-subline">簡易三步驟</span></h1>
           <p class="lead">先整理地號格式，系統會帶入 115 年公告現值；前次移轉現值可由客戶提供後換算。</p>
           <div class="hero-actions">
-            <a class="btn primary" href="https://land-query.tainan.gov.tw/query/rwd/valueprice.jsp?menu=false" target="_blank" rel="noreferrer">開啟官方地價查詢</a>
             <a class="btn soft" href="https://land-query.tainan.gov.tw/query/rwd/valueprice_addr.jsp?menu=false" target="_blank" rel="noreferrer">只有門牌先查地號</a>
           </div>
         </div>
