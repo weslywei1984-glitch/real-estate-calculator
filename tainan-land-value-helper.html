@@ -1081,6 +1081,22 @@
         width: 100%;
       }
 
+      /* 頁首兩顆連結並排等寬、縮小一級 */
+      .hero-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .hero-actions .btn {
+        width: auto;
+        min-height: 42px;
+        padding: 0 10px;
+        font-size: .82rem;
+        line-height: 1.25;
+        text-align: center;
+      }
+
       .section {
         padding: 14px;
       }
@@ -1101,6 +1117,12 @@
         text-align: center;
         font-size: clamp(1.45rem, 9vw, 2rem);
       }
+    }
+
+    /* 公告現值改成顯示卡後，原輸入列要真的藏起來
+       （.control 有 display: flex，單靠 hidden 屬性壓不住） */
+    .field .control[hidden] {
+      display: none;
     }
 
     /* 浮動聯絡列：原本的聯絡資訊區塊移除後，這裡是唯一的聯絡入口，
@@ -1528,6 +1550,25 @@
     const currentValueField = document.querySelector("#currentValue")?.closest(".field");
     currentValueField?.classList.add("land-value-field");
     document.querySelector("#previousValue")?.closest(".field")?.classList.add("land-value-field", "transfer-value-field");
+    // 公告現值改成和公告地價一樣的顯示卡：輸入框保留在 DOM 當作計算來源
+    // （多處邏輯、localStorage 與查詢帶入都靠 els.currentValue.value），只是不再讓人手動輸入
+    if (currentValueField && !document.getElementById("currentValueBox")) {
+      const currentBox = document.createElement("div");
+      currentBox.className = "announced-price-card";
+      currentBox.id = "currentValueBox";
+      currentBox.innerHTML = `
+        <span>公告現值</span>
+        <strong id="currentValueOut">目前資料未提供</strong>
+        <small>按「查詢資料」後會自動帶入 115 年公告現值。</small>
+      `;
+      const currentControl = currentValueField.querySelector(".control");
+      if (currentControl) currentControl.hidden = true;
+      currentValueField.querySelector(".hint")?.remove();
+      currentValueField.querySelector("label")?.remove();
+      currentValueField.insertBefore(currentBox, currentValueField.firstChild);
+      els.currentValueBox = currentBox;
+      els.currentValueOut = currentBox.querySelector("#currentValueOut");
+    }
     if (currentValueField && !document.getElementById("announcedLandPriceBox")) {
       const announcedBox = document.createElement("div");
       announcedBox.className = "announced-price-card";
@@ -1683,6 +1724,12 @@
       const price = cleanNumber(value);
       els.announcedLandPriceOut.textContent = price ? `${number.format(price)} 元/m²` : "目前資料未提供";
       els.announcedLandPriceBox.hidden = false;
+    }
+
+    function syncCurrentValueCard() {
+      if (!els.currentValueOut) return;
+      const price = cleanNumber(els.currentValue.value);
+      els.currentValueOut.textContent = price ? `${number.format(price)} 元/m²` : "目前資料未提供";
     }
 
     function hideAnnouncedLandPrice() {
@@ -2159,6 +2206,7 @@
     }
 
     function update() {
+      syncCurrentValueCard();
       const area = cleanNumber(els.areaSqm.value);
       const ping = cleanNumber(els.areaPing.value) || (area ? area / 3.3058 : 0);
       const current = cleanNumber(els.currentValue.value);
