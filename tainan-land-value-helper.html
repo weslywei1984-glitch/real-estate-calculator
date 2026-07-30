@@ -1061,11 +1061,39 @@
         border-radius: 7px;
       }
 
-      .form-grid,
       .explain-grid,
       .query-result-grid,
       .status-strip {
         grid-template-columns: 1fr;
+      }
+
+      /* 行政區／小段名、地號母號／子號、土地面積／坪數各自成一行兩格。
+         公告現值、前次移轉現值、查詢按鈕與狀態列仍佔滿整行 */
+      .form-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .form-grid > .land-value-field {
+        grid-column: 1 / -1;
+      }
+
+      /* 兩欄後欄位變窄，這幾行說明會擠成三四行，反而干擾閱讀 */
+      .form-grid > .field:has(#mainNo) > .hint,
+      .form-grid > .field:has(#subNo) > .hint,
+      .form-grid > .field:has(#areaSqm) > .hint,
+      .form-grid > .field:has(#areaPing) > .hint {
+        display: none;
+      }
+
+      /* 參考來源：每句話各自一行 */
+      .sources .source-line {
+        display: block;
+        margin-top: 4px;
+      }
+
+      .sources .source-line:first-of-type {
+        margin-top: 0;
       }
 
       .panel-head {
@@ -1458,14 +1486,10 @@
     </div>
 
     <section class="sources">
-      參考來源：
-      <a href="https://land-query.tainan.gov.tw/query/rwd/valueprice.jsp?menu=false" target="_blank" rel="noreferrer">台南市公告土地現值及公告地價查詢</a>、
-      <a href="https://land-query.tainan.gov.tw/query/rwd/valueprice_addr.jsp?menu=false" target="_blank" rel="noreferrer">台南市公告土地現值門牌查詢</a>。
-      小段名下拉選單整理自
-      <a href="https://odportal.tw/dataset/RU2UWnsf" target="_blank" rel="noreferrer">臺南市土地地段代碼表</a>。
-      自動帶入的每平方公尺公告現值整理自
-      <a href="https://data.tainan.gov.tw/DataSet/Detail/67c6a4e2-a280-4922-94d4-d25b0fbad0f3" target="_blank" rel="noreferrer">115年臺南市公告土地現值表</a>。
-      本頁固定查詢 115 年當期資料，官方頁面說明地號母子號各 4 碼。
+      <span class="source-line">參考來源：<a href="https://land-query.tainan.gov.tw/query/rwd/valueprice.jsp?menu=false" target="_blank" rel="noreferrer">台南市公告土地現值及公告地價查詢</a>、<a href="https://land-query.tainan.gov.tw/query/rwd/valueprice_addr.jsp?menu=false" target="_blank" rel="noreferrer">台南市公告土地現值門牌查詢</a>。</span>
+      <span class="source-line">小段名下拉選單整理自 <a href="https://odportal.tw/dataset/RU2UWnsf" target="_blank" rel="noreferrer">臺南市土地地段代碼表</a>。</span>
+      <span class="source-line">自動帶入的每平方公尺公告現值整理自 <a href="https://data.tainan.gov.tw/DataSet/Detail/67c6a4e2-a280-4922-94d4-d25b0fbad0f3" target="_blank" rel="noreferrer">115年臺南市公告土地現值表</a>。</span>
+      <span class="source-line">本頁固定查詢 115 年當期資料，官方頁面說明地號母子號各 4 碼。</span>
     </section>
   </main>
 
