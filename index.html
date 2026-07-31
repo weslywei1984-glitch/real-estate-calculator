@@ -4898,6 +4898,25 @@
       display: none;
     }
 
+    .sources-list {
+      display: inline;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+.source-item {
+  display: inline;
+}
+
+.source-item__body {
+  display: inline;
+}
+
+    .source-item:not(:last-child)::after {
+      content: "；";
+    }
+
     @media (max-width: 620px) {
       /* Mobile-only Consultant B visuals */
       :root {
@@ -5407,6 +5426,41 @@
 
       .float-contact__btn {
         background: var(--consultant-terracotta);
+      }
+
+      .sources {
+        display: grid;
+        gap: 10px;
+      }
+
+      .sources-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .source-item {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 4px 8px;
+        align-items: start;
+        line-height: 1.65;
+      }
+
+      .source-item::before {
+        content: "•";
+        grid-column: 1;
+        color: var(--consultant-terracotta);
+        font-weight: 900;
+      }
+
+      .source-item__body {
+        display: inline;
+        grid-column: 2;
+        overflow-wrap: anywhere;
+      }
+
+      .source-item:not(:last-child)::after {
+        content: none;
       }
     }
 
@@ -6031,17 +6085,39 @@
 
     <section class="sources">
       <b>計算依據：</b>
-      房地合一稅基與自住房地優惠參考
-      <a href="https://www.mof.gov.tw/houseandland/multiplehtml/de144e74630c4ac59f2d84a068c889c9" target="_blank" rel="noreferrer">財政部房地合一稅制設計</a>；
-      買方常見費用參考
-      <a href="https://land.yunlin.gov.tw/cp.aspx?n=540" target="_blank" rel="noreferrer">雲林縣政府地政處／內政部不動產交易服務網資料</a>；
-      契稅按契價計算與買賣稅率 6% 參考
-      <a href="https://www.tycg.gov.tw/NewsPage_Content.aspx?n=7&s=1598159&sms=7882" target="_blank" rel="noreferrer">桃園市政府地方稅務局</a>；
-      抵押權設定登記規費參考
-      <a href="https://land.kinmen.gov.tw/Service/faq_more?id=e747821184c841a9ab225bed07212a98" target="_blank" rel="noreferrer">金門縣地政局登記規費說明</a>；
-      青安貸款 3.0 額度、房價、年齡、所得與 3＋3 年利息補貼參考
-      <a href="https://www.ey.gov.tw/Page/448DE008087A1971/1cb37b62-d127-4876-9cce-95016f49bcbe" target="_blank" rel="noreferrer">行政院青安貸款 3.0 正式方案</a>及
-      <a href="https://www.ey.gov.tw/File/22AD2750D5B3A97?A=C" target="_blank" rel="noreferrer">行政院方案說明 PDF</a>。
+      <ul class="sources-list">
+        <li class="source-item">
+          <span class="source-item__body">
+            房地合一稅基與自住房地優惠參考
+            <a href="https://www.mof.gov.tw/houseandland/multiplehtml/de144e74630c4ac59f2d84a068c889c9" target="_blank" rel="noreferrer">財政部房地合一稅制設計</a>
+          </span>
+        </li>
+        <li class="source-item">
+          <span class="source-item__body">
+            買方常見費用參考
+            <a href="https://land.yunlin.gov.tw/cp.aspx?n=540" target="_blank" rel="noreferrer">雲林縣政府地政處／內政部不動產交易服務網資料</a>
+          </span>
+        </li>
+        <li class="source-item">
+          <span class="source-item__body">
+            契稅按契價計算與買賣稅率 6% 參考
+            <a href="https://www.tycg.gov.tw/NewsPage_Content.aspx?n=7&s=1598159&sms=7882" target="_blank" rel="noreferrer">桃園市政府地方稅務局</a>
+          </span>
+        </li>
+        <li class="source-item">
+          <span class="source-item__body">
+            抵押權設定登記規費參考
+            <a href="https://land.kinmen.gov.tw/Service/faq_more?id=e747821184c841a9ab225bed07212a98" target="_blank" rel="noreferrer">金門縣地政局登記規費說明</a>
+          </span>
+        </li>
+        <li class="source-item">
+          <span class="source-item__body">
+            青安貸款 3.0 額度、房價、年齡、所得與 3＋3 年利息補貼參考
+            <a href="https://www.ey.gov.tw/Page/448DE008087A1971/1cb37b62-d127-4876-9cce-95016f49bcbe" target="_blank" rel="noreferrer">行政院青安貸款 3.0 正式方案</a>及
+            <a href="https://www.ey.gov.tw/File/22AD2750D5B3A97?A=C" target="_blank" rel="noreferrer">行政院方案說明 PDF</a>
+          </span>
+        </li>
+      </ul>
     </section>
 
   </main>
