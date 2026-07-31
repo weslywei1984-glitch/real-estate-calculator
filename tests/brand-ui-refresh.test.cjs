@@ -8,7 +8,7 @@ const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
 test("品牌頁首使用可維護文字與透明人物素材", () => {
   assert.match(html, /<header class="brand-hero">/);
   // 標題後半在手機會上強調色，所以包了 span
-  assert.match(html, /<h1>房地稅費與<span class="brand-hero__accent">貸款試算<\/span><\/h1>/);
+  assert.match(html, /<h1><span class="brand-hero__title-line">[^<]+<\/span><span class="brand-hero__title-line brand-hero__title-line--accent">[^<]+<\/span><\/h1>/);
   assert.match(html, /src="assets\/xiaowei-profile\.png"/);
   assert.doesNotMatch(html, /class="hero-art"/);
 });

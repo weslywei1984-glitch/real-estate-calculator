@@ -5215,10 +5215,11 @@
       }
 
       .brand-hero {
-        min-height: 150px;
-        max-height: none;
-        grid-template-columns: minmax(0, 1fr) 108px;
-        padding: 14px 14px 12px;
+        height: 190px;
+        min-height: 190px;
+        max-height: 190px;
+        grid-template-columns: minmax(0, 1fr) 145px;
+        padding: 18px 16px;
         text-align: left;
       }
 
@@ -5226,8 +5227,9 @@
         z-index: 2;
         display: grid;
         align-content: center;
+        width: 66%;
         max-width: none;
-        padding: 0 86px 0 0;
+        padding: 0;
         text-align: left;
       }
 
@@ -5241,45 +5243,76 @@
       .brand-hero__badge {
         display: inline-flex;
         justify-self: start;
-        margin: 0 0 8px;
+        margin: 0 0 15px;
         padding: 5px 10px;
         font-size: .68rem;
       }
 
       .brand-hero h1 {
+        display: grid;
         justify-self: start;
+        gap: 4px;
         max-width: none;
-        font-size: clamp(1.28rem, 5.7vw, 1.42rem);
+        margin: 0;
+        font-size: 1.7rem;
+        line-height: 1.02;
         letter-spacing: -.04em;
-        white-space: nowrap;
+        white-space: normal;
+      }
+
+      .brand-hero__title-line {
+        display: block;
+        color: #fffaf0;
+      }
+
+      .brand-hero__title-line--accent {
+        color: var(--consultant-terracotta);
+        font-size: 1.12em;
       }
 
       .brand-hero__notice {
         display: block;
-        max-width: 225px;
-        margin: 9px 0 0;
-        font-size: .57rem;
-        line-height: 1.35;
+        max-width: 155px;
+        margin: 10px 0 0;
+        font-size: .61rem;
+        line-height: 1.45;
       }
 
       .brand-hero__portrait {
         position: absolute;
-        right: 12px;
+        right: 4px;
         bottom: 0;
-        width: 120px;
-        height: 148px;
+        width: 145px;
+        height: 186px;
       }
 
       .brand-hero__profile {
         width: auto;
-        height: 146px;
-        max-width: 120px;
+        height: 186px;
+        max-width: 145px;
         padding: 0;
         border: 0;
         border-radius: 0;
         background: transparent;
         object-fit: contain;
         object-position: center bottom;
+      }
+
+      @media (max-width: 360px) {
+        .brand-hero h1 {
+          font-size: 1.56rem;
+        }
+
+        .brand-hero__portrait {
+          right: 0;
+          width: 136px;
+          height: 180px;
+        }
+
+        .brand-hero__profile {
+          height: 180px;
+          max-width: 136px;
+        }
       }
 
       .tabs {
@@ -5485,7 +5518,7 @@
       <div class="brand-hero__content">
         <p class="brand-hero__eyebrow">TAINAN REAL ESTATE CALCULATOR</p>
         <p class="brand-hero__badge">台南小魏 買厝作伙</p>
-        <h1>房地稅費與<span class="brand-hero__accent">貸款試算</span></h1>
+        <h1><span class="brand-hero__title-line">房地稅費與</span><span class="brand-hero__title-line brand-hero__title-line--accent">貸款試算</span></h1>
         <p class="brand-hero__lead">房地合一稅、買方稅費、貸款月付與可負擔總價，一次整理成看得懂的數字。</p>
 
         <div class="brand-hero__actions">

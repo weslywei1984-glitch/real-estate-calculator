@@ -84,7 +84,7 @@ test("mobile mode hides inactive steps and keeps controls touch sized", () => {
 test("mobile hero uses the approved two-line editorial title", () => {
   assert.match(
     html,
-    /<h1><span class="brand-hero__title-line">?踹蝔祥<\/span><span class="brand-hero__title-line brand-hero__title-line--accent">鞎豢狡閰衣?<\/span><\/h1>/
+    /<h1><span class="brand-hero__title-line">房地稅費與<\/span><span class="brand-hero__title-line brand-hero__title-line--accent">貸款試算<\/span><\/h1>/
   );
 
   const mobile = mobileConsultantCss();
