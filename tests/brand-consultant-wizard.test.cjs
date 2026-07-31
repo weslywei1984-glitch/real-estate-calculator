@@ -98,6 +98,7 @@ test("mobile editorial portrait has explicit default and narrow sizes", () => {
   assert.match(mobile, /\.brand-hero__portrait\s*\{[^}]*right:\s*4px[^}]*width:\s*145px[^}]*height:\s*186px/s);
   assert.match(mobile, /\.brand-hero__profile\s*\{[^}]*height:\s*186px[^}]*max-width:\s*145px/s);
   assert.match(mobile, /@media \(max-width:\s*360px\)[\s\S]*\.brand-hero__portrait\s*\{[^}]*right:\s*0[^}]*width:\s*136px[^}]*height:\s*180px/s);
+  assert.doesNotMatch(mobile, /@media \(max-width:\s*360px\)[\s\S]*\.brand-hero\s*\{[^}]*height:/s);
 });
 
 test("changing mobile steps returns the wizard header to view", () => {
