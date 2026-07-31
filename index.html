@@ -4892,7 +4892,15 @@
     }
 
     /* Consultant B wizard theme */
-    :root {
+    .wizard-mobile-head,
+    .wizard-mobile-actions,
+    .wizard-result-actions {
+      display: none;
+    }
+
+    @media (max-width: 620px) {
+      /* Mobile-only Consultant B visuals */
+      :root {
       --consultant-cream: #f3ead7;
       --consultant-paper: #fffaf0;
       --consultant-navy: #102738;
@@ -5163,27 +5171,8 @@
       border-bottom-color: rgba(83, 98, 56, .4);
     }
 
-    .wizard-mobile-head,
-    .wizard-mobile-actions,
-    .wizard-result-actions {
-      display: none;
-    }
-
     .workspace.hidden {
       display: none;
-    }
-
-    @media (min-width: 901px) {
-      .workspace {
-        grid-template-columns: minmax(0, 1.38fr) minmax(360px, 1fr);
-        gap: 16px;
-      }
-
-      .workspace > aside.panel {
-        position: sticky;
-        top: 16px;
-        align-self: start;
-      }
     }
 
     @media (max-width: 900px) {
@@ -5432,6 +5421,7 @@
       button {
         transition: none !important;
       }
+    }
     }
   </style>
 </head>
