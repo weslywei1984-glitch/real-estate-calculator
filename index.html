@@ -5239,6 +5239,7 @@
       }
 
       .brand-hero h1 {
+        justify-self: start;
         max-width: none;
         font-size: clamp(1.28rem, 5.7vw, 1.42rem);
         letter-spacing: -.04em;
@@ -5291,6 +5292,7 @@
         display: grid;
         grid-column: 1 / -1;
         gap: 10px;
+        scroll-margin-top: 4.5rem;
         padding: 13px 14px;
         border: 1px solid var(--consultant-line);
         border-radius: 12px;
@@ -7094,7 +7096,7 @@
     let saveTimer;
 
     function saveInputs() {
-      const data = { __moneyUnitVersion: 2 };
+      const data = { __moneyUnitVersion: 2, __loanRatioUnitVersion: 2 };
       document.querySelectorAll("form input[id], form select[id]").forEach(el => {
         data[el.id] = el.type === "checkbox" ? el.checked : String(el.value || "").replace(/,/g, "");
       });
@@ -7119,6 +7121,7 @@
       }
       if (!data || typeof data !== "object") return;
       const moneyUnitVersion = Number(data.__moneyUnitVersion) || 1;
+      const loanRatioUnitVersion = Number(data.__loanRatioUnitVersion) || 1;
       Object.entries(data).forEach(([id, saved]) => {
         const el = document.getElementById(id);
         if (!el || !el.closest("form")) return;
@@ -7127,7 +7130,9 @@
         } else {
           const savedValue = moneyUnitVersion < 2 && el.dataset.moneyUnit === "wan"
             ? parseNumericValue(saved) / 10000
-            : saved;
+            : loanRatioUnitVersion < 2 && ["loanRatio", "loanLtvRatio"].includes(id) && parseNumericValue(saved) > 10
+              ? parseNumericValue(saved) / 10
+              : saved;
           el.value = savedValue;
         }
       });
@@ -7180,6 +7185,12 @@
       }
       if (options.focus && WIZARD_MOBILE_QUERY.matches) {
         title?.focus({ preventScroll: true });
+        const wizardHead = workspace.querySelector(".wizard-mobile-head");
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        wizardHead?.scrollIntoView({
+          block: "start",
+          behavior: reduceMotion ? "auto" : "smooth"
+        });
       }
     }
 

@@ -67,3 +67,30 @@ test("mobile mode hides inactive steps and keeps controls touch sized", () => {
   assert.match(css, /\[data-wizard-step\]:not\(\.is-wizard-active\)\s*\{[^}]*display:\s*none/s);
   assert.match(css, /\.wizard-mobile-actions button\s*\{[^}]*min-height:\s*44px/s);
 });
+
+test("mobile hero title starts inside the compact content column", () => {
+  const marker = html.lastIndexOf("/* Consultant B wizard theme */");
+  const css = html.slice(marker, html.indexOf("</style>", marker));
+  const mobile = css.slice(css.indexOf("@media (max-width: 620px)"));
+  assert.match(mobile, /\.brand-hero h1\s*\{[^}]*justify-self:\s*start/s);
+});
+
+test("changing mobile steps returns the wizard header to view", () => {
+  assert.match(html, /const wizardHead = workspace\.querySelector\("\.wizard-mobile-head"\)/);
+  assert.match(html, /wizardHead\?\.scrollIntoView\(\{\s*block:\s*"start"/);
+  assert.match(html, /prefers-reduced-motion:\s*reduce/);
+});
+
+test("mobile wizard header clears the sticky calculator tabs", () => {
+  const marker = html.lastIndexOf("/* Consultant B wizard theme */");
+  const css = html.slice(marker, html.indexOf("</style>", marker));
+  const mobile = css.slice(css.indexOf("@media (max-width: 620px)"));
+  assert.match(mobile, /\.wizard-mobile-head\s*\{[^}]*scroll-margin-top:\s*4\.5rem/s);
+});
+
+test("legacy percent-based loan ratios migrate to cheng units", () => {
+  assert.match(html, /__loanRatioUnitVersion:\s*2/);
+  assert.match(html, /const loanRatioUnitVersion = Number\(data\.__loanRatioUnitVersion\) \|\| 1/);
+  assert.match(html, /loanRatioUnitVersion < 2 && \["loanRatio", "loanLtvRatio"\]\.includes\(id\)/);
+  assert.match(html, /parseNumericValue\(saved\) > 10\s*\?\s*parseNumericValue\(saved\) \/ 10/);
+});
