@@ -88,6 +88,12 @@ test("mobile hero title starts inside the compact content column", () => {
   assert.match(mobile, /\.brand-hero h1\s*\{[^}]*justify-self:\s*start/s);
 });
 
+test("mobile hero portrait sits closer to the copy without changing desktop", () => {
+  const mobile = mobileConsultantCss();
+  assert.match(mobile, /\.brand-hero__portrait\s*\{[^}]*right:\s*12px[^}]*width:\s*120px[^}]*height:\s*148px/s);
+  assert.match(mobile, /\.brand-hero__profile\s*\{[^}]*height:\s*146px[^}]*max-width:\s*120px/s);
+});
+
 test("changing mobile steps returns the wizard header to view", () => {
   assert.match(html, /const wizardHead = workspace\.querySelector\("\.wizard-mobile-head"\)/);
   assert.match(html, /wizardHead\?\.scrollIntoView\(\{\s*block:\s*"start"/);
