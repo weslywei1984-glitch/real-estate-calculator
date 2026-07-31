@@ -1,0 +1,69 @@
+const test = require("node:test");
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+
+const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
+
+function workspace(name) {
+  const start = html.indexOf(`data-panel="${name}"`);
+  const next = html.indexOf('<section class="workspace', start + 1);
+  const sources = html.indexOf('<section class="sources"', start + 1);
+  const end = next > -1 ? next : sources;
+  assert.ok(start > -1 && end > start, `missing ${name} workspace`);
+  return html.slice(start, end);
+}
+
+test("Consultant B theme is the final visual layer", () => {
+  const marker = html.lastIndexOf("/* Consultant B wizard theme */");
+  assert.ok(marker > html.lastIndexOf("/* Compact tool layout redesign */"));
+  const css = html.slice(marker, html.indexOf("</style>", marker));
+  assert.match(css, /--consultant-cream:\s*#f3ead7/);
+  assert.match(css, /--consultant-navy:\s*#102738/);
+  assert.match(css, /--consultant-terracotta:\s*#b9502d/);
+});
+
+for (const name of ["tax", "buyer", "loan", "young"]) {
+  test(`${name} exposes one four-step wizard`, () => {
+    const section = workspace(name);
+    assert.match(section, new RegExp(`data-wizard="${name}"`));
+    for (const step of [1, 2, 3, 4]) {
+      assert.match(section, new RegExp(`data-wizard-step="${step}"`));
+    }
+    assert.match(section, /class="wizard-mobile-head"/);
+    assert.match(section, /data-wizard-back/);
+    assert.match(section, /data-wizard-next/);
+  });
+}
+
+test("wizard controller keeps presentation state separate from calculator data", () => {
+  assert.match(html, /const WIZARD_MOBILE_QUERY = window\.matchMedia\("\(max-width: 620px\)"\)/);
+  assert.match(html, /function setWizardStep\(workspace, nextIndex/);
+  assert.match(html, /function resetWizard\(workspace/);
+  assert.match(html, /function setupMobileWizards\(\)/);
+  assert.doesNotMatch(html, /localStorage\.setItem\([^)]*wizard/i);
+});
+
+test("wizard clamps steps, updates progress, and validates before next", () => {
+  assert.match(html, /Math\.max\(0,\s*Math\.min\(steps\.length - 1,\s*nextIndex\)\)/);
+  assert.match(html, /progress\.style\.width = `\$\{\(\(index \+ 1\) \/ steps\.length\) \* 100\}%`/);
+  assert.match(html, /function validateWizardStep\(workspace\)/);
+  assert.match(html, /field\.setCustomValidity\(/);
+  assert.match(html, /field\.getAttribute\("min"\)/);
+  assert.match(html, /field\.getAttribute\("max"\)/);
+  assert.match(html, /field\.checkValidity\(\)/);
+  assert.match(html, /field\.reportValidity\(\)/);
+});
+
+test("tab switch and clear return the mobile wizard to step one", () => {
+  assert.match(html, /resetWizard\(panel,\s*\{\s*focus:\s*false\s*\}\)/);
+  assert.match(html, /resetWizard\(button\.closest\("\[data-wizard\]"\)/);
+});
+
+test("mobile mode hides inactive steps and keeps controls touch sized", () => {
+  const marker = html.lastIndexOf("/* Consultant B wizard theme */");
+  const css = html.slice(marker, html.indexOf("</style>", marker));
+  assert.match(css, /@media \(max-width:\s*620px\)/);
+  assert.match(css, /\[data-wizard-step\]:not\(\.is-wizard-active\)\s*\{[^}]*display:\s*none/s);
+  assert.match(css, /\.wizard-mobile-actions button\s*\{[^}]*min-height:\s*44px/s);
+});
