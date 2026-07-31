@@ -4929,7 +4929,14 @@
       <button class="tab tab-young" type="button" data-tab="young" aria-selected="false">青安貸款 3.0</button>
     </nav>
 
-    <section class="workspace" data-panel="tax">
+    <section class="workspace" data-panel="tax" data-wizard="tax" data-wizard-current="0" data-wizard-titles='["成交資料","可扣除項目","適用條件","試算結果"]'>
+      <div class="wizard-mobile-head" aria-live="polite">
+        <div>
+          <span class="wizard-mobile-count">01 / 04</span>
+          <h2 class="wizard-mobile-title" tabindex="-1">成交資料</h2>
+        </div>
+        <div class="wizard-mobile-progress" aria-hidden="true"><span></span></div>
+      </div>
       <form class="panel" id="taxForm">
         <div class="panel-head">
           <h2>出售所得試算</h2>
@@ -4937,49 +4944,49 @@
         </div>
         <div class="section">
           <div class="form-grid">
-            <div class="field">
+            <div class="field" data-wizard-step="1">
               <label for="salePrice">出售成交價額</label>
               <div class="control">
                 <input id="salePrice" data-money-unit="wan" type="number" min="0" step="0.1" value="0">
                 <span class="unit">萬元</span>
               </div>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="1">
               <label for="buyCost">取得成本</label>
               <div class="control">
                 <input id="buyCost" data-money-unit="wan" type="number" min="0" step="0.1" value="0">
                 <span class="unit">萬元</span>
               </div>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="2">
               <label for="sellExpense">取得、改良與移轉費用</label>
               <div class="control">
                 <input id="sellExpense" type="number" min="0" step="1000" value="0">
                 <span class="unit">元</span>
               </div>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="2">
               <label for="landGain">土地漲價總數額</label>
               <div class="control">
                 <input id="landGain" type="number" min="0" step="1000" value="0">
                 <span class="unit">元</span>
               </div>
             </div>
-            <div class="lookup-links field wide" aria-label="土地稅務查詢連結">
+            <div class="lookup-links field wide" data-wizard-step="2" aria-label="土地稅務查詢連結">
               <span>查完資料後再回填：</span>
               <div class="lookup-buttons">
                 <a href="https://weslywei1984-glitch.github.io/real-estate-calculator/tainan-land-value-helper.html" target="_blank" rel="noreferrer"><svg class="lookup-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>查土地公告現值</a>
                 <a href="https://weslywei1984-glitch.github.io/real-estate-calculator/land-increment-total.html" target="_blank" rel="noreferrer"><svg class="lookup-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18 10 11l4 4 6-8"/><path d="M20 7h-4.5M20 7v4.5"/></svg>查土地漲價總數額</a>
               </div>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="1">
               <label for="holdingYears">持有年數</label>
               <div class="control">
                 <input id="holdingYears" type="number" min="0" step="0.1" value="0">
                 <span class="unit">年</span>
               </div>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="3">
               <label for="residentType">身分</label>
               <div class="control">
                 <select id="residentType">
@@ -4991,7 +4998,7 @@
             </div>
           </div>
 
-          <div class="checks">
+          <div class="checks" data-wizard-step="3">
             <label class="check-row">
               <input id="selfUseRegistered" type="checkbox">
               <span><b>本人、配偶或未成年子女設籍</b><span>出售前已在該房地辦竣戶籍登記，且不是只拿來投資或掛名。</span></span>
@@ -5014,7 +5021,7 @@
             </label>
           </div>
 
-          <div class="actions">
+          <div class="actions" data-wizard-step="3">
             <button class="primary" type="button" data-clear="tax">清空</button>
             <button class="secondary" type="button" data-copy="tax">複製結果</button>
             <button class="secondary" type="button" data-jpg="tax">存成圖片</button>
@@ -5022,15 +5029,31 @@
         </div>
       </form>
 
-      <aside class="panel">
+      <aside class="panel wizard-step" data-wizard-step="4">
         <div class="panel-head">
           <h2>試算結果</h2>
         </div>
         <div class="result-stack" id="taxResult"></div>
+        <div class="wizard-result-actions">
+          <button class="secondary" type="button" data-copy="tax">複製結果</button>
+          <button class="secondary" type="button" data-jpg="tax">存成圖片</button>
+          <button class="primary" type="button" data-clear="tax">重新試算</button>
+        </div>
       </aside>
+      <div class="wizard-mobile-actions">
+        <button type="button" class="secondary" data-wizard-back>上一步</button>
+        <button type="button" class="primary" data-wizard-next>下一步</button>
+      </div>
     </section>
 
-    <section class="workspace hidden" data-panel="buyer">
+    <section class="workspace hidden" data-panel="buyer" data-wizard="buyer" data-wizard-current="0" data-wizard-titles='["購屋條件","稅費基礎","其他費用","準備金結果"]'>
+      <div class="wizard-mobile-head" aria-live="polite">
+        <div>
+          <span class="wizard-mobile-count">01 / 04</span>
+          <h2 class="wizard-mobile-title" tabindex="-1">購屋條件</h2>
+        </div>
+        <div class="wizard-mobile-progress" aria-hidden="true"><span></span></div>
+      </div>
       <form class="panel" id="buyerForm">
         <div class="panel-head">
           <h2>買方所需費用</h2>
@@ -5038,28 +5061,28 @@
         </div>
         <div class="section">
           <div class="form-grid">
-            <div class="field">
+            <div class="field" data-wizard-step="1">
               <label for="purchasePrice">買賣成交總價</label>
               <div class="control">
                 <input id="purchasePrice" data-money-unit="wan" type="number" min="0" step="0.1" value="1500">
                 <span class="unit">萬元</span>
               </div>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="1">
               <label for="loanRatio">預估貸款成數</label>
               <div class="control">
                 <input id="loanRatio" type="number" min="0" max="10" step="0.1" value="8">
                 <span class="unit">成</span>
               </div>
             </div>
-            <div class="field down-payment-field">
+            <div class="field down-payment-field" data-wizard-step="1">
               <label for="buyerDownPayment">自備款</label>
               <div class="control">
                 <input id="buyerDownPayment" data-money-unit="wan" type="number" min="0" step="0.1" value="300">
                 <span class="unit">萬元</span>
               </div>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="2">
               <label>抵押權設定金額倍率</label>
               <div class="chip-group chip-quick-row" data-chip-input="mortgageSettingRatio" role="group" aria-label="抵押權設定金額倍率">
                 <button type="button" class="chip" data-value="1.2">1.2 倍</button>
@@ -5067,7 +5090,7 @@
               </div>
               <input id="mortgageSettingRatio" type="hidden" value="1.2">
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="2">
               <label for="buildingValue">房屋評定現值／契價</label>
               <div class="control">
                 <input id="buildingValue" type="number" min="0" step="1000" value="1000000">
@@ -5075,7 +5098,7 @@
               </div>
               <div class="field-note">填房屋稅單的「課稅現值」，下面自動算契稅</div>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="2">
               <label for="landDeclaredValue">土地申報地價總額</label>
               <div class="control">
                 <input id="landDeclaredValue" type="number" min="0" step="1000" value="1800000">
@@ -5083,60 +5106,60 @@
               </div>
               <div class="field-note">填公告地價 × 持有面積(m²)，下面自動算買賣登記規費</div>
             </div>
-            <div class="lookup-links field wide" aria-label="土地公告地價查詢連結">
+            <div class="lookup-links field wide" data-wizard-step="2" aria-label="土地公告地價查詢連結">
               <span>查完土地資料後回填上面兩格：</span>
               <a href="https://land-query.tainan.gov.tw/query/rwd/valueprice.jsp?menu=false" target="_blank" rel="noreferrer">查土地公告現值／公告地價</a>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="3">
               <label for="scrivenerTransfer">移轉登記地政士費</label>
               <div class="control">
                 <input id="scrivenerTransfer" type="number" min="0" step="500" value="10000">
                 <span class="unit">元</span>
               </div>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="3">
               <label for="scrivenerLoan">貸款設定地政士費</label>
               <div class="control">
                 <input id="scrivenerLoan" type="number" min="0" step="500" value="4000">
                 <span class="unit">元</span>
               </div>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="3">
               <label for="signingFee">簽約執筆費</label>
               <div class="control">
                 <input id="signingFee" type="number" min="0" step="100" value="1000">
                 <span class="unit">元</span>
               </div>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="3">
               <label for="bankFee">銀行徵信與開辦費</label>
               <div class="control">
                 <input id="bankFee" type="number" min="0" step="100" value="4300">
                 <span class="unit">元</span>
               </div>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="3">
               <label for="insuranceFee">火險與地震險</label>
               <div class="control">
                 <input id="insuranceFee" type="number" min="0" step="100" value="5000">
                 <span class="unit">元</span>
               </div>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="3">
               <label for="settlementFee">稅費、水電與管理費分攤</label>
               <div class="control">
                 <input id="settlementFee" type="number" min="0" step="100" value="10000">
                 <span class="unit">元</span>
               </div>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="3">
               <label for="transcriptCount">登記謄本張數</label>
               <div class="control">
                 <input id="transcriptCount" type="number" min="0" step="1" value="2">
                 <span class="unit">張</span>
               </div>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="3">
               <label for="certificateCount">權狀張數</label>
               <div class="control">
                 <input id="certificateCount" type="number" min="0" step="1" value="2">
@@ -5144,7 +5167,7 @@
               </div>
             </div>
           </div>
-          <div class="checks">
+          <div class="checks" data-wizard-step="3">
             <label class="check-row">
               <input id="buyerReplacementReminder" type="checkbox" checked>
               <span><b>提醒重購退稅</b><span>若賣舊屋後重購自住房地，或先買後賣，可以評估房地合一稅／土地增值稅重購退稅條件。符合四個條件者，不論先買後賣或先賣後買，二年內皆可申請重購退稅。</span></span>
@@ -5154,7 +5177,7 @@
               <span><b>可能適用舊制財產交易所得</b><span>105 年前持有的房屋出售屬於舊制財產交易所得，隔年五月個人綜合所得稅申報時需申報財產交易所得。</span></span>
             </label>
           </div>
-          <div class="actions">
+          <div class="actions" data-wizard-step="3">
             <button class="primary" type="button" data-clear="buyer">清空</button>
             <button class="secondary" type="button" data-reset="buyer">套用範例</button>
             <button class="secondary" type="button" data-copy="buyer">複製結果</button>
@@ -5163,15 +5186,31 @@
         </div>
       </form>
 
-      <aside class="panel">
+      <aside class="panel wizard-step" data-wizard-step="4">
         <div class="panel-head">
           <h2>試算結果</h2>
         </div>
         <div class="result-stack" id="buyerResult"></div>
+        <div class="wizard-result-actions">
+          <button class="secondary" type="button" data-copy="buyer">複製結果</button>
+          <button class="secondary" type="button" data-jpg="buyer">存成圖片</button>
+          <button class="primary" type="button" data-clear="buyer">重新試算</button>
+        </div>
       </aside>
+      <div class="wizard-mobile-actions">
+        <button type="button" class="secondary" data-wizard-back>上一步</button>
+        <button type="button" class="primary" data-wizard-next>下一步</button>
+      </div>
     </section>
 
-    <section class="workspace hidden" data-panel="loan">
+    <section class="workspace hidden" data-panel="loan" data-wizard="loan" data-wizard-current="0" data-wizard-titles='["貸款目標","貸款條件","還款設定","月付結果"]'>
+      <div class="wizard-mobile-head" aria-live="polite">
+        <div>
+          <span class="wizard-mobile-count">01 / 04</span>
+          <h2 class="wizard-mobile-title" tabindex="-1">貸款目標</h2>
+        </div>
+        <div class="wizard-mobile-progress" aria-hidden="true"><span></span></div>
+      </div>
       <form class="panel" id="loanForm">
         <div class="panel-head">
           <h2>房貸月付試算</h2>
@@ -5179,56 +5218,56 @@
         </div>
         <div class="section">
           <div class="form-grid">
-            <div class="field">
+            <div class="field" data-wizard-step="1">
               <label for="loanPurchasePrice">房屋成交總價</label>
               <div class="control">
                 <input id="loanPurchasePrice" data-money-unit="wan" type="number" min="0" step="0.1" value="1500">
                 <span class="unit">萬元</span>
               </div>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="1">
               <label for="loanLtvRatio">預估貸款成數</label>
               <div class="control">
                 <input id="loanLtvRatio" type="number" min="0" max="10" step="0.1" value="8">
                 <span class="unit">成</span>
               </div>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="1">
               <label for="loanAmount">貸款本金</label>
               <div class="control">
                 <input id="loanAmount" data-money-unit="wan" type="number" min="0" step="0.1" value="1200">
                 <span class="unit">萬元</span>
               </div>
             </div>
-            <div class="field down-payment-field">
+            <div class="field down-payment-field" data-wizard-step="1">
               <label for="loanDownPayment">自備款</label>
               <div class="control">
                 <input id="loanDownPayment" data-money-unit="wan" type="number" min="0" step="0.1" value="300">
                 <span class="unit">萬元</span>
               </div>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="2">
               <label for="annualRate">年利率</label>
               <div class="control">
                 <input id="annualRate" type="number" min="0" step="0.01" value="2.5">
                 <span class="unit">%</span>
               </div>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="2">
               <label for="loanYears">貸款年限</label>
               <div class="control">
                 <input id="loanYears" type="number" min="1" max="50" step="1" value="30">
                 <span class="unit">年</span>
               </div>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="2">
               <label for="graceYears">寬限期</label>
               <div class="control">
                 <input id="graceYears" type="number" min="0" max="10" step="1" value="0">
                 <span class="unit">年</span>
               </div>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="3">
               <label for="loanMode">還款方式</label>
               <div class="control">
                 <select id="loanMode">
@@ -5238,7 +5277,7 @@
                 <span class="unit">方式</span>
               </div>
             </div>
-            <div class="field">
+            <div class="field" data-wizard-step="3">
               <label for="extraPayment">每月額外還本</label>
               <div class="control">
                 <input id="extraPayment" type="number" min="0" step="1000" value="0">
@@ -5248,7 +5287,7 @@
           </div>
         </div>
 
-        <div class="section">
+        <div class="section" data-wizard-step="3">
           <h3 class="section-title">用薪水回推能買多少</h3>
           <div class="field salary-field">
             <label for="loanSalary">我每個月薪水（含獎金）<span class="field-hint">家庭一起買，可以填兩人加總</span></label>
@@ -5261,7 +5300,7 @@
           <div class="afford-card" id="loanAffordCard"></div>
         </div>
 
-        <div class="section">
+        <div class="section" data-wizard-step="3">
           <div class="actions">
             <button class="primary" type="button" data-clear="loan">清空</button>
             <button class="secondary" type="button" data-copy="loan">複製結果</button>
@@ -5270,15 +5309,31 @@
         </div>
       </form>
 
-      <aside class="panel">
+      <aside class="panel wizard-step" data-wizard-step="4">
         <div class="panel-head">
           <h2>試算結果</h2>
         </div>
         <div class="result-stack" id="loanResult"></div>
+        <div class="wizard-result-actions">
+          <button class="secondary" type="button" data-copy="loan">複製結果</button>
+          <button class="secondary" type="button" data-jpg="loan">存成圖片</button>
+          <button class="primary" type="button" data-clear="loan">重新試算</button>
+        </div>
       </aside>
+      <div class="wizard-mobile-actions">
+        <button type="button" class="secondary" data-wizard-back>上一步</button>
+        <button type="button" class="primary" data-wizard-next>下一步</button>
+      </div>
     </section>
 
-    <section class="workspace young-workspace hidden" data-panel="young">
+    <section class="workspace young-workspace hidden" data-panel="young" data-wizard="young" data-wizard-current="0" data-wizard-titles='["資格快篩","購屋與貸款","負擔評估","青安結果"]'>
+      <div class="wizard-mobile-head" aria-live="polite">
+        <div>
+          <span class="wizard-mobile-count">01 / 04</span>
+          <h2 class="wizard-mobile-title" tabindex="-1">資格快篩</h2>
+        </div>
+        <div class="wizard-mobile-progress" aria-hidden="true"><span></span></div>
+      </div>
       <form class="panel young-form" id="youngForm">
         <div class="young-hero">
           <div class="young-kicker">青安貸款 3.0 · 正式方案試算</div>
@@ -5292,7 +5347,7 @@
           </div>
         </div>
 
-        <div class="section young-step" data-step="1">
+        <div class="section young-step wizard-step" data-step="1" data-wizard-step="1">
           <div class="young-step-head">
             <span class="young-step-badge">①</span>
             <h3>資格快篩</h3>
@@ -5343,7 +5398,7 @@
           </div>
         </div>
 
-        <div class="section young-step" data-step="2">
+        <div class="section young-step wizard-step" data-step="2" data-wizard-step="2">
           <div class="young-step-head">
             <span class="young-step-badge">②</span>
             <h3>試算貸款</h3>
@@ -5398,7 +5453,7 @@
           </div>
         </div>
 
-        <div class="section young-step" data-step="3">
+        <div class="section young-step wizard-step" data-step="3" data-wizard-step="3">
           <div class="young-step-head">
             <span class="young-step-badge">③</span>
             <h3>負擔評估</h3>
@@ -5424,12 +5479,21 @@
         </div>
       </form>
 
-      <aside class="panel young-result-panel">
+      <aside class="panel young-result-panel wizard-step" data-wizard-step="4">
         <div class="panel-head">
           <h2>青安貸款 3.0 試算結果</h2>
         </div>
         <div class="result-stack" id="youngResult"></div>
+        <div class="wizard-result-actions">
+          <button class="secondary" type="button" data-copy="young">複製結果</button>
+          <button class="secondary" type="button" data-jpg="young">存成圖片</button>
+          <button class="primary" type="button" data-clear="young">重新試算</button>
+        </div>
       </aside>
+      <div class="wizard-mobile-actions">
+        <button type="button" class="secondary" data-wizard-back>上一步</button>
+        <button type="button" class="primary" data-wizard-next>下一步</button>
+      </div>
     </section>
 
     <section class="sources">
