@@ -92,6 +92,8 @@ test("mobile hero uses the approved two-line editorial title", () => {
   const heroHeights = [...mobile.matchAll(/\.brand-hero\s*\{([^}]*)\}/g)]
     .flatMap(([, declarations]) => [...declarations.matchAll(/(?<![-\w])height:\s*([^;\s}]+)/g)].map(([, height]) => height));
   assert.deepEqual([...new Set(heroHeights)], ["190px"]);
+  assert.match(mobile, /\.brand-hero__content\s*\{[^}]*width:\s*auto/s);
+  assert.doesNotMatch(mobile, /\.brand-hero__content\s*\{[^}]*width:\s*66%/s);
   assert.match(mobile, /\.brand-hero h1\s*\{[^}]*display:\s*grid[^}]*white-space:\s*normal/s);
   assert.match(mobile, /\.brand-hero__title-line--accent\s*\{[^}]*color:\s*var\(--consultant-terracotta\)/s);
 });
