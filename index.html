@@ -7086,7 +7086,11 @@
     let saveTimer;
 
     function saveInputs() {
-      const data = { __moneyUnitVersion: 2, __loanRatioUnitVersion: 2 };
+      const data = {
+        __moneyUnitVersion: 2,
+        __loanRatioUnitVersion: 2,
+        __annualRateDefaultVersion: 2
+      };
       document.querySelectorAll("form input[id], form select[id]").forEach(el => {
         data[el.id] = el.type === "checkbox" ? el.checked : String(el.value || "").replace(/,/g, "");
       });
@@ -7112,17 +7116,20 @@
       if (!data || typeof data !== "object") return;
       const moneyUnitVersion = Number(data.__moneyUnitVersion) || 1;
       const loanRatioUnitVersion = Number(data.__loanRatioUnitVersion) || 1;
+      const annualRateDefaultVersion = Number(data.__annualRateDefaultVersion) || 1;
       Object.entries(data).forEach(([id, saved]) => {
         const el = document.getElementById(id);
         if (!el || !el.closest("form")) return;
         if (el.type === "checkbox") {
           el.checked = Boolean(saved);
         } else {
-          const savedValue = moneyUnitVersion < 2 && el.dataset.moneyUnit === "wan"
-            ? parseNumericValue(saved) / 10000
-            : loanRatioUnitVersion < 2 && ["loanRatio", "loanLtvRatio"].includes(id) && parseNumericValue(saved) > 10
-              ? parseNumericValue(saved) / 10
-              : saved;
+          const savedValue = id === "annualRate" && annualRateDefaultVersion < 2
+            ? 2.5
+            : moneyUnitVersion < 2 && el.dataset.moneyUnit === "wan"
+              ? parseNumericValue(saved) / 10000
+              : loanRatioUnitVersion < 2 && ["loanRatio", "loanLtvRatio"].includes(id) && parseNumericValue(saved) > 10
+                ? parseNumericValue(saved) / 10
+                : saved;
           el.value = savedValue;
         }
       });
