@@ -6593,11 +6593,120 @@
       formatAllNumericInputs();
     }
 
+    const WIZARD_MOBILE_QUERY = window.matchMedia("(max-width: 620px)");
+
+    function wizardSteps(workspace) {
+      if (!workspace) return [];
+      return [...new Set(
+        [...workspace.querySelectorAll("[data-wizard-step]")]
+          .map(step => Number(step.dataset.wizardStep))
+          .filter(Number.isFinite)
+      )].sort((a, b) => a - b);
+    }
+
+    function setWizardStep(workspace, nextIndex, options = {}) {
+      if (!workspace) return;
+      const steps = wizardSteps(workspace);
+      if (!steps.length) return;
+      const index = Math.max(0, Math.min(steps.length - 1, nextIndex));
+      const activeStep = steps[index];
+      workspace.dataset.wizardCurrent = String(index);
+
+      workspace.querySelectorAll("[data-wizard-step]").forEach(step => {
+        const active = Number(step.dataset.wizardStep) === activeStep;
+        step.classList.toggle("is-wizard-active", active);
+        step.setAttribute("aria-hidden", WIZARD_MOBILE_QUERY.matches ? String(!active) : "false");
+      });
+
+      const titles = JSON.parse(workspace.dataset.wizardTitles || "[]");
+      const count = workspace.querySelector(".wizard-mobile-count");
+      const title = workspace.querySelector(".wizard-mobile-title");
+      const progress = workspace.querySelector(".wizard-mobile-progress span");
+      const back = workspace.querySelector("[data-wizard-back]");
+      const next = workspace.querySelector("[data-wizard-next]");
+      if (count) {
+        count.textContent = `${String(index + 1).padStart(2, "0")} / ${String(steps.length).padStart(2, "0")}`;
+      }
+      if (title) title.textContent = titles[index] || `步驟 ${index + 1}`;
+      if (progress) progress.style.width = `${((index + 1) / steps.length) * 100}%`;
+      if (back) {
+        back.disabled = index === 0;
+        back.textContent = index === steps.length - 1 ? "重新調整" : "上一步";
+      }
+      if (next) {
+        next.hidden = index === steps.length - 1;
+        next.textContent = index === steps.length - 2 ? "查看結果" : "下一步";
+      }
+      if (options.focus && WIZARD_MOBILE_QUERY.matches) {
+        title?.focus({ preventScroll: true });
+      }
+    }
+
+    function resetWizard(workspace, options = {}) {
+      setWizardStep(workspace, 0, options);
+    }
+
+    function validateWizardStep(workspace) {
+      const steps = wizardSteps(workspace);
+      const index = Number(workspace.dataset.wizardCurrent || 0);
+      const activeStep = steps[index];
+      const activeContainers = [...workspace.querySelectorAll(`[data-wizard-step="${activeStep}"]`)];
+      const fields = [...new Set(activeContainers.flatMap(container => [
+        ...(container.matches("input, select") ? [container] : []),
+        ...container.querySelectorAll("input:not([type=hidden]), select")
+      ]))];
+
+      for (const field of fields) {
+        field.setCustomValidity("");
+        if (field.dataset.numericInput === "true") {
+          const value = parseNumericValue(field.value);
+          const minAttr = field.getAttribute("min");
+          const maxAttr = field.getAttribute("max");
+          const min = minAttr === null ? null : Number(minAttr);
+          const max = maxAttr === null ? null : Number(maxAttr);
+          if ((min !== null && value < min) || (max !== null && value > max)) {
+            const range = min !== null && max !== null
+              ? `${number.format(min)}～${number.format(max)}`
+              : min !== null
+                ? `至少 ${number.format(min)}`
+                : `最多 ${number.format(max)}`;
+            field.setCustomValidity(`請輸入${range}`);
+          }
+        }
+        if (field.checkValidity()) continue;
+        field.reportValidity();
+        field.focus();
+        return false;
+      }
+      return true;
+    }
+
+    function setupMobileWizards() {
+      document.querySelectorAll("[data-wizard]").forEach(workspace => {
+        workspace.querySelector("[data-wizard-back]")?.addEventListener("click", () => {
+          const index = Number(workspace.dataset.wizardCurrent || 0);
+          setWizardStep(workspace, Math.max(0, index - 1), { focus: true });
+        });
+        workspace.querySelector("[data-wizard-next]")?.addEventListener("click", () => {
+          if (!validateWizardStep(workspace)) return;
+          const index = Number(workspace.dataset.wizardCurrent || 0);
+          setWizardStep(workspace, index + 1, { focus: true });
+        });
+        resetWizard(workspace, { focus: false });
+      });
+      WIZARD_MOBILE_QUERY.addEventListener("change", () => {
+        document.querySelectorAll("[data-wizard]").forEach(workspace => {
+          setWizardStep(workspace, Number(workspace.dataset.wizardCurrent || 0), { focus: false });
+        });
+      });
+    }
+
     setupNumericInputs();
     restoreInputs();
     setupChipGroups();
     setupWanHints();
     showInitialStates();
+    setupMobileWizards();
 
     function activateTab(name, options = {}) {
       const tab = document.querySelector(`.tab[data-tab="${name}"]`);
@@ -6608,6 +6717,8 @@
       document.querySelectorAll("[data-panel]").forEach(panel => {
         panel.classList.toggle("hidden", panel.dataset.panel !== name);
       });
+      const panel = document.querySelector(`[data-panel="${name}"]`);
+      resetWizard(panel, { focus: false });
       if (options.updateHash !== false) {
         history.replaceState(null, "", `#${name}`);
       }
@@ -6652,7 +6763,10 @@
     });
 
     document.querySelectorAll("[data-clear]").forEach(button => {
-      button.addEventListener("click", () => clearGroup(button.dataset.clear));
+      button.addEventListener("click", () => {
+        clearGroup(button.dataset.clear);
+        resetWizard(button.closest("[data-wizard]"), { focus: false });
+      });
     });
 
     const summaryTitles = {
