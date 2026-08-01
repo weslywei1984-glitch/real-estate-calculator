@@ -81,28 +81,28 @@ test("mobile mode hides inactive steps and keeps controls touch sized", () => {
   assert.match(css, /\.wizard-mobile-actions button\s*\{[^}]*min-height:\s*44px/s);
 });
 
-test("mobile hero uses the approved two-line editorial title", () => {
+test("mobile hero uses the approved reference-banner composition", () => {
   assert.match(
     html,
     /<h1><span class="brand-hero__title-line">房地稅費與<\/span><span class="brand-hero__title-line brand-hero__title-line--accent">貸款試算<\/span><\/h1>/
   );
 
   const mobile = mobileConsultantCss();
-  assert.match(mobile, /\.brand-hero\s*\{[^}]*height:\s*190px/s);
-  const heroHeights = [...mobile.matchAll(/\.brand-hero\s*\{([^}]*)\}/g)]
-    .flatMap(([, declarations]) => [...declarations.matchAll(/(?<![-\w])height:\s*([^;\s}]+)/g)].map(([, height]) => height));
-  assert.deepEqual([...new Set(heroHeights)], ["190px"]);
+  assert.match(mobile, /\.brand-hero\s*\{[^}]*height:\s*216px[^}]*min-height:\s*216px[^}]*max-height:\s*216px/s);
   assert.match(mobile, /\.brand-hero__content\s*\{[^}]*width:\s*auto/s);
   assert.doesNotMatch(mobile, /\.brand-hero__content\s*\{[^}]*width:\s*66%/s);
   assert.match(mobile, /\.brand-hero h1\s*\{[^}]*display:\s*grid[^}]*white-space:\s*normal/s);
   assert.match(mobile, /\.brand-hero__title-line--accent\s*\{[^}]*color:\s*var\(--consultant-terracotta\)/s);
+  assert.match(mobile, /\.brand-hero__notice\s*\{[^}]*border-top:\s*2px solid var\(--consultant-terracotta\)/s);
+  assert.match(mobile, /@media \(max-width:\s*360px\)[\s\S]*\.brand-hero\s*\{[^}]*height:\s*206px[^}]*min-height:\s*206px[^}]*max-height:\s*206px/s);
 });
 
 test("mobile editorial portrait has explicit default and narrow sizes", () => {
   const mobile = mobileConsultantCss();
-  assert.match(mobile, /\.brand-hero__portrait\s*\{[^}]*right:\s*4px[^}]*width:\s*145px[^}]*height:\s*186px/s);
-  assert.match(mobile, /\.brand-hero__profile\s*\{[^}]*height:\s*186px[^}]*max-width:\s*145px/s);
-  assert.match(mobile, /@media \(max-width:\s*360px\)[\s\S]*\.brand-hero__portrait\s*\{[^}]*right:\s*0[^}]*width:\s*136px[^}]*height:\s*180px/s);
+  assert.match(mobile, /\.brand-hero__portrait\s*\{[^}]*right:\s*0[^}]*width:\s*170px[^}]*height:\s*212px/s);
+  assert.match(mobile, /\.brand-hero__profile\s*\{[^}]*height:\s*212px[^}]*max-width:\s*170px/s);
+  assert.match(mobile, /@media \(max-width:\s*360px\)[\s\S]*\.brand-hero__portrait\s*\{[^}]*right:\s*0[^}]*width:\s*156px[^}]*height:\s*202px/s);
+  assert.match(mobile, /@media \(max-width:\s*360px\)[\s\S]*\.brand-hero__profile\s*\{[^}]*height:\s*202px[^}]*max-width:\s*156px/s);
 });
 
 test("changing mobile steps returns the wizard header to view", () => {

@@ -5215,11 +5215,11 @@
       }
 
       .brand-hero {
-        height: 190px;
-        min-height: 190px;
-        max-height: 190px;
-        grid-template-columns: minmax(0, 1fr) 145px;
-        padding: 18px 16px;
+        height: 216px;
+        min-height: 216px;
+        max-height: 216px;
+        grid-template-columns: minmax(0, 1fr) 170px;
+        padding: 16px 14px 14px;
         text-align: left;
       }
 
@@ -5243,18 +5243,18 @@
       .brand-hero__badge {
         display: inline-flex;
         justify-self: start;
-        margin: 0 0 15px;
-        padding: 5px 10px;
-        font-size: .68rem;
+        margin: 0 0 14px;
+        padding: 6px 12px;
+        font-size: .72rem;
       }
 
       .brand-hero h1 {
         display: grid;
         justify-self: start;
-        gap: 4px;
+        gap: 3px;
         max-width: none;
         margin: 0;
-        font-size: 1.7rem;
+        font-size: 1.8rem;
         line-height: 1.02;
         letter-spacing: -.04em;
         white-space: normal;
@@ -5263,6 +5263,7 @@
       .brand-hero__title-line {
         display: block;
         color: #fffaf0;
+        white-space: nowrap;
       }
 
       .brand-hero__title-line--accent {
@@ -5272,24 +5273,26 @@
 
       .brand-hero__notice {
         display: block;
-        max-width: 155px;
-        margin: 10px 0 0;
+        max-width: 170px;
+        margin: 12px 0 0;
+        padding-top: 9px;
+        border-top: 2px solid var(--consultant-terracotta);
         font-size: .61rem;
         line-height: 1.45;
       }
 
       .brand-hero__portrait {
         position: absolute;
-        right: 4px;
+        right: 0;
         bottom: 0;
-        width: 145px;
-        height: 186px;
+        width: 170px;
+        height: 212px;
       }
 
       .brand-hero__profile {
         width: auto;
-        height: 186px;
-        max-width: 145px;
+        height: 212px;
+        max-width: 170px;
         padding: 0;
         border: 0;
         border-radius: 0;
@@ -5299,19 +5302,40 @@
       }
 
       @media (max-width: 360px) {
+        .brand-hero {
+          height: 206px;
+          min-height: 206px;
+          max-height: 206px;
+          grid-template-columns: minmax(0, 1fr) 156px;
+          padding: 14px 12px 12px;
+        }
+
+        .brand-hero__badge {
+          margin-bottom: 12px;
+          padding: 5px 9px;
+          font-size: .64rem;
+        }
+
         .brand-hero h1 {
-          font-size: 1.56rem;
+          font-size: 1.52rem;
+        }
+
+        .brand-hero__notice {
+          max-width: 150px;
+          margin-top: 10px;
+          padding-top: 8px;
+          font-size: .57rem;
         }
 
         .brand-hero__portrait {
           right: 0;
-          width: 136px;
-          height: 180px;
+          width: 156px;
+          height: 202px;
         }
 
         .brand-hero__profile {
-          height: 180px;
-          max-width: 136px;
+          height: 202px;
+          max-width: 156px;
         }
       }
 
