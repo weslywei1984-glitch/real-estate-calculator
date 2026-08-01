@@ -93,22 +93,6 @@
       gap: 10px;
     }
 
-    .brand-line {
-      display: inline-flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      color: var(--green-dark);
-      font-weight: 900;
-    }
-
-    .brand-line span {
-      padding: 5px 9px;
-      border: 1px solid rgba(37, 122, 92, .24);
-      border-radius: 999px;
-      background: rgba(231, 246, 234, .92);
-    }
-
     h1 {
       margin: 0;
       max-width: 820px;
@@ -337,25 +321,13 @@
 
     .field-row {
       display: grid;
-      grid-template-columns: 52px minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr);
       gap: 10px;
       align-items: stretch;
       padding: 10px;
       border: 1px solid rgba(36, 49, 38, .1);
       border-radius: 8px;
       background: var(--white);
-    }
-
-    .step-mark {
-      display: grid;
-      place-items: center;
-      width: 52px;
-      min-height: 74px;
-      border-radius: 8px;
-      color: var(--green-dark);
-      background: var(--mint);
-      font-size: 1.45rem;
-      font-weight: 1000;
     }
 
     .field-body {
@@ -1000,14 +972,6 @@
         grid-template-columns: 1fr;
       }
 
-      .field-row {
-        grid-template-columns: 42px minmax(0, 1fr);
-      }
-
-      .step-mark {
-        width: 42px;
-        min-height: 68px;
-      }
     }
   </style>
 </head>
@@ -1015,11 +979,6 @@
   <div class="shell">
     <header>
       <div class="brand">
-        <div class="brand-line">
-          <span>台南小魏 買厝作伙</span>
-          <span>0927-617-207</span>
-          <span>永慶不動產 小東南紡店</span>
-        </div>
         <h1>土地漲多少計算器</h1>
         <p class="lead">先填土地面積和公告土地現值，就能看出這塊土地「政府認定漲了多少」。不知道進階費用時，先留空也可以。</p>
       </div>
@@ -1052,7 +1011,6 @@
         <div class="fields">
           <div id="totalMode" class="mode-block" hidden>
             <div class="field-row">
-              <div class="step-mark">1</div>
               <div class="field-body">
                 <label for="currentTotal">這次土地價格總額</label>
                 <p class="hint">已經算好總額時才用這格；也可以填公告土地現值總額。</p>
@@ -1061,7 +1019,6 @@
             </div>
 
             <div class="field-row">
-              <div class="step-mark">2</div>
               <div class="field-body">
                 <label for="previousTotal">上次土地價格總額</label>
                 <p class="hint">還沒有乘物價調整前的金額。通常看上次買賣申報的價格；很久以前取得的土地，資料上可能寫原規定地價。</p>
@@ -1072,7 +1029,6 @@
 
           <div id="unitMode" class="mode-block">
             <div class="field-row">
-              <div class="step-mark">1</div>
               <div class="field-body">
                 <label for="area">土地面積</label>
                 <p class="hint">填平方公尺或坪數都可以，另一格會自動換算。</p>
@@ -1090,7 +1046,6 @@
             </div>
 
             <div class="field-row">
-              <div class="step-mark">2</div>
               <div class="field-body">
                 <div class="two-col">
                   <div class="price-group">
@@ -1132,7 +1087,6 @@
           </div>
 
           <div class="field-row">
-            <div class="step-mark">3</div>
             <div class="field-body">
               <label for="priceIndex">物價調整百分比</label>
               <p class="hint">資料寫 200% 就填 200；沒有資料時先用 100。</p>
@@ -1282,6 +1236,11 @@
         return `約 ${(value / 100000000).toLocaleString("zh-TW", { maximumFractionDigits: 2 })} 億元`;
       }
       return `約 ${(value / 10000).toLocaleString("zh-TW", { maximumFractionDigits: 1 })} 萬元`;
+    }
+
+    function formatWanAmount(value) {
+      if (!Number.isFinite(value)) return "0";
+      return (value / 10000).toLocaleString("zh-TW", { maximumFractionDigits: 1 });
     }
 
     let bigNumberFrame = null;
@@ -1550,8 +1509,7 @@
       if (raw < 0) {
         els.plainAnswer.textContent = `算式結果是 ${formatMoney(raw)}，代表沒有抓到可課稅的土地漲價；本工具以 0 元顯示。`;
       } else if (increase > 0) {
-        const wan = wanText(increase);
-        els.plainAnswer.textContent = `答案是 ${formatMoney(increase)}${wan ? `（${wan}）` : ""}。這就是這塊土地估算漲了多少。`;
+        els.plainAnswer.textContent = `這塊土地估算漲了 ${formatWanAmount(increase)} 萬。`;
       } else {
         els.plainAnswer.textContent = "填入數字後，答案會自動更新。";
       }
