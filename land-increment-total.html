@@ -276,8 +276,7 @@
       background: #eef3e6;
     }
 
-    .segmented button,
-    .unit-select {
+    .segmented button {
       min-height: 44px;
       border: 0;
       border-radius: 6px;
@@ -295,23 +294,6 @@
       color: var(--white);
       background: var(--green);
       box-shadow: 0 8px 18px rgba(37, 122, 92, .24);
-    }
-
-    .unit-wrap {
-      display: inline-flex;
-      gap: 8px;
-      align-items: center;
-      color: var(--muted);
-      font-size: .94rem;
-      font-weight: 800;
-      white-space: nowrap;
-    }
-
-    .unit-select {
-      min-width: 0;
-      padding: 0 34px 0 12px;
-      border: 1px solid var(--line);
-      background: var(--white);
     }
 
     .fields {
@@ -612,8 +594,7 @@
 
     .btn:focus-visible,
     .segmented button:focus-visible,
-    summary:focus-visible,
-    .unit-select:focus-visible {
+    summary:focus-visible {
       outline: 3px solid rgba(36, 87, 166, .3);
       outline-offset: 3px;
     }
@@ -667,11 +648,6 @@
       color: var(--blue);
       border-color: rgba(36, 87, 166, .2);
       background: var(--sky);
-    }
-
-    .toolbar-link {
-      min-height: 44px;
-      padding-inline: 12px;
     }
 
     .answer-panel {
@@ -952,15 +928,12 @@
 
       .toolbar,
       .mode-actions,
-      .unit-wrap,
       .actions {
         align-items: stretch;
       }
 
       .segmented,
       .mode-actions,
-      .unit-wrap,
-      .unit-select,
       .btn {
         width: 100%;
       }
@@ -993,19 +966,7 @@
               <button type="button" data-mode="unit" role="tab" aria-selected="true" class="active">用公告現值算</button>
               <button type="button" data-mode="total" role="tab" aria-selected="false">我已經有總額</button>
             </div>
-            <a class="btn ghost toolbar-link" href="https://www.etax.nat.gov.tw/etwmain/etw158w/51" target="_blank" rel="noreferrer">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
-              官方頁面
-            </a>
           </div>
-
-          <label class="unit-wrap">
-            輸入單位
-            <select id="moneyScale" class="unit-select">
-              <option value="1">元</option>
-              <option value="10000">萬元</option>
-            </select>
-          </label>
         </div>
 
         <div class="fields">
@@ -1221,7 +1182,13 @@
     }
 
     function moneyFromInput(id) {
-      return numberFromInput(id) * Number(els.moneyScale.value || 1);
+      return numberFromInput(id);
+    }
+
+    function migrateLegacyMoneyValue(value, scale) {
+      const cleaned = String(value ?? "").replace(/,/g, "").trim();
+      const number = Number(cleaned);
+      return cleaned && Number(scale) === 10000 && Number.isFinite(number) ? String(number * 10000) : value;
     }
 
     function formatMoney(value) {
@@ -1549,7 +1516,7 @@
     }
 
     function saveState() {
-      const data = { mode, moneyScale: els.moneyScale.value };
+      const data = { mode };
       allInputIds.forEach((id) => {
         data[id] = els[id]?.value || "";
       });
@@ -1559,10 +1526,12 @@
     function restoreState() {
       try {
         const data = JSON.parse(localStorage.getItem("landIncrementTotalState") || "{}");
-        if (data.moneyScale) els.moneyScale.value = data.moneyScale;
         allInputIds.forEach((id) => {
           if (Object.prototype.hasOwnProperty.call(data, id) && els[id]) {
-            els[id].value = deductionInputIds.includes(id) && data[id] === "" ? "0" : data[id];
+            const storedValue = deductionInputIds.includes(id) && data[id] === "" ? "0" : data[id];
+            els[id].value = moneyIds.includes(id)
+              ? migrateLegacyMoneyValue(storedValue, data.moneyScale)
+              : storedValue;
           }
         });
         if (rawInput("area") && !rawInput("areaPing")) syncArea("area");
@@ -1589,13 +1558,10 @@
       });
     });
 
-    els.moneyScale.addEventListener("change", () => scheduleCalculate(80));
-
     els.sampleBtn.addEventListener("click", () => {
       setButtonState(els.sampleBtn, "loading");
       setAnswerState("loading", "正在套用範例並更新結果...");
       window.setTimeout(() => {
-        els.moneyScale.value = "1";
         els.area.value = "50";
         syncArea("area");
         els.currentUnit.value = "160000";
@@ -1619,7 +1585,6 @@
         allInputIds.forEach((id) => {
           els[id].value = id === "priceIndex" ? "100" : deductionInputIds.includes(id) ? "0" : "";
         });
-        els.moneyScale.value = "1";
         clearFieldErrors();
         setMode("unit");
         calculate();

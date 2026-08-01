@@ -37,3 +37,25 @@ test("正數答案改為這塊土地估算漲了幾萬", () => {
   );
   assert.doesNotMatch(html, /答案是 .*這就是這塊土地估算漲了多少/);
 });
+
+test("工具列移除官方頁面與輸入單位並固定以元計算", () => {
+  assert.doesNotMatch(html, /class="btn ghost toolbar-link"/);
+  assert.doesNotMatch(html, /class="unit-wrap"/);
+  assert.doesNotMatch(html, /id="moneyScale"/);
+  assert.doesNotMatch(html, /\.toolbar-link(?:\s|\{)/);
+  assert.doesNotMatch(html, /\.unit-(?:wrap|select)(?:\s|\{|:)/);
+  assert.match(
+    html,
+    /function moneyFromInput\(id\)\s*\{\s*return numberFromInput\(id\);\s*\}/
+  );
+});
+
+test("舊的萬元資料會轉為元", () => {
+  const match = html.match(/function migrateLegacyMoneyValue\(value, scale\)\s*\{[\s\S]*?\n    \}/);
+  assert.ok(match, "應提供舊萬元資料轉換函式");
+  const migrateLegacyMoneyValue = vm.runInNewContext(`(${match[0]})`);
+
+  assert.equal(migrateLegacyMoneyValue("16", "10000"), "160000");
+  assert.equal(migrateLegacyMoneyValue("160,000", "1"), "160,000");
+  assert.equal(migrateLegacyMoneyValue("", "10000"), "");
+});
