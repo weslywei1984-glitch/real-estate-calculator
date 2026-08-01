@@ -5067,6 +5067,7 @@
     }
 
     .chip {
+      min-height: 44px;
       border-color: var(--consultant-line);
       background: #fffdf7;
       color: var(--consultant-navy);
@@ -5405,6 +5406,11 @@
       .result-grid,
       .result-stack {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .metric.main,
+      .metric.young-main {
+        grid-column: 1 / -1;
       }
 
       .sources-list {

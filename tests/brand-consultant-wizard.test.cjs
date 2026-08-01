@@ -156,6 +156,22 @@ test("Consultant B theme is shared by every viewport", () => {
   assert.match(shared, /\.wizard-result-actions\s*\{[^}]*display:\s*grid/s);
 });
 
+test("Consultant B chips keep a 44px minimum touch target at every viewport", () => {
+  const css = consultantCss();
+  const shared = css.slice(0, css.indexOf("@media (max-width: 900px)"));
+
+  assert.match(shared, /\.chip\s*\{[^}]*min-height:\s*44px/s);
+});
+
+test("desktop primary result metrics span both result columns", () => {
+  const css = consultantCss();
+
+  assert.match(
+    css,
+    /@media \(min-width:\s*901px\)\s*\{[\s\S]*?\.metric\.main,\s*\.metric\.young-main\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/s
+  );
+});
+
 test("legacy saved loan rate migrates to the 2.5 percent default once", () => {
   assert.match(html, /__annualRateDefaultVersion:\s*2/);
   assert.match(html, /const annualRateDefaultVersion = Number\(data\.__annualRateDefaultVersion\) \|\| 1/);
