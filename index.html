@@ -4917,6 +4917,10 @@
       content: "；";
     }
 
+    .brand-hero__mobile-art {
+      display: none;
+    }
+
     @media (max-width: 620px) {
       /* Mobile-only Consultant B visuals */
       :root {
@@ -5215,128 +5219,35 @@
       }
 
       .brand-hero {
-        height: 216px;
-        min-height: 216px;
-        max-height: 216px;
-        grid-template-columns: minmax(0, 1fr) 170px;
-        padding: 16px 14px 14px;
-        text-align: left;
-      }
-
-      .brand-hero__content {
-        z-index: 2;
-        display: grid;
-        align-content: center;
-        width: auto;
-        max-width: none;
-        padding: 0;
-        text-align: left;
-      }
-
-      .brand-hero__eyebrow,
-      .brand-hero__lead,
-      .brand-hero__actions,
-      .brand-hero__identity {
-        display: none;
-      }
-
-      .brand-hero__badge {
-        display: inline-flex;
-        justify-self: start;
-        margin: 0 0 14px;
-        padding: 6px 12px;
-        font-size: .72rem;
-      }
-
-      .brand-hero h1 {
-        display: grid;
-        justify-self: start;
-        gap: 3px;
-        max-width: none;
-        margin: 0;
-        font-size: 1.8rem;
-        line-height: 1.02;
-        letter-spacing: -.04em;
-        white-space: normal;
-      }
-
-      .brand-hero__title-line {
         display: block;
-        color: #fffaf0;
-        white-space: nowrap;
-      }
-
-      .brand-hero__title-line--accent {
-        color: var(--consultant-terracotta);
-        font-size: 1.12em;
-      }
-
-      .brand-hero__notice {
-        display: block;
-        max-width: 170px;
-        margin: 12px 0 0;
-        padding-top: 9px;
-        border-top: 2px solid var(--consultant-terracotta);
-        font-size: .61rem;
-        line-height: 1.45;
-      }
-
-      .brand-hero__portrait {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        width: 170px;
-        height: 212px;
-      }
-
-      .brand-hero__profile {
-        width: auto;
-        height: 212px;
-        max-width: 170px;
+        width: calc(100% + 20px);
+        height: auto;
+        min-height: 0;
+        max-height: none;
+        margin-left: -10px;
         padding: 0;
         border: 0;
         border-radius: 0;
         background: transparent;
-        object-fit: contain;
-        object-position: center bottom;
+        box-shadow: none;
       }
 
-      @media (max-width: 360px) {
-        .brand-hero {
-          height: 206px;
-          min-height: 206px;
-          max-height: 206px;
-          grid-template-columns: minmax(0, 1fr) 156px;
-          padding: 14px 12px 12px;
-        }
+      .brand-hero::before,
+      .brand-hero::after {
+        display: none;
+      }
 
-        .brand-hero__badge {
-          margin-bottom: 12px;
-          padding: 5px 9px;
-          font-size: .64rem;
-        }
+      .brand-hero__mobile-art {
+        display: block;
+        width: 100%;
+        height: auto;
+        max-width: none;
+      }
 
-        .brand-hero h1 {
-          font-size: 1.52rem;
-        }
-
-        .brand-hero__notice {
-          max-width: 150px;
-          margin-top: 10px;
-          padding-top: 8px;
-          font-size: .57rem;
-        }
-
-        .brand-hero__portrait {
-          right: 0;
-          width: 156px;
-          height: 202px;
-        }
-
-        .brand-hero__profile {
-          height: 202px;
-          max-width: 156px;
-        }
+      .brand-hero__content,
+      .brand-hero__identity,
+      .brand-hero__portrait {
+        display: none;
       }
 
       .tabs {
@@ -5539,6 +5450,13 @@
 <body>
   <main class="shell">
     <header class="brand-hero">
+      <img class="brand-hero__mobile-art"
+           src="assets/mobile-hero-exact.jpg"
+           alt="台南小魏 買厝作伙。房地稅費與貸款試算。正式申報仍以稅務機關、地政士、銀行核定為準。"
+           width="1787"
+           height="880"
+           decoding="async"
+           fetchpriority="high">
       <div class="brand-hero__content">
         <p class="brand-hero__eyebrow">TAINAN REAL ESTATE CALCULATOR</p>
         <p class="brand-hero__badge">台南小魏 買厝作伙</p>

@@ -1,9 +1,11 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 
 const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
+const exactMobileHeroPath = path.join(__dirname, "..", "assets", "mobile-hero-exact.jpg");
 
 function workspace(name) {
   const start = html.indexOf(`data-panel="${name}"`);
@@ -81,28 +83,37 @@ test("mobile mode hides inactive steps and keeps controls touch sized", () => {
   assert.match(css, /\.wizard-mobile-actions button\s*\{[^}]*min-height:\s*44px/s);
 });
 
-test("mobile hero uses the approved reference-banner composition", () => {
+test("phone hero uses the approved artwork byte for byte", () => {
+  assert.ok(fs.existsSync(exactMobileHeroPath), "missing approved mobile hero artwork");
+  const digest = crypto
+    .createHash("sha256")
+    .update(fs.readFileSync(exactMobileHeroPath))
+    .digest("hex")
+    .toUpperCase();
+
+  assert.equal(digest, "8C01A4C8464E2B033D0B98C8655A6B493A53D46C0C11D6817ABA71C40B4AA827");
   assert.match(
     html,
-    /<h1><span class="brand-hero__title-line">房地稅費與<\/span><span class="brand-hero__title-line brand-hero__title-line--accent">貸款試算<\/span><\/h1>/
+    /class="brand-hero__mobile-art"[^>]*src="assets\/mobile-hero-exact\.jpg"[^>]*width="1787"[^>]*height="880"/
   );
-
-  const mobile = mobileConsultantCss();
-  assert.match(mobile, /\.brand-hero\s*\{[^}]*height:\s*216px[^}]*min-height:\s*216px[^}]*max-height:\s*216px/s);
-  assert.match(mobile, /\.brand-hero__content\s*\{[^}]*width:\s*auto/s);
-  assert.doesNotMatch(mobile, /\.brand-hero__content\s*\{[^}]*width:\s*66%/s);
-  assert.match(mobile, /\.brand-hero h1\s*\{[^}]*display:\s*grid[^}]*white-space:\s*normal/s);
-  assert.match(mobile, /\.brand-hero__title-line--accent\s*\{[^}]*color:\s*var\(--consultant-terracotta\)/s);
-  assert.match(mobile, /\.brand-hero__notice\s*\{[^}]*border-top:\s*2px solid var\(--consultant-terracotta\)/s);
-  assert.match(mobile, /@media \(max-width:\s*360px\)[\s\S]*\.brand-hero\s*\{[^}]*height:\s*206px[^}]*min-height:\s*206px[^}]*max-height:\s*206px/s);
 });
 
-test("mobile editorial portrait has explicit default and narrow sizes", () => {
+test("phone hero shows only the complete proportional artwork", () => {
+  const css = consultantCss();
   const mobile = mobileConsultantCss();
-  assert.match(mobile, /\.brand-hero__portrait\s*\{[^}]*right:\s*0[^}]*width:\s*170px[^}]*height:\s*212px/s);
-  assert.match(mobile, /\.brand-hero__profile\s*\{[^}]*height:\s*212px[^}]*max-width:\s*170px/s);
-  assert.match(mobile, /@media \(max-width:\s*360px\)[\s\S]*\.brand-hero__portrait\s*\{[^}]*right:\s*0[^}]*width:\s*156px[^}]*height:\s*202px/s);
-  assert.match(mobile, /@media \(max-width:\s*360px\)[\s\S]*\.brand-hero__profile\s*\{[^}]*height:\s*202px[^}]*max-width:\s*156px/s);
+  const beforeMobile = css.slice(0, css.indexOf("/* Mobile-only Consultant B visuals */"));
+
+  assert.match(beforeMobile, /\.brand-hero__mobile-art\s*\{[^}]*display:\s*none/s);
+  assert.match(
+    mobile,
+    /\.brand-hero\s*\{[^}]*width:\s*calc\(100% \+ 20px\)[^}]*height:\s*auto[^}]*margin-left:\s*-10px[^}]*padding:\s*0[^}]*border:\s*0[^}]*background:\s*transparent/s
+  );
+  assert.match(mobile, /\.brand-hero__mobile-art\s*\{[^}]*display:\s*block[^}]*width:\s*100%[^}]*height:\s*auto/s);
+  assert.match(
+    mobile,
+    /\.brand-hero__content,\s*\.brand-hero__identity,\s*\.brand-hero__portrait\s*\{[^}]*display:\s*none/s
+  );
+  assert.doesNotMatch(mobile, /\.brand-hero\s*\{[^}]*height:\s*(?:206|216)px/s);
 });
 
 test("changing mobile steps returns the wizard header to view", () => {
