@@ -21,14 +21,6 @@ function consultantCss() {
   return html.slice(marker, html.indexOf("</style>", marker));
 }
 
-function mobileConsultantCss() {
-  const css = consultantCss();
-  const marker = "/* Mobile-only Consultant B visuals */";
-  const start = css.indexOf(marker);
-  assert.ok(start > -1, "missing mobile-only Consultant B wrapper");
-  return css.slice(start);
-}
-
 test("Consultant B theme is the final visual layer", () => {
   const marker = html.lastIndexOf("/* Consultant B wizard theme */");
   assert.ok(marker > html.lastIndexOf("/* Compact tool layout redesign */"));
@@ -75,12 +67,12 @@ test("tab switch and clear return the mobile wizard to step one", () => {
   assert.match(html, /resetWizard\(button\.closest\("\[data-wizard\]"\)/);
 });
 
-test("mobile mode hides inactive steps and keeps controls touch sized", () => {
+test("wizard hides inactive steps and keeps controls touch sized", () => {
   const marker = html.lastIndexOf("/* Consultant B wizard theme */");
   const css = html.slice(marker, html.indexOf("</style>", marker));
   assert.match(css, /@media \(max-width:\s*620px\)/);
   assert.match(css, /\[data-wizard-step\]:not\(\.is-wizard-active\)\s*\{[^}]*display:\s*none/s);
-  assert.match(css, /\.wizard-mobile-actions button\s*\{[^}]*min-height:\s*44px/s);
+  assert.match(css, /\.wizard-mobile-actions button,\s*\.wizard-result-actions button\s*\{[^}]*min-height:\s*44px/s);
 });
 
 test("phone hero uses the approved artwork byte for byte", () => {
@@ -116,8 +108,20 @@ test("changing mobile steps returns the wizard header to view", () => {
 test("mobile wizard header clears the sticky calculator tabs", () => {
   const marker = html.lastIndexOf("/* Consultant B wizard theme */");
   const css = html.slice(marker, html.indexOf("</style>", marker));
-  const mobile = css.slice(css.indexOf("@media (max-width: 620px)"));
-  assert.match(mobile, /\.wizard-mobile-head\s*\{[^}]*scroll-margin-top:\s*4\.5rem/s);
+  assert.match(css, /\.wizard-mobile-head\s*\{[^}]*scroll-margin-top:\s*4\.5rem/s);
+});
+
+test("phone override keeps only phone-specific Consultant B rules", () => {
+  const css = consultantCss();
+  const mobile = css.slice(css.lastIndexOf("@media (max-width: 620px)"));
+
+  assert.match(mobile, /\.brand-hero\s*\{[^}]*width:\s*calc\(100% \+ 20px\)[^}]*margin-left:\s*-10px/s);
+  assert.match(mobile, /\.float-contact\s*\{[^}]*position:\s*fixed[^}]*right:\s*12px[^}]*bottom:\s*12px[^}]*left:\s*12px/s);
+  assert.doesNotMatch(mobile, /\.wizard-mobile-head\s*\{/);
+  assert.doesNotMatch(mobile, /\.wizard-mobile-actions\s*\{/);
+  assert.doesNotMatch(mobile, /\.wizard-result-actions\s*\{/);
+  assert.doesNotMatch(mobile, /\.sources,\s*\.sources-list\s*\{/);
+  assert.doesNotMatch(mobile, /\.source-item\s*\{/);
 });
 
 test("legacy percent-based loan ratios migrate to cheng units", () => {

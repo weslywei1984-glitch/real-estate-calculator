@@ -5436,35 +5436,11 @@
       }
 
       .brand-hero {
-        display: block;
         width: calc(100% + 20px);
-        height: auto;
-        min-height: 0;
-        max-height: none;
         margin-left: -10px;
-        padding: 0;
         border: 0;
         border-radius: 0;
-        background: transparent;
         box-shadow: none;
-      }
-
-      .brand-hero::before,
-      .brand-hero::after {
-        display: none;
-      }
-
-      .brand-hero__mobile-art {
-        display: block;
-        width: 100%;
-        height: auto;
-        max-width: none;
-      }
-
-      .brand-hero__content,
-      .brand-hero__identity,
-      .brand-hero__portrait {
-        display: none;
       }
 
       .tabs {
@@ -5479,129 +5455,6 @@
 
       .workspace {
         gap: 10px;
-      }
-
-      .wizard-mobile-head {
-        display: grid;
-        grid-column: 1 / -1;
-        gap: 10px;
-        scroll-margin-top: 4.5rem;
-        padding: 13px 14px;
-        border: 1px solid var(--consultant-line);
-        border-radius: 12px;
-        background: var(--consultant-paper);
-        box-shadow: 0 5px 16px rgba(36, 35, 31, .055);
-      }
-
-      .wizard-mobile-count {
-        color: var(--consultant-terracotta);
-        font-size: .7rem;
-        font-weight: 850;
-        letter-spacing: .13em;
-      }
-
-      .wizard-mobile-title {
-        margin: 3px 0 0;
-        color: var(--consultant-navy);
-        font-size: 1.28rem;
-        line-height: 1.2;
-      }
-
-      .wizard-mobile-progress {
-        height: 5px;
-        overflow: hidden;
-        border-radius: 999px;
-        background: #dfd5c3;
-      }
-
-      .wizard-mobile-progress span {
-        display: block;
-        width: 25%;
-        height: 100%;
-        border-radius: inherit;
-        background: var(--consultant-terracotta);
-        transition: width 180ms ease;
-      }
-
-      [data-wizard-step]:not(.is-wizard-active) {
-        display: none !important;
-      }
-
-      [data-wizard-step].is-wizard-active {
-        display: grid;
-      }
-
-      [data-wizard-step].field.is-wizard-active {
-        display: grid;
-      }
-
-      [data-wizard-step].checks.is-wizard-active,
-      [data-wizard-step].actions.is-wizard-active,
-      [data-wizard-step].section.is-wizard-active,
-      [data-wizard-step].young-hero.is-wizard-active {
-        display: grid;
-      }
-
-      [data-wizard][data-wizard-current="3"] > form {
-        display: none;
-      }
-
-      .panel-head {
-        padding: 13px 14px;
-      }
-
-      .section {
-        padding: 14px;
-      }
-
-      .form-grid {
-        gap: 11px;
-      }
-
-      .wizard-mobile-actions {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
-        grid-column: 1 / -1;
-        gap: 9px;
-      }
-
-      .wizard-mobile-actions button {
-        min-height: 44px;
-      }
-
-      .wizard-mobile-actions button[hidden] {
-        display: none;
-      }
-
-      .wizard-mobile-actions button:disabled {
-        opacity: .42;
-        cursor: not-allowed;
-      }
-
-      .actions {
-        display: none !important;
-      }
-
-      .wizard-result-actions {
-        display: grid;
-        gap: 8px;
-        padding: 0 14px 14px;
-      }
-
-      .wizard-result-actions button {
-        min-height: 44px;
-      }
-
-      .young-hero {
-        padding: 13px 14px;
-      }
-
-      .young-note {
-        margin-bottom: 9px;
-      }
-
-      .policy-stats {
-        gap: 2px;
       }
 
       .float-contact {
@@ -5620,46 +5473,11 @@
       .float-contact__btn {
         flex: 1;
         padding: 0 12px;
-        background: var(--consultant-terracotta);
         font-size: .9rem;
         letter-spacing: .02em;
         box-shadow: 0 8px 22px rgba(16, 39, 56, .26);
       }
 
-      .sources {
-        display: grid;
-        gap: 10px;
-      }
-
-      .sources-list {
-        display: grid;
-        gap: 10px;
-      }
-
-      .source-item {
-        display: grid;
-        grid-template-columns: auto minmax(0, 1fr);
-        gap: 4px 8px;
-        align-items: start;
-        line-height: 1.65;
-      }
-
-      .source-item::before {
-        content: "•";
-        grid-column: 1;
-        color: var(--consultant-terracotta);
-        font-weight: 900;
-      }
-
-      .source-item__body {
-        display: inline;
-        grid-column: 2;
-        overflow-wrap: anywhere;
-      }
-
-      .source-item:not(:last-child)::after {
-        content: none;
-      }
     }
 
     :focus-visible {
