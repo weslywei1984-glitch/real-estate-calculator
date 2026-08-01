@@ -147,21 +147,14 @@ test("頁首有明確的行動呼籲按鈕", () => {
   assert.match(css, /min-height:\s*48px/);
 });
 
-test("頁首是 banner 而非形象橫幅：三欄、大標題、貼齊底部的人像", () => {
-  assert.match(html, /<\/div>\s*<div class="brand-hero__identity"/);
+test("頁首在所有寬度都使用核定主視覺", () => {
   const marker = html.indexOf("/* Hero banner：把「開始試算」變成視覺主角 */");
   const css = html.slice(marker, html.indexOf("</style>", marker));
 
-  assert.match(css, /@media \(min-width: 901px\) and \(max-width: 1079px\)/);
-  assert.match(css, /@media \(min-width: 1080px\)/);
-  assert.match(css, /\.brand-hero\s*\{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) auto 210px/s);
-  assert.match(css, /\.brand-hero\s*\{[^}]*min-height:\s*320px/s);
-  // 主標 60–72px、說明 19–22px
-  assert.match(css, /\.brand-hero h1\s*\{[^}]*font-size:\s*clamp\(3\.2rem, 4\.6vw, 4\.3rem\)/s);
-  assert.match(css, /\.brand-hero__lead\s*\{[^}]*font-size:\s*1\.24rem/s);
-  // 極淡格線與人像光暈
-  assert.match(css, /\.brand-hero::before\s*\{[^}]*background-image:/s);
-  assert.match(css, /\.brand-hero__portrait::before\s*\{[^}]*radial-gradient/s);
+  assert.match(css, /\.brand-hero__mobile-art\s*\{[^}]*display:\s*block/s);
+  assert.match(css, /\.brand-hero\s*\{[^}]*width:\s*100%[^}]*min-height:\s*0/s);
+  assert.match(css, /\.workspace\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/s);
+  assert.match(css, /@media \(min-width:\s*901px\)\s*\{[\s\S]*\.form-grid/);
 });
 
 test("不可用 .brand-hero > * 疊 position", () => {
@@ -236,22 +229,23 @@ test("抵押權設定倍率改為 1.2 或不設定兩個選項", () => {
   assert.match(html, /<input id="mortgageSettingRatio" type="hidden" value="1\.2">/);
 });
 
-test("手機浮動聯絡列：電話與 LINE", () => {
+test("聯絡列在桌機進入主流程，手機維持固定電話與 LINE 列", () => {
   assert.match(html, /<div class="float-contact" id="floatContact"/);
   assert.match(html, /href="tel:\+886927617207"[^>]*aria-label="撥打電話/);
   // LINE 官方帳號要跟好友鎖定畫面同一組
   assert.match(html, /href="https:\/\/line\.me\/R\/ti\/p\/@tainanwei"/);
   assert.match(html, /<svg class="float-contact__icon"/);
 
-  const marker = html.indexOf("/* 手機浮動聯絡列");
-  assert.ok(marker > -1, "應有浮動聯絡列樣式");
+  const marker = html.lastIndexOf("/* Consultant B wizard theme */");
+  assert.ok(marker > -1, "應有 Consultant B 視覺層");
   const css = html.slice(marker, html.indexOf("</style>", marker));
-  // 桌機不顯示
-  assert.match(css, /\.float-contact\s*\{\s*display:\s*none;\s*\}/);
-  assert.match(css, /\.float-contact__btn\s*\{[^}]*background:\s*var\(--brand-terracotta\)/s);
-  assert.match(css, /\.float-contact__btn\s*\{[^}]*min-height:\s*48px/s);
-  // 不可蓋住頁尾
-  assert.match(css, /\.shell\s*\{\s*padding-bottom:\s*84px;\s*\}/);
+  const mobile = css.slice(css.lastIndexOf("@media (max-width: 620px)"));
+
+  assert.match(css, /\.float-contact\s*\{[^}]*position:\s*static[^}]*display:\s*grid/s);
+  assert.match(css, /\.float-contact__btn\s*\{[^}]*min-height:\s*48px[^}]*background:\s*var\(--consultant-terracotta\)/s);
+  assert.match(mobile, /\.float-contact\s*\{[^}]*position:\s*fixed[^}]*right:\s*12px[^}]*bottom:\s*12px[^}]*left:\s*12px/s);
+  // 固定列不可以蓋住頁尾內容。
+  assert.match(mobile, /\.shell\s*\{[^}]*padding:\s*10px 0 92px/s);
 
   // 頁首已不放電話，浮動列要一進站就在，不再等捲動
   assert.doesNotMatch(html, /setupFloatContact/);
@@ -335,11 +329,12 @@ test("品牌主題在平板與手機提供緊湊版面", () => {
   assert.match(css, /\.tab\s*\{[^}]*min-width:\s*112px/s);
 });
 
-test("桌機頁首完整顯示人物且作用中分頁會捲入視野", () => {
+test("桌機沿用核定主視覺且作用中分頁會捲入視野", () => {
   const marker = html.indexOf("/* Tainanwei brand tool theme */");
   const css = html.slice(marker, html.indexOf("</style>", marker));
 
-  assert.match(css, /\.brand-hero__profile\s*\{[^}]*width:\s*auto;[^}]*height:\s*calc\(100% - 18px\)/s);
+  assert.match(css, /\.brand-hero__mobile-art\s*\{[^}]*display:\s*block[^}]*width:\s*100%/s);
+  assert.match(css, /\.brand-hero__content,\s*\.brand-hero__identity,\s*\.brand-hero__portrait\s*\{[^}]*display:\s*none/s);
   assert.match(html, /tab\.scrollIntoView\(\{\s*block:\s*"nearest",\s*inline:\s*"center"\s*\}\)/);
 });
 
@@ -356,8 +351,10 @@ test("緊湊工具版重新配置桌機頁首與工作區", () => {
   assert.ok(marker > -1, "應新增緊湊工具版最終樣式");
   const css = html.slice(marker, html.indexOf("</style>", marker));
 
-  assert.match(css, /\.brand-hero\s*\{[^}]*min-height:\s*184px;[^}]*max-height:\s*none/s);
-  assert.match(css, /\.workspace\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.38fr\)\s*minmax\(360px,\s*1fr\);[^}]*gap:\s*16px/s);
+  assert.match(css, /\.brand-hero__mobile-art\s*\{[^}]*display:\s*block/s);
+  assert.match(css, /\.brand-hero\s*\{[^}]*width:\s*100%[^}]*min-height:\s*0/s);
+  assert.match(css, /\.workspace\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/s);
+  assert.match(css, /@media \(min-width:\s*901px\)\s*\{[\s\S]*\.form-grid/);
   assert.match(css, /\.young-hero\s*\{[^}]*background:\s*var\(--brand-paper\);[^}]*color:\s*var\(--brand-ink\)/s);
   assert.match(css, /\.tabs\s*\{[^}]*min-height:\s*48px/s);
 });

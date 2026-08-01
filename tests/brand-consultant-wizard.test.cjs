@@ -98,22 +98,13 @@ test("phone hero uses the approved artwork byte for byte", () => {
   );
 });
 
-test("phone hero shows only the complete proportional artwork", () => {
+test("approved hero artwork is the only visible hero at every width", () => {
   const css = consultantCss();
-  const mobile = mobileConsultantCss();
-  const beforeMobile = css.slice(0, css.indexOf("/* Mobile-only Consultant B visuals */"));
+  const shared = css.slice(0, css.indexOf("@media (max-width: 900px)"));
 
-  assert.match(beforeMobile, /\.brand-hero__mobile-art\s*\{[^}]*display:\s*none/s);
-  assert.match(
-    mobile,
-    /\.brand-hero\s*\{[^}]*width:\s*calc\(100% \+ 20px\)[^}]*height:\s*auto[^}]*margin-left:\s*-10px[^}]*padding:\s*0[^}]*border:\s*0[^}]*background:\s*transparent/s
-  );
-  assert.match(mobile, /\.brand-hero__mobile-art\s*\{[^}]*display:\s*block[^}]*width:\s*100%[^}]*height:\s*auto/s);
-  assert.match(
-    mobile,
-    /\.brand-hero__content,\s*\.brand-hero__identity,\s*\.brand-hero__portrait\s*\{[^}]*display:\s*none/s
-  );
-  assert.doesNotMatch(mobile, /\.brand-hero\s*\{[^}]*height:\s*(?:206|216)px/s);
+  assert.match(shared, /\.brand-hero__mobile-art\s*\{[^}]*display:\s*block[^}]*width:\s*100%[^}]*height:\s*auto/s);
+  assert.match(shared, /\.brand-hero__content,\s*\.brand-hero__identity,\s*\.brand-hero__portrait\s*\{[^}]*display:\s*none/s);
+  assert.match(shared, /\.brand-hero\s*\{[^}]*width:\s*100%[^}]*min-height:\s*0[^}]*background:\s*transparent/s);
 });
 
 test("changing mobile steps returns the wizard header to view", () => {
@@ -136,20 +127,20 @@ test("legacy percent-based loan ratios migrate to cheng units", () => {
   assert.match(html, /parseNumericValue\(saved\) > 10\s*\?\s*parseNumericValue\(saved\) \/ 10/);
 });
 
-test("Consultant B visual theme is enclosed by the phone breakpoint", () => {
+test("Consultant B theme is shared by every viewport", () => {
   const css = consultantCss();
-  assert.match(css, /\.wizard-mobile-head,[\s\S]*display:\s*none/);
-  assert.match(css, /@media \(max-width:\s*620px\)\s*\{\s*\/\* Mobile-only Consultant B visuals \*\//);
+  const firstResponsiveOverride = css.indexOf("@media (max-width: 900px)");
+  assert.ok(firstResponsiveOverride > -1, "missing responsive override");
+  const shared = css.slice(0, firstResponsiveOverride);
 
-  const beforeMobile = css.slice(0, css.indexOf("/* Mobile-only Consultant B visuals */"));
-  assert.doesNotMatch(beforeMobile, /--consultant-cream|\.brand-hero\s*\{|\.workspace\s*\{/);
-  assert.doesNotMatch(beforeMobile, /\.brand-hero__title-line|height:\s*190px/);
-});
-
-test("desktop does not hide calculator forms from wizard state", () => {
-  const css = consultantCss();
-  const beforeMobile = css.slice(0, css.indexOf("/* Mobile-only Consultant B visuals */"));
-  assert.doesNotMatch(beforeMobile, /\[data-wizard\]\[data-wizard-current="3"\]\s*>\s*form/);
+  assert.match(shared, /:root\s*\{[^}]*--consultant-cream:\s*#f3ead7/s);
+  assert.match(shared, /body\s*\{[^}]*background:/s);
+  assert.match(shared, /\.workspace\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/s);
+  assert.match(shared, /\.wizard-mobile-head\s*\{[^}]*display:\s*grid/s);
+  assert.match(shared, /\[data-wizard-step\]:not\(\.is-wizard-active\)\s*\{[^}]*display:\s*none/s);
+  assert.match(shared, /\[data-wizard\]\[data-wizard-current="3"\]\s*>\s*form\s*\{[^}]*display:\s*none/s);
+  assert.match(shared, /\.wizard-mobile-actions\s*\{[^}]*display:\s*grid/s);
+  assert.match(shared, /\.wizard-result-actions\s*\{[^}]*display:\s*grid/s);
 });
 
 test("legacy saved loan rate migrates to the 2.5 percent default once", () => {
@@ -158,14 +149,20 @@ test("legacy saved loan rate migrates to the 2.5 percent default once", () => {
   assert.match(html, /id === "annualRate" && annualRateDefaultVersion < 2\s*\?\s*2\.5/);
 });
 
-test("source references are inline on desktop and listed on phones", () => {
-  assert.match(html, /<ul class="sources-list">/);
-  assert.equal((html.match(/<li class="source-item">/g) || []).length, 5);
-
+test("source references are structured lists at every width", () => {
   const css = consultantCss();
-  const mobile = mobileConsultantCss();
-  assert.match(css, /\.sources-list\s*\{[^}]*display:\s*inline/s);
-  assert.match(css, /\.source-item\s*\{[^}]*display:\s*inline/s);
-  assert.match(mobile, /\.sources-list\s*\{[^}]*display:\s*grid/s);
-  assert.match(mobile, /\.source-item\s*\{[^}]*grid-template-columns:\s*auto minmax\(0,\s*1fr\)/s);
+  const shared = css.slice(0, css.indexOf("@media (max-width: 900px)"));
+
+  assert.equal((html.match(/<li class="source-item">/g) || []).length, 5);
+  assert.match(shared, /\.sources-list\s*\{[^}]*display:\s*grid/s);
+  assert.match(shared, /\.source-item\s*\{[^}]*grid-template-columns:\s*auto minmax\(0,\s*1fr\)/s);
+  assert.doesNotMatch(shared, /\.source-item:not\(:last-child\)::after\s*\{[^}]*content:\s*"；"/s);
+});
+
+test("desktop contact actions sit before sources inside the main flow", () => {
+  const contact = html.indexOf('<div class="float-contact"');
+  const sources = html.indexOf('<section class="sources"');
+  const mainEnd = html.indexOf("</main>");
+
+  assert.ok(contact > -1 && contact < sources && sources < mainEnd);
 });
