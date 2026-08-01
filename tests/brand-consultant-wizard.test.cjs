@@ -118,10 +118,19 @@ test("phone override keeps only phone-specific Consultant B rules", () => {
   assert.match(mobile, /\.brand-hero\s*\{[^}]*width:\s*calc\(100% \+ 20px\)[^}]*margin-left:\s*-10px/s);
   assert.match(mobile, /\.float-contact\s*\{[^}]*position:\s*fixed[^}]*right:\s*12px[^}]*bottom:\s*12px[^}]*left:\s*12px/s);
   assert.doesNotMatch(mobile, /\.wizard-mobile-head\s*\{/);
-  assert.doesNotMatch(mobile, /\.wizard-mobile-actions\s*\{/);
   assert.doesNotMatch(mobile, /\.wizard-result-actions\s*\{/);
   assert.doesNotMatch(mobile, /\.sources,\s*\.sources-list\s*\{/);
   assert.doesNotMatch(mobile, /\.source-item\s*\{/);
+});
+
+test("phone wizard navigation stays above the fixed contact actions", () => {
+  const css = consultantCss();
+  const mobile = css.slice(css.lastIndexOf("@media (max-width: 620px)"));
+
+  assert.match(
+    mobile,
+    /\.wizard-mobile-actions\s*\{[^}]*position:\s*sticky[^}]*bottom:\s*72px[^}]*z-index:\s*899/s
+  );
 });
 
 test("legacy percent-based loan ratios migrate to cheng units", () => {
