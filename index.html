@@ -7234,8 +7234,6 @@
       formatAllNumericInputs();
     }
 
-    const WIZARD_MOBILE_QUERY = window.matchMedia("(max-width: 620px)");
-
     function wizardSteps(workspace) {
       if (!workspace) return [];
       return [...new Set(
@@ -7256,7 +7254,7 @@
       workspace.querySelectorAll("[data-wizard-step]").forEach(step => {
         const active = Number(step.dataset.wizardStep) === activeStep;
         step.classList.toggle("is-wizard-active", active);
-        step.setAttribute("aria-hidden", WIZARD_MOBILE_QUERY.matches ? String(!active) : "false");
+        step.setAttribute("aria-hidden", String(!active));
       });
 
       const titles = JSON.parse(workspace.dataset.wizardTitles || "[]");
@@ -7278,7 +7276,7 @@
         next.hidden = index === steps.length - 1;
         next.textContent = index === steps.length - 2 ? "查看結果" : "下一步";
       }
-      if (options.focus && WIZARD_MOBILE_QUERY.matches) {
+      if (options.focus) {
         title?.focus({ preventScroll: true });
         const wizardHead = workspace.querySelector(".wizard-mobile-head");
         const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -7328,7 +7326,7 @@
       return true;
     }
 
-    function setupMobileWizards() {
+    function setupWizards() {
       document.querySelectorAll("[data-wizard]").forEach(workspace => {
         workspace.querySelector("[data-wizard-back]")?.addEventListener("click", () => {
           const index = Number(workspace.dataset.wizardCurrent || 0);
@@ -7341,11 +7339,6 @@
         });
         resetWizard(workspace, { focus: false });
       });
-      WIZARD_MOBILE_QUERY.addEventListener("change", () => {
-        document.querySelectorAll("[data-wizard]").forEach(workspace => {
-          setWizardStep(workspace, Number(workspace.dataset.wizardCurrent || 0), { focus: false });
-        });
-      });
     }
 
     setupNumericInputs();
@@ -7353,7 +7346,7 @@
     setupChipGroups();
     setupWanHints();
     showInitialStates();
-    setupMobileWizards();
+    setupWizards();
 
     function activateTab(name, options = {}) {
       const tab = document.querySelector(`.tab[data-tab="${name}"]`);

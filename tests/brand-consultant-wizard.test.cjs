@@ -43,11 +43,11 @@ for (const name of ["tax", "buyer", "loan", "young"]) {
   });
 }
 
-test("wizard controller keeps presentation state separate from calculator data", () => {
-  assert.match(html, /const WIZARD_MOBILE_QUERY = window\.matchMedia\("\(max-width: 620px\)"\)/);
-  assert.match(html, /function setWizardStep\(workspace, nextIndex/);
-  assert.match(html, /function resetWizard\(workspace/);
-  assert.match(html, /function setupMobileWizards\(\)/);
+test("wizard controller applies presentation state at every viewport", () => {
+  assert.doesNotMatch(html, /WIZARD_MOBILE_QUERY/);
+  assert.match(html, /function setupWizards\(\)/);
+  assert.match(html, /step\.setAttribute\("aria-hidden",\s*String\(!active\)\)/);
+  assert.match(html, /if \(options\.focus\)\s*\{/);
   assert.doesNotMatch(html, /localStorage\.setItem\([^)]*wizard/i);
 });
 
