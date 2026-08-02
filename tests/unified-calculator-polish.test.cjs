@@ -82,6 +82,7 @@ test("房貸概算先無條件進位到千元再顯示約幾萬", () => {
   assert.equal(sandbox.ceilToThousand(47415), 48000);
   assert.equal(sandbox.ceilToThousand(-50001), -51000);
   assert.equal(sandbox.ceilToThousand(Number.POSITIVE_INFINITY), 0);
+  assert.equal(sandbox.ceilToThousand(8.606511983089149e-7), 0);
   assert.equal(sandbox.approxWanAmount(5069223), "約 507 萬");
   assert.equal(sandbox.approxWanAmount(47415), "約 4.8 萬");
   assert.equal(sandbox.approxWanAmount(12000000), "約 1,200 萬");

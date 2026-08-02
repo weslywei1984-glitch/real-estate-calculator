@@ -6460,6 +6460,7 @@
     function ceilToThousand(amount) {
       const numericAmount = Number(amount);
       if (!Number.isFinite(numericAmount)) return 0;
+      if (Math.abs(numericAmount) < 0.5) return 0;
       return Math.sign(numericAmount) * Math.ceil(Math.abs(numericAmount) / 1000) * 1000;
     }
 
