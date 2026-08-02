@@ -67,3 +67,40 @@ test("房地合一稅結果全部以萬元顯示", () => {
     assert.match(indexHtml, new RegExp(`wanLine\\("${label}"`));
   }
 });
+
+test("房貸概算先無條件進位到千元再顯示約幾萬", () => {
+  const start = indexHtml.indexOf("function ceilToThousand");
+  const end = indexHtml.indexOf("function taxRate", start);
+  assert.ok(start > -1 && end > start, "應提供房貸概算格式函式");
+
+  const sandbox = {
+    number: new Intl.NumberFormat("zh-TW", { maximumFractionDigits: 2 })
+  };
+  vm.runInNewContext(indexHtml.slice(start, end), sandbox);
+
+  assert.equal(sandbox.ceilToThousand(5069223), 5070000);
+  assert.equal(sandbox.ceilToThousand(47415), 48000);
+  assert.equal(sandbox.ceilToThousand(-50001), -51000);
+  assert.equal(sandbox.ceilToThousand(Number.POSITIVE_INFINITY), 0);
+  assert.equal(sandbox.approxWanAmount(5069223), "約 507 萬");
+  assert.equal(sandbox.approxWanAmount(47415), "約 4.8 萬");
+  assert.equal(sandbox.approxWanAmount(12000000), "約 1,200 萬");
+  assert.equal(sandbox.approxWanAmount(0), "約 0 萬");
+  assert.equal(sandbox.approxWanRange(47415, 48301), "約 4.8～4.9 萬");
+});
+
+test("房貸摘要與攤還表使用約幾萬格式", () => {
+  assert.match(indexHtml, /<span>總利息與月付範圍<\/span>\s*<strong>\$\{approxWanAmount\(totalInterest\)\}<\/strong>/);
+  for (const expression of [
+    'approxWanLine("貸款本金", principal)',
+    'approxWanLine("還款總額", principal + totalInterest)',
+    'approxWanLine("最高月付", maxPayment)',
+    'approxWanLine("最低月付", Number.isFinite(minPayment) ? minPayment : 0)'
+  ]) {
+    assert.ok(indexHtml.includes(expression), `缺少 ${expression}`);
+  }
+  assert.match(indexHtml, /const paymentText = approxWanRange\(periodMin, periodMax\)/);
+  assert.match(indexHtml, /<td>\$\{approxWanAmount\(principalPaid\)\}<\/td>/);
+  assert.match(indexHtml, /<td>\$\{approxWanAmount\(interestPaid\)\}<\/td>/);
+  assert.match(indexHtml, /<td>\$\{approxWanAmount\(endingBalance\)\}<\/td>/);
+});

@@ -6402,6 +6402,26 @@
       return `<div class="line"><span>${label}</span><b>${wanAmount(amount)}</b></div>`;
     }
 
+    function ceilToThousand(amount) {
+      const numericAmount = Number(amount);
+      if (!Number.isFinite(numericAmount)) return 0;
+      return Math.sign(numericAmount) * Math.ceil(Math.abs(numericAmount) / 1000) * 1000;
+    }
+
+    function approxWanAmount(amount) {
+      return `約 ${number.format(ceilToThousand(amount) / 10000)} 萬`;
+    }
+
+    function approxWanRange(minAmount, maxAmount) {
+      const minText = number.format(ceilToThousand(minAmount) / 10000);
+      const maxText = number.format(ceilToThousand(maxAmount) / 10000);
+      return minText === maxText ? `約 ${maxText} 萬` : `約 ${minText}～${maxText} 萬`;
+    }
+
+    function approxWanLine(label, amount) {
+      return `<div class="line"><span>${label}</span><b>${approxWanAmount(amount)}</b></div>`;
+    }
+
     function taxRate({ years, resident, selfUse, special }) {
       if (resident === "nonresident") {
         // 非境內居住者只有 45% / 35% 兩種稅率，不適用自住優惠與 20% 特別情形
@@ -6656,9 +6676,7 @@
         if (!periodRows.length) return "";
         const periodMin = Math.min(...periodRows.map(row => row.payment));
         const periodMax = Math.max(...periodRows.map(row => row.payment));
-        const paymentText = Math.round(periodMin) === Math.round(periodMax)
-          ? money.format(Math.round(periodMax))
-          : `${money.format(Math.round(periodMin))}～${money.format(Math.round(periodMax))}`;
+        const paymentText = approxWanRange(periodMin, periodMax);
         const principalPaid = periodRows.reduce((sum, row) => sum + row.principalPaid, 0);
         const interestPaid = periodRows.reduce((sum, row) => sum + row.interest, 0);
         const endingBalance = periodRows[periodRows.length - 1].balance;
@@ -6666,9 +6684,9 @@
           <tr>
             <td>${label}</td>
             <td>${paymentText}</td>
-            <td>${money.format(Math.round(principalPaid))}</td>
-            <td>${money.format(Math.round(interestPaid))}</td>
-            <td>${money.format(Math.round(endingBalance))}</td>
+            <td>${approxWanAmount(principalPaid)}</td>
+            <td>${approxWanAmount(interestPaid)}</td>
+            <td>${approxWanAmount(endingBalance)}</td>
           </tr>
         `;
       };
@@ -6693,12 +6711,12 @@
         </div>
         <div class="metric">
           <span>總利息與月付範圍</span>
-          <strong>${money.format(Math.round(totalInterest))}</strong>
+          <strong>${approxWanAmount(totalInterest)}</strong>
           <div class="breakdown">
-            ${line("貸款本金", principal)}
-            ${line("還款總額", principal + totalInterest)}
-            ${line("最高月付", maxPayment)}
-            ${line("最低月付", Number.isFinite(minPayment) ? minPayment : 0)}
+            ${approxWanLine("貸款本金", principal)}
+            ${approxWanLine("還款總額", principal + totalInterest)}
+            ${approxWanLine("最高月付", maxPayment)}
+            ${approxWanLine("最低月付", Number.isFinite(minPayment) ? minPayment : 0)}
           </div>
         </div>
         <div class="metric">
