@@ -120,7 +120,7 @@ test("青安總貸款與自備款同排，超額說明緊接在下方", () => {
 test("青安月付算式維持單行且五階段標題放進表格", () => {
   assert.match(indexHtml, /<strong class="young-payment-equation">\$\{graceStageDisplay\}<\/strong>/);
   assert.match(indexHtml, /<strong class="young-payment-equation">\$\{normalStageDisplay\}<\/strong>/);
-  assert.match(indexHtml, /\.young-payment-equation\s*\{[^}]*white-space:\s*nowrap/s);
+  assert.match(indexHtml, /\.metric strong\.young-payment-equation\s*\{[^}]*white-space:\s*nowrap/s);
   assert.match(indexHtml, /<caption class="amortization-caption">青安-五階段利率與月付<\/caption>/);
   assert.doesNotMatch(indexHtml, /<h3 class="table-title">青安-五階段利率與月付<\/h3>/);
 });
