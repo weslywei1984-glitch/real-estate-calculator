@@ -89,8 +89,9 @@ test("明細不再重複列一般房貸月付", () => {
   assert.doesNotMatch(html, /<span>一般房貸月付<\/span>/);
 });
 
-test("五階段表格改用標題，不再放大段說明", () => {
-  assert.match(html, /<h3 class="table-title">青安-五階段利率與月付<\/h3>\s*<div class="table-wrap">/);
+test("五階段表格使用表格內標題，不再放大段說明", () => {
+  assert.match(html, /<table class="amortization">\s*<caption class="amortization-caption">青安-五階段利率與月付<\/caption>/);
+  assert.doesNotMatch(html, /<h3 class="table-title">青安-五階段利率與月付<\/h3>/);
   assert.doesNotMatch(html, /firstloan\.firstbank\.com\.tw/);
 });
 

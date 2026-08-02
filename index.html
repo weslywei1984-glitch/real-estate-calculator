@@ -5431,6 +5431,44 @@
       }
     }
 
+    /* Unified Qing'an result polish */
+    .young-summary-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .young-summary-row .metric {
+      grid-column: auto;
+      min-width: 0;
+    }
+
+    .young-summary-row .metric strong {
+      font-size: clamp(1.7rem, 4vw, 2.45rem);
+    }
+
+    .young-summary-note {
+      grid-column: 1 / -1;
+    }
+
+    .young-payment-equation {
+      min-width: 0;
+      font-size: clamp(.98rem, 3.35vw, 1.55rem);
+      letter-spacing: -.035em;
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+
+    .amortization-caption {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--consultant-line);
+      background: #fffdf7;
+      color: var(--consultant-navy);
+      font-size: .9rem;
+      font-weight: 850;
+      text-align: left;
+    }
+
     @media (max-width: 620px) {
       body {
         background: var(--consultant-cream);
@@ -5490,6 +5528,22 @@
         box-shadow: 0 8px 22px rgba(16, 39, 56, .26);
       }
 
+      .young-summary-row {
+        gap: 8px;
+      }
+
+      .young-summary-row .metric {
+        padding: 13px 12px;
+      }
+
+      .young-summary-row .metric strong {
+        font-size: clamp(1.55rem, 8vw, 2rem);
+      }
+
+      .young-payment-equation {
+        font-size: clamp(.9rem, 4.15vw, 1.15rem);
+      }
+
     }
 
     :focus-visible {
@@ -5504,6 +5558,7 @@
         transition: none !important;
       }
     }
+
   </style>
 </head>
 <body>
@@ -6898,16 +6953,16 @@
         : "";
 
       const calculationSections = eligible ? `
-        <div class="metric-row">
+        <div class="young-summary-row">
           ${wanMetric("預估總貸款", totalLoan, "main young-main")}
-          ${wanMetric("預估自備款", downPayment)}
+          ${wanMetric("預估自備款", downPayment, "young-down-payment")}
+          ${supplementalLoan > 0 ? `<div class="metric warn young-summary-note"><div class="policy-note">${splitLoanNote}</div></div>` : ""}
         </div>
-        ${supplementalLoan > 0 ? `<div class="metric warn"><div class="policy-note">${splitLoanNote}</div></div>` : ""}
         <div class="metric">
           <span>青安寬限期月付${suffix}</span>
-          <strong>${graceStageDisplay}</strong>
+          <strong class="young-payment-equation">${graceStageDisplay}</strong>
           <span class="metric-split">青安寬限期<b class="mark-after">後</b>月付${suffix}</span>
-          <strong>${normalStageDisplay}</strong>
+          <strong class="young-payment-equation">${normalStageDisplay}</strong>
         </div>
         <div class="metric">
           <span>貸款金額組成</span>
@@ -6931,9 +6986,9 @@
             <div class="ratio-meter-track"><div class="ratio-meter-fill" style="width:${Math.min(debtRatio, 100)}%"></div></div>
           </div>
         </div>
-        <h3 class="table-title">青安-五階段利率與月付</h3>
         <div class="table-wrap">
           <table class="amortization">
+            <caption class="amortization-caption">青安-五階段利率與月付</caption>
             <thead>
               <tr>
                 <th>階段</th>
@@ -7302,7 +7357,9 @@
       if (progress) progress.style.width = `${((index + 1) / steps.length) * 100}%`;
       if (back) {
         back.disabled = index === 0;
-        back.textContent = index === steps.length - 1 ? "重新調整" : "上一步";
+        back.textContent = index === steps.length - 1
+          ? (workspace.dataset.wizard === "young" ? "上一頁" : "重新調整")
+          : "上一步";
       }
       if (next) {
         next.hidden = index === steps.length - 1;
