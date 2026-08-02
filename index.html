@@ -5582,15 +5582,15 @@
             <div class="field" data-wizard-step="2">
               <label for="sellExpense">取得、改良與移轉費用</label>
               <div class="control">
-                <input id="sellExpense" type="number" min="0" step="1000" value="0">
-                <span class="unit">元</span>
+                <input id="sellExpense" data-money-unit="wan" type="number" min="0" step="0.1" value="0">
+                <span class="unit">萬元</span>
               </div>
             </div>
             <div class="field" data-wizard-step="2">
               <label for="landGain">土地漲價總數額</label>
               <div class="control">
-                <input id="landGain" type="number" min="0" step="1000" value="0">
-                <span class="unit">元</span>
+                <input id="landGain" data-money-unit="wan" type="number" min="0" step="0.1" value="0">
+                <span class="unit">萬元</span>
               </div>
             </div>
             <div class="lookup-links field wide" data-wizard-step="2" aria-label="土地稅務查詢連結">
@@ -5714,16 +5714,16 @@
             <div class="field" data-wizard-step="2">
               <label for="buildingValue">房屋評定現值／契價</label>
               <div class="control">
-                <input id="buildingValue" type="number" min="0" step="1000" value="1000000">
-                <span class="unit">元</span>
+                <input id="buildingValue" data-money-unit="wan" type="number" min="0" step="0.1" value="100">
+                <span class="unit">萬元</span>
               </div>
               <div class="field-note">填房屋稅單的「課稅現值」，下面自動算契稅</div>
             </div>
             <div class="field" data-wizard-step="2">
               <label for="landDeclaredValue">土地申報地價總額</label>
               <div class="control">
-                <input id="landDeclaredValue" type="number" min="0" step="1000" value="1800000">
-                <span class="unit">元</span>
+                <input id="landDeclaredValue" data-money-unit="wan" type="number" min="0" step="0.1" value="180">
+                <span class="unit">萬元</span>
               </div>
               <div class="field-note">填公告地價 × 持有面積(m²)，下面自動算買賣登記規費</div>
             </div>
@@ -6452,7 +6452,7 @@
         <div class="line"><span>${item.passed ? "已勾選" : "未勾選"}：${item.label}</span><b>${item.passed ? "OK" : "未符合"}</b></div>
       `).join("");
       document.getElementById("taxResult").innerHTML = `
-        ${metric("預估應納房地合一稅", tax, "main")}
+        ${wanMetric("預估應納房地合一稅", tax, "main")}
         <div class="metric">
           <span>適用稅率</span>
           <strong>${number.format(rate.rate * 100)}%</strong>
@@ -6461,13 +6461,13 @@
         <div class="metric">
           <span>計算明細</span>
           <div class="breakdown">
-            ${line("出售成交價額", salePrice)}
-            ${line("減：取得成本", -buyCost)}
-            ${line("減：取得、改良與移轉費用", -sellExpense)}
-            ${line("減：土地漲價總數額", -landGain)}
-            ${line("課稅所得稅基", grossIncome)}
-            ${selfUse ? line("自住房地免稅額", -exemption) : ""}
-            ${line("出售稅後淨利", afterTaxProfit)}
+            ${wanLine("出售成交價額", salePrice)}
+            ${wanLine("減：取得成本", -buyCost)}
+            ${wanLine("減：取得、改良與移轉費用", -sellExpense)}
+            ${wanLine("減：土地漲價總數額", -landGain)}
+            ${wanLine("課稅所得稅基", grossIncome)}
+            ${selfUse ? wanLine("自住房地免稅額", -exemption) : ""}
+            ${wanLine("出售稅後淨利", afterTaxProfit)}
           </div>
         </div>
         <div class="metric ${selfUse ? "" : "warn"}">
@@ -7193,11 +7193,12 @@
     }
 
     const STORAGE_KEY = "realEstateCalcInputs.v1";
+    const NEW_WAN_FIELD_IDS = new Set(["sellExpense", "landGain", "buildingValue", "landDeclaredValue"]);
     let saveTimer;
 
     function saveInputs() {
       const data = {
-        __moneyUnitVersion: 2,
+        __moneyUnitVersion: 3,
         __loanRatioUnitVersion: 2,
         __annualRateDefaultVersion: 2
       };
@@ -7235,7 +7236,8 @@
         } else {
           const savedValue = id === "annualRate" && annualRateDefaultVersion < 2
             ? 2.5
-            : moneyUnitVersion < 2 && el.dataset.moneyUnit === "wan"
+            : (moneyUnitVersion < 2 && el.dataset.moneyUnit === "wan") ||
+                (moneyUnitVersion < 3 && NEW_WAN_FIELD_IDS.has(id))
               ? parseNumericValue(saved) / 10000
               : loanRatioUnitVersion < 2 && ["loanRatio", "loanLtvRatio"].includes(id) && parseNumericValue(saved) > 10
                 ? parseNumericValue(saved) / 10

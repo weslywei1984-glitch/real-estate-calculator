@@ -31,3 +31,39 @@ for (const [name, html] of [
   });
 }
 
+test("新增的房地合一稅與買方費用欄位改用萬元輸入", () => {
+  for (const [id, value] of [
+    ["sellExpense", "0"],
+    ["landGain", "0"],
+    ["buildingValue", "100"],
+    ["landDeclaredValue", "180"]
+  ]) {
+    assert.match(
+      indexHtml,
+      new RegExp(`<input id="${id}"[^>]*data-money-unit="wan"[^>]*step="0\\.1"[^>]*value="${value}"[^>]*>`)
+    );
+    assert.match(indexHtml, new RegExp(`<input id="${id}"[\\s\\S]{0,180}<span class="unit">萬元<\\/span>`));
+  }
+});
+
+test("萬元欄位第三版會遷移舊的元資料", () => {
+  assert.match(indexHtml, /const NEW_WAN_FIELD_IDS = new Set\(\["sellExpense", "landGain", "buildingValue", "landDeclaredValue"\]\);/);
+  assert.match(indexHtml, /moneyUnitVersion < 3 && NEW_WAN_FIELD_IDS\.has\(id\)/);
+  assert.match(indexHtml, /parseNumericValue\(saved\) \/ 10000/);
+  assert.match(indexHtml, /__moneyUnitVersion:\s*3/);
+});
+
+test("房地合一稅結果全部以萬元顯示", () => {
+  assert.match(indexHtml, /wanMetric\("預估應納房地合一稅", tax, "main"\)/);
+  for (const label of [
+    "出售成交價額",
+    "減：取得成本",
+    "減：取得、改良與移轉費用",
+    "減：土地漲價總數額",
+    "課稅所得稅基",
+    "自住房地免稅額",
+    "出售稅後淨利"
+  ]) {
+    assert.match(indexHtml, new RegExp(`wanLine\\("${label}"`));
+  }
+});

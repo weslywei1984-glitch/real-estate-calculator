@@ -118,8 +118,12 @@ test("指定的大額金額欄位以萬元輸入並移除重複換算提示", ()
   const wanFields = [
     "salePrice",
     "buyCost",
+    "sellExpense",
+    "landGain",
     "purchasePrice",
     "buyerDownPayment",
+    "buildingValue",
+    "landDeclaredValue",
     "loanPurchasePrice",
     "loanAmount",
     "loanDownPayment",
@@ -136,7 +140,7 @@ test("指定的大額金額欄位以萬元輸入並移除重複換算提示", ()
 
   assert.match(html, /el\.dataset\.moneyUnit === "wan"\s*\? numericValue \* 10000/);
   assert.match(html, /input\.dataset\.moneyUnit === "wan"\s*\? numericValue \/ 10000/);
-  assert.match(html, /__moneyUnitVersion:\s*2/);
+  assert.match(html, /__moneyUnitVersion:\s*3/);
 });
 
 test("手機版青安方案摘要使用緊湊的兩欄排版", () => {
