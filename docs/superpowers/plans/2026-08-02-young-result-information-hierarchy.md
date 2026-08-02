@@ -11,7 +11,7 @@
 ## Global Constraints
 
 - Do not change Qing'an eligibility, loan limits, split-loan rules, interest rates, payment formulas, total-interest formulas, or amortization formulas.
-- Use the existing `housePrice`, `totalLoan`, `downPayment`, `totalInterest`, and `loanYears` values.
+- Use the existing `purchasePrice`, `totalLoan`, `downPayment`, `totalInterest`, and `loanYears` values.
 - Display the summary cards in this order: `購屋總價`, `預估總貸款`, `預估自備款`.
 - Keep the supplemental-loan explanation directly below the three cards and spanning the full summary width.
 - Display total interest as `${loanYears} 年預估總利息` using `approxWanLine()`; remove `青安本息合計`.
@@ -29,7 +29,7 @@
 - Modify: `index.html:6956-6984`
 
 **Interfaces:**
-- Consumes: `wanMetric(label, amount, tone)`, `approxWanLine(label, amount)`, `housePrice`, `totalLoan`, `downPayment`, `loanYears`, and `totalInterest`.
+- Consumes: `wanMetric(label, amount, tone)`, `approxWanLine(label, amount)`, `purchasePrice`, `totalLoan`, `downPayment`, `loanYears`, and `totalInterest`.
 - Produces: `.young-summary-row` with three summary metrics, `.young-summary-note` spanning all columns, and a dynamic approximate-interest line.
 
 - [ ] **Step 1: Replace the existing two-card regression with failing three-card and interest-hierarchy assertions**
@@ -40,7 +40,7 @@ Update `tests/unified-calculator-polish.test.cjs` with these focused contracts:
 test("青安摘要依序顯示購屋總價、總貸款與自備款，說明在三卡下方", () => {
   assert.match(
     indexHtml,
-    /<div class="young-summary-row">\s*\$\{wanMetric\("購屋總價", housePrice, "main young-purchase-price"\)\}\s*\$\{wanMetric\("預估總貸款", totalLoan, "young-total-loan"\)\}\s*\$\{wanMetric\("預估自備款", downPayment, "young-down-payment"\)\}/
+    /<div class="young-summary-row">\s*\$\{wanMetric\("購屋總價", purchasePrice, "main young-purchase-price"\)\}\s*\$\{wanMetric\("預估總貸款", totalLoan, "young-total-loan"\)\}\s*\$\{wanMetric\("預估自備款", downPayment, "young-down-payment"\)\}/
   );
   assert.match(indexHtml, /class="metric warn young-summary-note"/);
   assert.match(indexHtml, /\.young-summary-row\s*\{[^}]*grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\)/s);
@@ -70,7 +70,7 @@ Change the result template to:
 
 ```js
 <div class="young-summary-row">
-  ${wanMetric("購屋總價", housePrice, "main young-purchase-price")}
+  ${wanMetric("購屋總價", purchasePrice, "main young-purchase-price")}
   ${wanMetric("預估總貸款", totalLoan, "young-total-loan")}
   ${wanMetric("預估自備款", downPayment, "young-down-payment")}
   ${supplementalLoan > 0 ? `<div class="metric warn young-summary-note"><div class="policy-note">${splitLoanNote}</div></div>` : ""}
@@ -98,8 +98,13 @@ Use three equal columns at every viewport:
   gap: 12px;
 }
 
-.young-summary-note {
+.young-summary-row .young-summary-note {
   grid-column: 1 / -1;
+}
+
+.young-summary-row .metric strong {
+  font-size: clamp(1.35rem, 2.4vw, 2rem);
+  white-space: nowrap;
 }
 ```
 

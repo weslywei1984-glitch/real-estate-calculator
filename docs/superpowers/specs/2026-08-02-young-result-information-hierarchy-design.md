@@ -27,7 +27,7 @@
 ## 計算與資料邊界
 
 - 不修改青安資格、貸款額度、貸款拆分、利率、月付、總利息與攤還表公式。
-- 「購屋總價」直接使用現有 `housePrice` 結果值。
+- 「購屋總價」直接使用 `calculateYoung()` 內既有的 `purchasePrice` 結果值。
 - 總利息仍使用現有 `totalInterest`，以 `approxWanLine()` 顯示約數，只調整標籤與視覺層級。
 - 不修改 localStorage 格式或既有輸入資料。
 

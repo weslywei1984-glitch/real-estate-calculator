@@ -5444,10 +5444,11 @@
     }
 
     .young-summary-row .metric strong {
-      font-size: clamp(1.7rem, 4vw, 2.45rem);
+      font-size: clamp(1.35rem, 2.4vw, 2rem);
+      white-space: nowrap;
     }
 
-    .young-summary-note {
+    .young-summary-row .young-summary-note {
       grid-column: 1 / -1;
     }
 
@@ -6964,7 +6965,7 @@
 
       const calculationSections = eligible ? `
         <div class="young-summary-row">
-          ${wanMetric("購屋總價", housePrice, "main young-purchase-price")}
+          ${wanMetric("購屋總價", purchasePrice, "main young-purchase-price")}
           ${wanMetric("預估總貸款", totalLoan, "young-total-loan")}
           ${wanMetric("預估自備款", downPayment, "young-down-payment")}
           ${supplementalLoan > 0 ? `<div class="metric warn young-summary-note"><div class="policy-note">${splitLoanNote}</div></div>` : ""}
