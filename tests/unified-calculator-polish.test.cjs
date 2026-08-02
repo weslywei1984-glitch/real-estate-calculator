@@ -106,15 +106,21 @@ test("房貸摘要與攤還表使用約幾萬格式", () => {
   assert.match(indexHtml, /<td>\$\{approxWanAmount\(endingBalance\)\}<\/td>/);
 });
 
-test("青安總貸款與自備款同排，超額說明緊接在下方", () => {
+test("青安摘要依序顯示購屋總價、總貸款與自備款，說明在三卡下方", () => {
   assert.match(
     indexHtml,
-    /<div class="young-summary-row">\s*\$\{wanMetric\("預估總貸款", totalLoan, "main young-main"\)\}\s*\$\{wanMetric\("預估自備款", downPayment, "young-down-payment"\)\}/
+    /<div class="young-summary-row">\s*\$\{wanMetric\("購屋總價", housePrice, "main young-purchase-price"\)\}\s*\$\{wanMetric\("預估總貸款", totalLoan, "young-total-loan"\)\}\s*\$\{wanMetric\("預估自備款", downPayment, "young-down-payment"\)\}/
   );
   assert.match(indexHtml, /class="metric warn young-summary-note"/);
-  assert.match(indexHtml, /\.young-summary-row\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/s);
+  assert.match(indexHtml, /\.young-summary-row\s*\{[^}]*grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\)/s);
   assert.match(indexHtml, /\.young-summary-note\s*\{[^}]*grid-column:\s*1 \/ -1/s);
   assert.match(indexHtml, /\.young-summary-row \.metric strong\s*\{[^}]*font-size:\s*clamp\(/s);
+});
+
+test("青安總利息顯示動態年限約數並移除本息合計", () => {
+  assert.ok(indexHtml.includes('approxWanLine(`${loanYears} 年預估總利息`, totalInterest)'));
+  assert.doesNotMatch(indexHtml, /wanLine\("青安本息合計"/);
+  assert.match(indexHtml, /<th>利息<\/th>/);
 });
 
 test("青安月付算式維持單行且五階段標題放進表格", () => {
