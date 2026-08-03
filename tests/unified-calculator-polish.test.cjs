@@ -111,6 +111,42 @@ test("房貸結果沒有重複最高與最低月付", () => {
   assert.match(indexHtml, /metric\("每月月付", firstNormalPayment, "main"\)/);
 });
 
+test("一般房貸把收入試算移到結果頁的購屋預算跑道", () => {
+  assert.doesNotMatch(indexHtml, /<div class="afford-card" id="loanAffordCard"><\/div>/);
+  assert.match(indexHtml, /id="loanAffordRunway"/);
+  assert.match(indexHtml, /id="loanResultSalarySlider"[^>]*aria-label="調整每月薪水並即時更新購屋預算跑道"/);
+  assert.match(indexHtml, /function affordabilitySnapshot\(options\)/);
+  assert.match(indexHtml, /function renderAffordRunway\(cardId, options\)/);
+  assert.match(indexHtml, /function bindResultSalarySlider\(\)/);
+  assert.match(indexHtml, /class="afford-runway__zone-text"/);
+});
+
+test("購屋預算跑道沿用三分之一到四成且標記不超界", () => {
+  const start = indexHtml.indexOf("function affordabilitySnapshot");
+  const end = indexHtml.indexOf("function renderAffordRunway", start);
+  assert.ok(start > -1 && end > start);
+  const sandbox = {
+    AFFORD_RATIO_LOW: 1 / 3,
+    AFFORD_RATIO_HIGH: 2 / 5,
+    clamp: (value, min, max) => Math.min(max, Math.max(min, value)),
+    loanFromPayment: payment => payment * 300
+  };
+  vm.runInNewContext(indexHtml.slice(start, end), sandbox);
+
+  const empty = sandbox.affordabilitySnapshot({
+    salary: 0, annualRate: 2.5, years: 30, downPayment: 3000000, purchasePrice: 15000000
+  });
+  assert.equal(empty.empty, true);
+
+  const result = sandbox.affordabilitySnapshot({
+    salary: 100000, annualRate: 2.5, years: 30, downPayment: 3000000, purchasePrice: 16000000
+  });
+  assert.ok(Math.abs(result.payLow - 100000 / 3) < 1e-9);
+  assert.equal(result.payHigh, 40000);
+  assert.equal(result.zone, "挑戰");
+  assert.ok(result.markerPercent >= 0 && result.markerPercent <= 100);
+});
+
 test("青安摘要依序顯示購屋總價、總貸款與自備款，說明在三卡下方", () => {
   assert.match(
     indexHtml,

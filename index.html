@@ -5509,9 +5509,128 @@
       line-height: 1.55;
     }
 
+    .afford-runway {
+      grid-column: 1 / -1;
+      gap: 13px;
+      overflow: hidden;
+      background:
+        linear-gradient(135deg, rgba(101, 114, 68, .08), transparent 48%),
+        var(--consultant-paper);
+    }
+
+    .afford-runway__head {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: end;
+    }
+
+    .afford-runway__head span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--consultant-muted);
+      font-size: .72rem;
+      font-weight: 750;
+    }
+
+    .afford-runway__head strong {
+      color: var(--consultant-navy);
+      font-size: clamp(1.18rem, 2.8vw, 1.65rem);
+      line-height: 1.15;
+    }
+
+    .afford-runway__zone-text {
+      flex: 0 0 auto;
+      padding: 6px 10px;
+      border: 1px solid rgba(16, 39, 56, .15);
+      border-radius: 999px;
+      background: rgba(255, 253, 247, .88);
+      color: var(--consultant-navy);
+      font-size: .78rem;
+    }
+
+    .afford-runway__track {
+      position: relative;
+      height: 14px;
+      margin: 34px 0 8px;
+      border-radius: 999px;
+      background: linear-gradient(90deg,
+        #7eaa88 0 var(--low),
+        #d9bd68 var(--low) var(--high),
+        #d68067 var(--high) 100%);
+      box-shadow: inset 0 0 0 1px rgba(16, 39, 56, .09);
+    }
+
+    .afford-runway__marker {
+      position: absolute;
+      left: var(--marker);
+      top: -9px;
+      width: 3px;
+      height: 32px;
+      border-radius: 99px;
+      background: var(--consultant-navy);
+      transform: translateX(-50%);
+    }
+
+    .afford-runway__marker-label {
+      position: absolute;
+      left: clamp(18%, var(--marker), 82%);
+      bottom: 22px;
+      color: var(--consultant-navy);
+      font-size: .7rem;
+      font-style: normal;
+      font-weight: 850;
+      white-space: nowrap;
+      transform: translateX(-50%);
+    }
+
+    .afford-runway__labels {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      color: var(--consultant-muted);
+      font-size: .68rem;
+      font-weight: 750;
+      text-align: center;
+    }
+
+    .afford-runway__salary {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: baseline;
+      padding-top: 10px;
+      border-top: 1px dashed var(--consultant-line);
+      color: var(--consultant-navy);
+    }
+
+    .afford-runway__salary b {
+      color: var(--consultant-terracotta-dark);
+      white-space: nowrap;
+    }
+
+    .afford-runway .salary-slider {
+      margin-top: 0;
+    }
+
+    .afford-runway .afford-stat {
+      margin-top: 4px;
+      background: rgba(16, 39, 56, .045);
+    }
+
     @media (max-width: 620px) {
       body {
         background: var(--consultant-cream);
+      }
+
+      .afford-runway__head {
+        align-items: flex-start;
+      }
+
+      .afford-runway__marker-label {
+        max-width: 118px;
+        line-height: 1.25;
+        text-align: center;
+        white-space: normal;
       }
 
       .shell {
@@ -6022,7 +6141,6 @@
             </div>
             <input class="salary-slider" id="loanSalarySlider" type="range" min="2" max="30" step="0.5" value="6" aria-label="每月薪水快速調整">
           </div>
-          <div class="afford-card" id="loanAffordCard"></div>
         </div>
 
         <div class="section" data-wizard-step="3">
@@ -6681,6 +6799,68 @@
 
     const wanLabel = amount => `${number.format(Math.round(amount / 10000))} 萬`;
 
+    function affordabilitySnapshot(options) {
+      const salary = Math.max(0, Number(options.salary) || 0);
+      const annualRate = Math.max(0, Number(options.annualRate) || 0);
+      const years = Math.max(1, Number(options.years) || 1);
+      const downPayment = Math.max(0, Number(options.downPayment) || 0);
+      const purchasePrice = Math.max(0, Number(options.purchasePrice) || 0);
+      if (salary <= 0) return { empty: true };
+
+      const months = Math.max(1, Math.round(years * 12));
+      const monthlyRate = annualRate / 100 / 12;
+      const payLow = salary * AFFORD_RATIO_LOW;
+      const payHigh = salary * AFFORD_RATIO_HIGH;
+      const priceLow = loanFromPayment(payLow, monthlyRate, months) + downPayment;
+      const priceHigh = loanFromPayment(payHigh, monthlyRate, months) + downPayment;
+      const zone = purchasePrice < priceLow ? "安心" : purchasePrice <= priceHigh ? "剛好" : "挑戰";
+      const scaleMax = Math.max(1, priceHigh * 1.2, purchasePrice * 1.08);
+      return {
+        empty: false,
+        payLow,
+        payHigh,
+        priceLow,
+        priceHigh,
+        zone,
+        markerPercent: clamp(purchasePrice / scaleMax * 100, 0, 100),
+        lowPercent: clamp(priceLow / scaleMax * 100, 0, 100),
+        highPercent: clamp(priceHigh / scaleMax * 100, 0, 100)
+      };
+    }
+
+    function renderAffordRunway(cardId, options) {
+      const card = document.getElementById(cardId);
+      if (!card) return;
+      const snapshot = affordabilitySnapshot(options);
+      if (snapshot.empty) {
+        card.innerHTML = `<p class="afford-empty">填入每月薪水，就能看看目前房價落在你的哪一段預算跑道。</p>`;
+        return;
+      }
+
+      const messages = {
+        安心: "目前房價低於舒適試算帶，預算較有空間，可把裝潢與稅費一起納入規劃。",
+        剛好: "目前房價落在舒適試算帶，可再確認生活支出與利率變動後是否仍從容。",
+        挑戰: "目前房價高於舒適試算帶，可從提高自備款、調整總價或重新安排年限著手。"
+      };
+      card.innerHTML = `
+        <div class="afford-runway__head">
+          <div><span>你的舒適購屋預算</span><strong>${wanLabel(snapshot.priceLow)}～${wanLabel(snapshot.priceHigh)}</strong></div>
+          <b class="afford-runway__zone-text">${snapshot.zone}</b>
+        </div>
+        <div class="afford-runway__track" role="img" aria-label="目前房價位於${snapshot.zone}區" style="--low:${snapshot.lowPercent}%;--high:${snapshot.highPercent}%;--marker:${snapshot.markerPercent}%">
+          <i class="afford-runway__marker" aria-hidden="true"></i>
+          <em class="afford-runway__marker-label">目前房價 ${wanLabel(options.purchasePrice)}</em>
+        </div>
+        <div class="afford-runway__labels"><span>安心</span><span>剛好</span><span>挑戰</span></div>
+        <p class="afford-note">${messages[snapshot.zone]}</p>
+        <div class="afford-stat">
+          <span>舒適月付試算</span>
+          <strong>${number.format(Math.round(snapshot.payLow))}～${number.format(Math.round(snapshot.payHigh))}</strong>
+          <small>元／月（收入的三分之一到四成）</small>
+        </div>
+      `;
+    }
+
     function renderAffordCard(cardId, options) {
       const card = document.getElementById(cardId);
       if (!card) return;
@@ -6833,6 +7013,14 @@
           <strong>${paidMonths} 期</strong>
           <div class="note">${hasGrace ? `前 ${graceMonths} 期為寬限期，只付利息；寬限期後開始攤還本金。` : "沒有寬限期，從第 1 期就開始還本金，每期月付都一樣。"}</div>
         </div>
+        <div class="metric afford-runway" id="loanAffordRunway">
+          <div id="loanAffordRunwayVisual"></div>
+          <label class="afford-runway__salary" for="loanResultSalarySlider">
+            <span>用我的月薪試跑</span>
+            <b id="loanResultSalaryValue">${number.format(value("loanSalary") / 10000)} 萬</b>
+          </label>
+          <input class="salary-slider" id="loanResultSalarySlider" type="range" min="2" max="30" step="0.5" value="${value("loanSalary") / 10000}" aria-label="調整每月薪水並即時更新購屋預算跑道">
+        </div>
         <div class="table-wrap">
           <table class="amortization">
             <thead>
@@ -6854,13 +7042,14 @@
         )}
       `;
 
-      renderAffordCard("loanAffordCard", {
+      renderAffordRunway("loanAffordRunwayVisual", {
         salary: value("loanSalary"),
         annualRate: value("annualRate"),
         years: value("loanYears"),
         downPayment,
-        rateNote: `利率 ${number.format(value("annualRate"))}%、還 ${Math.round(value("loanYears"))} 年`
+        purchasePrice
       });
+      bindResultSalarySlider();
     }
 
     function calculateYoung() {
@@ -7954,6 +8143,28 @@
       input.addEventListener("input", syncSliderFromInput);
       syncSliderFromInput();
       window.syncSalarySliders = (window.syncSalarySliders || []).concat(syncSliderFromInput);
+    }
+
+    function bindResultSalarySlider() {
+      const slider = document.getElementById("loanResultSalarySlider");
+      if (!slider) return;
+      slider.addEventListener("input", () => {
+        const salaryWan = Number(slider.value);
+        setNumericInputValue("loanSalary", salaryWan * 10000);
+        const sourceSlider = document.getElementById("loanSalarySlider");
+        if (sourceSlider) sourceSlider.value = String(salaryWan);
+        const resultValue = document.getElementById("loanResultSalaryValue");
+        if (resultValue) resultValue.textContent = `${number.format(salaryWan)} 萬`;
+        updateAllWanHints();
+        queueSave();
+        renderAffordRunway("loanAffordRunwayVisual", {
+          salary: salaryWan * 10000,
+          annualRate: value("annualRate"),
+          years: value("loanYears"),
+          downPayment: Math.max(0, value("loanPurchasePrice") - value("loanAmount")),
+          purchasePrice: value("loanPurchasePrice")
+        });
+      });
     }
 
     bindSalarySlider("loanSalarySlider", "loanSalary", "loan");

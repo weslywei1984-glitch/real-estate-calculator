@@ -120,9 +120,9 @@ test("兩個分頁都能用收入回推可負擔房價", () => {
   assert.match(html, /payment \* \(1 - Math\.pow\(1 \+ monthlyRate, -months\)\) \/ monthlyRate/);
 
   assert.match(html, /id="loanSalary"/);
-  assert.match(html, /id="loanAffordCard"/);
+  assert.match(html, /id="loanAffordRunway"/);
   assert.match(html, /id="youngAffordCard"/);
-  assert.match(html, /renderAffordCard\("loanAffordCard"/);
+  assert.match(html, /renderAffordRunway\("loanAffordRunwayVisual"/);
   assert.match(html, /renderAffordCard\("youngAffordCard"/);
 
   // 青安要用補貼期滿後的基準利率，不能用首期補貼利率（會高估負擔能力）
