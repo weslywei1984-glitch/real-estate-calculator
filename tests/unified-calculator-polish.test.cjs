@@ -101,6 +101,7 @@ test("房貸與青安把利息移入預設收合的總成本明細", () => {
   assert.ok(indexHtml.includes('approxWanLine(`${loanYears} 年預估總利息`, totalInterest)'));
   assert.match(indexHtml, /periodInterestLines/);
   assert.match(indexHtml, /youngStageInterestLines/);
+  assert.match(indexHtml, /#loanResult > \.table-wrap\s*\{[^}]*grid-column:\s*1 \/ -1/s);
 });
 
 test("房貸結果沒有重複最高與最低月付", () => {
