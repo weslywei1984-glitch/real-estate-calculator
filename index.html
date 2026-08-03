@@ -5470,6 +5470,45 @@
       text-align: left;
     }
 
+    .cost-details {
+      grid-column: 1 / -1;
+      border: 1px solid var(--consultant-line);
+      border-radius: 10px;
+      background: #fffdf7;
+      overflow: hidden;
+    }
+
+    .cost-details summary {
+      display: flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 12px 14px;
+      color: var(--consultant-navy);
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .cost-details summary:focus-visible {
+      outline: 3px solid rgba(185, 80, 45, .32);
+      outline-offset: -3px;
+    }
+
+    .cost-details__body {
+      padding: 0 14px 14px;
+      border-top: 1px solid rgba(215, 205, 187, .72);
+    }
+
+    .cost-details__body .breakdown {
+      margin-top: 12px;
+    }
+
+    .cost-details__body p {
+      margin: 10px 0 0;
+      color: var(--brand-muted);
+      font-size: .74rem;
+      line-height: 1.55;
+    }
+
     @media (max-width: 620px) {
       body {
         background: var(--consultant-cream);
@@ -6670,6 +6709,18 @@
       `;
     }
 
+    function costDetails(linesHtml, note) {
+      return `
+        <details class="cost-details">
+          <summary>查看總成本明細</summary>
+          <div class="cost-details__body">
+            <div class="breakdown">${linesHtml}</div>
+            <p>${note}</p>
+          </div>
+        </details>
+      `;
+    }
+
     function calculateLoan() {
       const purchasePrice = value("loanPurchasePrice");
       const principal = value("loanAmount");
@@ -6683,8 +6734,6 @@
       const extra = value("extraPayment");
       let balance = principal;
       let totalInterest = 0;
-      let maxPayment = 0;
-      let minPayment = Number.POSITIVE_INFINITY;
       const rows = [];
       const repaymentMonths = Math.max(1, totalMonths - graceMonths);
       const scheduledLevelPayment = monthlyPayment(principal, monthlyRate, repaymentMonths);
@@ -6717,9 +6766,6 @@
 
         balance = Math.max(0, balance - principalPaid);
         totalInterest += interest;
-        maxPayment = Math.max(maxPayment, payment);
-        minPayment = Math.min(minPayment, payment);
-
         rows.push({
           month,
           payment,
@@ -6739,27 +6785,34 @@
       const periodBreak = hasGrace ? graceMonths : totalMonths;
       const summarizePeriod = (start, end, label) => {
         const periodRows = rows.filter(row => row.month >= start && row.month <= end);
-        if (!periodRows.length) return "";
+        if (!periodRows.length) return null;
         const periodMin = Math.min(...periodRows.map(row => row.payment));
         const periodMax = Math.max(...periodRows.map(row => row.payment));
-        const paymentText = approxWanRange(periodMin, periodMax);
-        const principalPaid = periodRows.reduce((sum, row) => sum + row.principalPaid, 0);
-        const interestPaid = periodRows.reduce((sum, row) => sum + row.interest, 0);
-        const endingBalance = periodRows[periodRows.length - 1].balance;
-        return `
-          <tr>
-            <td>${label}</td>
-            <td>${paymentText}</td>
-            <td>${approxWanAmount(principalPaid)}</td>
-            <td>${approxWanAmount(interestPaid)}</td>
-            <td>${approxWanAmount(endingBalance)}</td>
-          </tr>
-        `;
+        return {
+          label,
+          paymentText: approxWanRange(periodMin, periodMax),
+          principalPaid: periodRows.reduce((sum, row) => sum + row.principalPaid, 0),
+          interestPaid: periodRows.reduce((sum, row) => sum + row.interest, 0),
+          endingBalance: periodRows[periodRows.length - 1].balance
+        };
       };
-      const tableRows = [
+      const periodSummaries = [
         summarizePeriod(1, periodBreak, `${hasGrace ? "寬限期：" : ""}第 1～${periodBreak} 期`),
-        totalMonths > periodBreak ? summarizePeriod(periodBreak + 1, totalMonths, `第 ${periodBreak + 1}～${totalMonths} 期`) : ""
-      ].join("");
+        totalMonths > periodBreak
+          ? summarizePeriod(periodBreak + 1, totalMonths, `第 ${periodBreak + 1}～${totalMonths} 期`)
+          : null
+      ].filter(Boolean);
+      const tableRows = periodSummaries.map(summary => `
+          <tr>
+            <td>${summary.label}</td>
+            <td>${summary.paymentText}</td>
+            <td>${approxWanAmount(summary.principalPaid)}</td>
+            <td>${approxWanAmount(summary.endingBalance)}</td>
+          </tr>
+        `).join("");
+      const periodInterestLines = periodSummaries
+        .map(summary => approxWanLine(summary.label, summary.interestPaid))
+        .join("");
 
       document.getElementById("loanResult").innerHTML = `
         ${hasGrace
@@ -6776,16 +6829,6 @@
           </div>
         </div>
         <div class="metric">
-          <span>總利息與月付範圍</span>
-          <strong>${approxWanAmount(totalInterest)}</strong>
-          <div class="breakdown">
-            ${approxWanLine("貸款本金", principal)}
-            ${approxWanLine("還款總額", principal + totalInterest)}
-            ${approxWanLine("最高月付", maxPayment)}
-            ${approxWanLine("最低月付", Number.isFinite(minPayment) ? minPayment : 0)}
-          </div>
-        </div>
-        <div class="metric">
           <span>攤還期數</span>
           <strong>${paidMonths} 期</strong>
           <div class="note">${hasGrace ? `前 ${graceMonths} 期為寬限期，只付利息；寬限期後開始攤還本金。` : "沒有寬限期，從第 1 期就開始還本金，每期月付都一樣。"}</div>
@@ -6797,13 +6840,18 @@
                 <th>期數區間</th>
                 <th>月付範圍</th>
                 <th>償還本金</th>
-                <th>支付利息</th>
                 <th>期末本金餘額</th>
               </tr>
             </thead>
             <tbody>${tableRows}</tbody>
           </table>
         </div>
+        ${costDetails(
+          `${approxWanLine("總預估利息", totalInterest)}
+           ${approxWanLine("總預估還款額", principal + totalInterest)}
+           ${periodInterestLines}`,
+          "利息為依目前輸入條件估算的長期總成本；實際金額仍會依銀行核貸利率、撥款時間及提前還款情況調整。"
+        )}
       `;
 
       renderAffordCard("loanAffordCard", {
@@ -6920,27 +6968,33 @@
         { start: 61, end: 72, label: "第 61～72 期" },
         { start: 73, end: totalMonths, label: `第 73～${totalMonths} 期` }
       ];
-      const tableRows = youngStages.map(stage => {
+      const youngStageSummaries = youngStages.map(stage => {
         const stageRows = rows.filter(row => row.month >= stage.start && row.month <= Math.min(stage.end, totalMonths));
-        if (!stageRows.length) return "";
+        if (!stageRows.length) return null;
         const stageMinPayment = Math.min(...stageRows.map(row => row.payment));
         const stageMaxPayment = Math.max(...stageRows.map(row => row.payment));
-        const paymentText = Math.round(stageMinPayment) === Math.round(stageMaxPayment)
-          ? money.format(Math.round(stageMaxPayment))
-          : `${money.format(Math.round(stageMinPayment))}～${money.format(Math.round(stageMaxPayment))}`;
-        const interestPaid = stageRows.reduce((sum, row) => sum + row.interest, 0);
-        const endingBalance = stageRows[stageRows.length - 1].balance;
         const annualRates = [...new Set(stageRows.map(row => rateNumber.format(row.annualRate)))];
-        return `
+        return {
+          label: stage.label,
+          annualRateText: `${annualRates.join(" / ")}%`,
+          paymentText: Math.round(stageMinPayment) === Math.round(stageMaxPayment)
+            ? money.format(Math.round(stageMaxPayment))
+            : `${money.format(Math.round(stageMinPayment))}～${money.format(Math.round(stageMaxPayment))}`,
+          interestPaid: stageRows.reduce((sum, row) => sum + row.interest, 0),
+          endingBalance: stageRows[stageRows.length - 1].balance
+        };
+      }).filter(Boolean);
+      const tableRows = youngStageSummaries.map(stage => `
           <tr>
             <td>${stage.label}</td>
-            <td>${annualRates.join(" / ")}%</td>
-            <td>${paymentText}</td>
-            <td>${money.format(Math.round(interestPaid))}</td>
-            <td>${money.format(Math.round(endingBalance))}</td>
+            <td>${stage.annualRateText}</td>
+            <td>${stage.paymentText}</td>
+            <td>${money.format(Math.round(stage.endingBalance))}</td>
           </tr>
-        `;
-      }).join("");
+        `).join("");
+      const youngStageInterestLines = youngStageSummaries
+        .map(stage => approxWanLine(stage.label, stage.interestPaid))
+        .join("");
 
       const graceStagePayment = graceMonths > 0 ? firstGracePayment : firstNormalPayment;
       // 兩筆相加後直接給出合計。刻意加「已四捨五入的兩個數」而不是
@@ -6989,7 +7043,6 @@
           <span>青安貸款試算</span>
           <div class="breakdown">
             <div class="line"><span>依年齡自動套用貸款年限</span><b>${loanYears} 年</b></div>
-            ${approxWanLine(`${loanYears} 年預估總利息`, totalInterest)}
             ${line("青安月付建議家庭收入（以月付 40%）", suggestedIncome)}
           </div>
           <div class="ratio-meter">
@@ -7005,7 +7058,6 @@
                 <th>階段</th>
                 <th>年利率</th>
                 <th>月付</th>
-                <th>利息</th>
                 <th>本金餘額</th>
               </tr>
             </thead>
@@ -7023,10 +7075,15 @@
         </div>
       `;
 
+      const youngCostDetails = costDetails(
+        `${approxWanLine(`${loanYears} 年預估總利息`, totalInterest)}${youngStageInterestLines}`,
+        "利息為依目前青安五階段利率估算的長期總成本；實際金額仍以承貸銀行核定利率及還款方式為準。"
+      );
+
       // 資格檢核放在五階段利率表之後；不符合資格時沒有試算內容，
       // 這時仍要排在最前面，否則結果區會開天窗
       document.getElementById("youngResult").innerHTML = eligible
-        ? `${calculationSections}${eligibilityBlock}`
+        ? `${calculationSections}${eligibilityBlock}${youngCostDetails}`
         : eligibilityBlock;
 
       // 用補貼結束後的基準利率回推，而不是首期補貼利率：

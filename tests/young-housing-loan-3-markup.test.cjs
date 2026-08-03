@@ -112,7 +112,7 @@ test("數字動畫不可清掉含標記的金額", () => {
 
 test("寬限期前後月付合併在同一區塊，資格檢核排在表格之後", () => {
   assert.match(html, /<span class="metric-split">青安寬限期/);
-  assert.match(html, /innerHTML = eligible\s*\?\s*`\$\{calculationSections\}\$\{eligibilityBlock\}`\s*:\s*eligibilityBlock/);
+  assert.match(html, /innerHTML = eligible\s*\?\s*`\$\{calculationSections\}\$\{eligibilityBlock\}\$\{youngCostDetails\}`\s*:\s*eligibilityBlock/);
 });
 
 test("指定的大額金額欄位以萬元輸入並移除重複換算提示", () => {

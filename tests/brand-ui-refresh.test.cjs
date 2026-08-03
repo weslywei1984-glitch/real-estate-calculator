@@ -182,11 +182,12 @@ test("貸款成數以「成」為單位，不用百分比", () => {
   assert.match(html, /實際貸款成數<\/span><b>\$\{number\.format\(actualLoanRatio\)\} 成<\/b>/);
 });
 
-test("貸款結果的自備款用萬，總利息摘要使用約幾萬", () => {
+test("貸款結果的自備款用萬，總利息改放收合明細", () => {
   assert.match(html, /<span>自備款<\/span>\s*<strong>\$\{wanAmount\(downPayment\)\}<\/strong>/);
   assert.match(html, /wanLine\("房屋成交總價", purchasePrice\)/);
-  assert.match(html, /<span>總利息與月付範圍<\/span>\s*<strong>\$\{approxWanAmount\(totalInterest\)\}<\/strong>/);
-  assert.match(html, /approxWanLine\("還款總額", principal \+ totalInterest\)/);
+  assert.doesNotMatch(html, /<span>總利息與月付範圍<\/span>/);
+  assert.match(html, /approxWanLine\("總預估利息", totalInterest\)/);
+  assert.match(html, /approxWanLine\("總預估還款額", principal \+ totalInterest\)/);
 });
 
 test("房地合一稅欄位預設為 0，且移除兩個套用範例", () => {

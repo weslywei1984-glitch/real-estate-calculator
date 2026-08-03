@@ -90,20 +90,25 @@ test("房貸概算先無條件進位到千元再顯示約幾萬", () => {
   assert.equal(sandbox.approxWanRange(47415, 48301), "約 4.8～4.9 萬");
 });
 
-test("房貸摘要與攤還表使用約幾萬格式", () => {
-  assert.match(indexHtml, /<span>總利息與月付範圍<\/span>\s*<strong>\$\{approxWanAmount\(totalInterest\)\}<\/strong>/);
-  for (const expression of [
-    'approxWanLine("貸款本金", principal)',
-    'approxWanLine("還款總額", principal + totalInterest)',
-    'approxWanLine("最高月付", maxPayment)',
-    'approxWanLine("最低月付", Number.isFinite(minPayment) ? minPayment : 0)'
-  ]) {
-    assert.ok(indexHtml.includes(expression), `缺少 ${expression}`);
-  }
-  assert.match(indexHtml, /const paymentText = approxWanRange\(periodMin, periodMax\)/);
-  assert.match(indexHtml, /<td>\$\{approxWanAmount\(principalPaid\)\}<\/td>/);
-  assert.match(indexHtml, /<td>\$\{approxWanAmount\(interestPaid\)\}<\/td>/);
-  assert.match(indexHtml, /<td>\$\{approxWanAmount\(endingBalance\)\}<\/td>/);
+test("房貸與青安把利息移入預設收合的總成本明細", () => {
+  assert.doesNotMatch(indexHtml, /<span>總利息與月付範圍<\/span>/);
+  assert.doesNotMatch(indexHtml, /<th>支付利息<\/th>/);
+  assert.doesNotMatch(indexHtml, /<th>利息<\/th>/);
+  assert.match(indexHtml, /function costDetails\(linesHtml, note\)/);
+  assert.match(indexHtml, /<details class="cost-details">\s*<summary>查看總成本明細<\/summary>/);
+  assert.ok(indexHtml.includes('approxWanLine("總預估利息", totalInterest)'));
+  assert.ok(indexHtml.includes('approxWanLine("總預估還款額", principal + totalInterest)'));
+  assert.ok(indexHtml.includes('approxWanLine(`${loanYears} 年預估總利息`, totalInterest)'));
+  assert.match(indexHtml, /periodInterestLines/);
+  assert.match(indexHtml, /youngStageInterestLines/);
+});
+
+test("房貸結果沒有重複最高與最低月付", () => {
+  assert.doesNotMatch(indexHtml, /approxWanLine\("最高月付"/);
+  assert.doesNotMatch(indexHtml, /approxWanLine\("最低月付"/);
+  assert.doesNotMatch(indexHtml, /let maxPayment\s*=/);
+  assert.doesNotMatch(indexHtml, /let minPayment\s*=/);
+  assert.match(indexHtml, /metric\("每月月付", firstNormalPayment, "main"\)/);
 });
 
 test("青安摘要依序顯示購屋總價、總貸款與自備款，說明在三卡下方", () => {
@@ -117,10 +122,10 @@ test("青安摘要依序顯示購屋總價、總貸款與自備款，說明在�
   assert.match(indexHtml, /\.young-summary-row \.metric strong\s*\{[^}]*font-size:\s*clamp\([^}]*white-space:\s*nowrap/s);
 });
 
-test("青安總利息顯示動態年限約數並移除本息合計", () => {
+test("青安總利息保留於總成本明細並移除本息合計", () => {
   assert.ok(indexHtml.includes('approxWanLine(`${loanYears} 年預估總利息`, totalInterest)'));
   assert.doesNotMatch(indexHtml, /wanLine\("青安本息合計"/);
-  assert.match(indexHtml, /<th>利息<\/th>/);
+  assert.doesNotMatch(indexHtml, /<th>利息<\/th>/);
 });
 
 test("青安月付算式維持單行且五階段標題放進表格", () => {
