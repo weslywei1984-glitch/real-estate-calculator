@@ -5288,14 +5288,22 @@
 
     .wizard-mobile-actions {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       grid-column: 1 / -1;
       gap: 9px;
     }
 
-    .wizard-mobile-actions button,
+    .wizard-mobile-actions button {
+      width: 100%;
+      min-height: 44px;
+    }
+
     .wizard-result-actions button {
       min-height: 44px;
+    }
+
+    [data-wizard-result="true"] .wizard-mobile-actions [data-wizard-back] {
+      grid-column: 1 / -1;
     }
 
     .wizard-mobile-actions button[hidden] {
@@ -7607,6 +7615,7 @@
       const progress = workspace.querySelector(".wizard-mobile-progress span");
       const back = workspace.querySelector("[data-wizard-back]");
       const next = workspace.querySelector("[data-wizard-next]");
+      workspace.dataset.wizardResult = String(index === steps.length - 1);
       if (count) {
         count.textContent = `${String(index + 1).padStart(2, "0")} / ${String(steps.length).padStart(2, "0")}`;
       }
@@ -7615,7 +7624,7 @@
       if (back) {
         back.disabled = index === 0;
         back.textContent = index === steps.length - 1
-          ? (workspace.dataset.wizard === "young" ? "上一頁" : "重新調整")
+          ? "上一頁"
           : "上一步";
       }
       if (next) {

@@ -72,7 +72,8 @@ test("wizard hides inactive steps and keeps controls touch sized", () => {
   const css = html.slice(marker, html.indexOf("</style>", marker));
   assert.match(css, /@media \(max-width:\s*620px\)/);
   assert.match(css, /\[data-wizard-step\]:not\(\.is-wizard-active\)\s*\{[^}]*display:\s*none/s);
-  assert.match(css, /\.wizard-mobile-actions button,\s*\.wizard-result-actions button\s*\{[^}]*min-height:\s*44px/s);
+  assert.match(css, /\.wizard-mobile-actions button\s*\{[^}]*width:\s*100%[^}]*min-height:\s*44px/s);
+  assert.match(css, /\.wizard-result-actions button\s*\{[^}]*min-height:\s*44px/s);
 });
 
 test("phone hero uses the approved artwork byte for byte", () => {

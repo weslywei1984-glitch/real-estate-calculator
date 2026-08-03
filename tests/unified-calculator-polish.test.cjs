@@ -172,9 +172,14 @@ test("青安月付算式維持單行且五階段標題放進表格", () => {
   assert.doesNotMatch(indexHtml, /<h3 class="table-title">青安-五階段利率與月付<\/h3>/);
 });
 
-test("青安結果頁返回按鈕顯示上一頁", () => {
+test("所有精靈結果頁顯示上一頁且導覽按鈕等寬", () => {
   assert.match(
     indexHtml,
-    /back\.textContent = index === steps\.length - 1\s*\? \(workspace\.dataset\.wizard === "young" \? "上一頁" : "重新調整"\)\s*:\s*"上一步";/
+    /back\.textContent = index === steps\.length - 1\s*\? "上一頁"\s*:\s*"上一步";/
   );
+  assert.doesNotMatch(indexHtml, /重新調整/);
+  assert.match(indexHtml, /workspace\.dataset\.wizardResult = String\(index === steps\.length - 1\)/);
+  assert.match(indexHtml, /\.wizard-mobile-actions\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/s);
+  assert.match(indexHtml, /\.wizard-mobile-actions button\s*\{[^}]*width:\s*100%[^}]*min-height:\s*44px/s);
+  assert.match(indexHtml, /\[data-wizard-result="true"\] \.wizard-mobile-actions \[data-wizard-back\]\s*\{[^}]*grid-column:\s*1 \/ -1/s);
 });
