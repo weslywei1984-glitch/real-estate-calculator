@@ -68,6 +68,19 @@ test("房地合一稅結果全部以萬元顯示", () => {
   }
 });
 
+test("房地合一稅以緊湊稅率卡與全寬資格卡整理結果", () => {
+  const start = indexHtml.indexOf("function calculateTax()");
+  const end = indexHtml.indexOf("function calculateBuyer()", start);
+  const block = indexHtml.slice(start, end);
+
+  assert.match(block, /class="metric tax-rate-card"/);
+  assert.match(block, /class="metric tax-self-use-card[^\"]*"/);
+  assert.match(block, /class="breakdown tax-self-use-grid"/);
+  assert.match(block, /class="tax-filing-note"/);
+  assert.doesNotMatch(block, /<span>提醒<\/span>/);
+  assert.match(indexHtml, /\.tax-self-use-card\s*\{[^}]*grid-column:\s*1 \/ -1/s);
+});
+
 test("房貸概算先無條件進位到千元再顯示約幾萬", () => {
   const start = indexHtml.indexOf("function ceilToThousand");
   const end = indexHtml.indexOf("function taxRate", start);

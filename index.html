@@ -5629,6 +5629,47 @@
       background: rgba(16, 39, 56, .045);
     }
 
+    .tax-rate-card {
+      align-content: center;
+      gap: 12px;
+    }
+
+    .tax-rate-context {
+      width: fit-content;
+      padding: 7px 10px;
+      border: 1px solid rgba(185, 80, 45, .24);
+      border-radius: 999px;
+      background: #f8eee6;
+      color: var(--consultant-terracotta-dark);
+      font-weight: 800;
+    }
+
+    .tax-self-use-card {
+      grid-column: 1 / -1;
+    }
+
+    .tax-self-use-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .tax-self-use-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 24px;
+    }
+
+    .tax-filing-note {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-left: 3px solid var(--consultant-terracotta);
+      background: #f8eee6;
+      color: var(--consultant-muted);
+      line-height: 1.6;
+    }
+
     @media (max-width: 620px) {
       body {
         background: var(--consultant-cream);
@@ -5666,6 +5707,16 @@
       .tab {
         min-width: 105px;
         min-height: 42px;
+      }
+
+      .tax-self-use-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .tax-self-use-head {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
       }
 
       .workspace {
@@ -6708,10 +6759,10 @@
       `).join("");
       document.getElementById("taxResult").innerHTML = `
         ${wanMetric("預估應納房地合一稅", tax, "main")}
-        <div class="metric">
+        <div class="metric tax-rate-card">
           <span>適用稅率</span>
           <strong>${number.format(rate.rate * 100)}%</strong>
-          <div class="note">${rate.label}</div>
+          <div class="tax-rate-context">${rate.label}</div>
         </div>
         <div class="metric">
           <span>計算明細</span>
@@ -6725,15 +6776,14 @@
             ${wanLine("出售稅後淨利", afterTaxProfit)}
           </div>
         </div>
-        <div class="metric ${selfUse ? "" : "warn"}">
-          <span>自住優惠檢核</span>
-          <strong>${selfUse ? "符合資格" : "未符合"}</strong>
-          <div class="breakdown">${selfUseDetails}</div>
+        <div class="metric tax-self-use-card ${selfUse ? "" : "warn"}">
+          <div class="tax-self-use-head">
+            <span>自住優惠檢核</span>
+            <strong>${selfUse ? "符合資格" : "未符合"}</strong>
+          </div>
+          <div class="breakdown tax-self-use-grid">${selfUseDetails}</div>
           <div class="note">須為境內居住者、持有滿 6 年且四項條件全符合，才會套用自住房地優惠（400 萬免稅＋10%）；非境內居住者一律 45% 或 35%，也不適用 20% 特別情形。</div>
-        </div>
-        <div class="metric warn">
-          <span>提醒</span>
-          <div class="note">若無合法支出憑證，相關費用可能按成交價額 3% 推計且以 30 萬元為限；正式申報仍以稅務機關認定為準。</div>
+          <div class="tax-filing-note">若無合法支出憑證，相關費用可能按成交價額 3% 推計且以 30 萬元為限；正式申報仍以稅務機關認定為準。</div>
         </div>
       `;
     }
