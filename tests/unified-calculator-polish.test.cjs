@@ -141,7 +141,22 @@ test("房貸結果沒有重複最高與最低月付", () => {
   assert.doesNotMatch(indexHtml, /approxWanLine\("最低月付"/);
   assert.doesNotMatch(indexHtml, /let maxPayment\s*=/);
   assert.doesNotMatch(indexHtml, /let minPayment\s*=/);
-  assert.match(indexHtml, /metric\("每月月付", firstNormalPayment, "main"\)/);
+  assert.match(indexHtml, /class="loan-payment-grid \$\{hasGrace \? "has-grace" : "single"\}"/);
+  assert.match(indexHtml, /<span>每月月付<\/span>\s*<strong>\$\{money\.format\(Math\.round\(firstNormalPayment\)\)\}<\/strong>/);
+});
+
+test("房貸結果使用月付主卡與四張購屋摘要卡", () => {
+  const start = indexHtml.indexOf("function calculateLoan()");
+  const end = indexHtml.indexOf("function calculateYoung()", start);
+  const block = indexHtml.slice(start, end);
+
+  assert.match(block, /class="metric main loan-payment-hero/);
+  assert.match(block, /class="loan-payment-grid \$\{hasGrace \? "has-grace" : "single"\}"/);
+  assert.match(block, /class="loan-term-badge">\$\{paidMonths\} 期/);
+  assert.equal((block.match(/class="metric loan-fact-card"/g) || []).length, 4);
+  assert.match(block, /class="loan-overage-note"/);
+  assert.doesNotMatch(block, /<span>攤還期數<\/span>/);
+  assert.match(indexHtml, /\.loan-payment-hero,\s*\.loan-facts-grid\s*\{[^}]*grid-column:\s*1 \/ -1/s);
 });
 
 test("一般房貸把收入試算移到結果頁的購屋預算跑道", () => {

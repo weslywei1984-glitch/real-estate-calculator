@@ -5637,6 +5637,105 @@
       background: rgba(16, 39, 56, .045);
     }
 
+    .loan-payment-hero,
+    .loan-facts-grid {
+      grid-column: 1 / -1;
+    }
+
+    .loan-payment-hero {
+      display: grid;
+      gap: 14px;
+    }
+
+    .loan-payment-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 0;
+      border-bottom: 0;
+    }
+
+    .loan-term-badge {
+      padding: 6px 10px;
+      border: 1px solid rgba(255, 250, 240, .3);
+      border-radius: 999px;
+      color: #fffaf0;
+      font-size: .78rem;
+      white-space: nowrap;
+    }
+
+    .loan-payment-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0;
+    }
+
+    .loan-payment-grid.single {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .loan-payment-stage {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+      padding: 8px 0;
+      border: 0;
+      background: transparent;
+    }
+
+    .loan-payment-stage--after {
+      padding-left: 22px;
+      border-left: 1px solid rgba(255, 250, 240, .24);
+    }
+
+    .loan-payment-stage strong {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+    }
+
+    .loan-payment-note {
+      color: rgba(255, 250, 240, .76);
+      font-size: .78rem;
+      line-height: 1.55;
+    }
+
+    .loan-facts-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .loan-fact-card {
+      display: grid;
+      gap: 7px;
+      min-width: 0;
+      padding: 14px;
+      border: 1px solid var(--consultant-line);
+      border-radius: 10px;
+      background: #fffdf7;
+    }
+
+    .loan-fact-card span {
+      color: var(--consultant-muted);
+      font-size: .76rem;
+      font-weight: 750;
+    }
+
+    .loan-fact-card strong {
+      color: var(--consultant-navy);
+      font-size: clamp(1.05rem, 2vw, 1.4rem);
+    }
+
+    .loan-overage-note {
+      grid-column: 1 / -1;
+      padding: 9px 11px;
+      border-left: 3px solid var(--consultant-terracotta);
+      background: #f8eee6;
+      color: var(--consultant-terracotta-dark);
+      font-size: .78rem;
+      font-weight: 750;
+    }
+
     .tax-result-hero,
     .tax-breakdown-card {
       grid-column: 1 / -1;
@@ -5775,6 +5874,21 @@
       .tabs .tab {
         min-height: 48px;
         font-size: 14px;
+      }
+
+      .loan-payment-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .loan-payment-stage--after {
+        padding-top: 14px;
+        padding-left: 0;
+        border-top: 1px solid rgba(255, 250, 240, .24);
+        border-left: 0;
+      }
+
+      .loan-facts-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .tax-result-hero {
@@ -7158,23 +7272,36 @@
         .join("");
 
       document.getElementById("loanResult").innerHTML = `
-        ${hasGrace
-          ? `${metric("寬限期月付", firstGracePayment, "main")}${metric("寬限期後月付", firstNormalPayment)}`
-          : metric("每月月付", firstNormalPayment, "main")}
-        <div class="metric">
-          <span>自備款</span>
-          <strong>${wanAmount(downPayment)}</strong>
-          <div class="breakdown">
-            ${wanLine("房屋成交總價", purchasePrice)}
-            ${wanLine("貸款本金", principal)}
-            <div class="line"><span>實際貸款成數</span><b>${number.format(actualLoanRatio)} 成</b></div>
-            ${overLoanAmount > 0 ? wanLine("貸款超過房價金額", overLoanAmount) : ""}
+        <div class="metric main loan-payment-hero">
+          <div class="line loan-payment-head">
+            <span>每月還款節奏</span>
+            <b class="loan-term-badge">${paidMonths} 期</b>
           </div>
+          <div class="loan-payment-grid ${hasGrace ? "has-grace" : "single"}">
+            ${hasGrace ? `
+              <div class="metric loan-payment-stage">
+                <span>寬限期月付</span>
+                <strong>${money.format(Math.round(firstGracePayment))}</strong>
+              </div>
+              <div class="metric loan-payment-stage loan-payment-stage--after">
+                <span>寬限期後月付</span>
+                <strong>${money.format(Math.round(firstNormalPayment))}</strong>
+              </div>
+            ` : `
+              <div class="metric loan-payment-stage">
+                <span>每月月付</span>
+                <strong>${money.format(Math.round(firstNormalPayment))}</strong>
+              </div>
+            `}
+          </div>
+          <div class="loan-payment-note">${hasGrace ? `前 ${graceMonths} 期為寬限期，只付利息；寬限期後開始攤還本金。` : "沒有寬限期，從第 1 期就開始還本金，每期月付都一樣。"}</div>
         </div>
-        <div class="metric">
-          <span>攤還期數</span>
-          <strong>${paidMonths} 期</strong>
-          <div class="note">${hasGrace ? `前 ${graceMonths} 期為寬限期，只付利息；寬限期後開始攤還本金。` : "沒有寬限期，從第 1 期就開始還本金，每期月付都一樣。"}</div>
+        <div class="loan-facts-grid">
+          <div class="metric loan-fact-card"><span>房屋成交總價</span><strong>${wanAmount(purchasePrice)}</strong></div>
+          <div class="metric loan-fact-card"><span>自備款</span><strong>${wanAmount(downPayment)}</strong></div>
+          <div class="metric loan-fact-card"><span>貸款本金</span><strong>${wanAmount(principal)}</strong></div>
+          <div class="metric loan-fact-card"><span>實際貸款成數</span><strong>${number.format(actualLoanRatio)} 成</strong></div>
+          ${overLoanAmount > 0 ? `<div class="loan-overage-note">貸款超過房價金額：${wanAmount(overLoanAmount)}</div>` : ""}
         </div>
         <div class="metric afford-runway" id="loanAffordRunway">
           <div id="loanAffordRunwayVisual"></div>
