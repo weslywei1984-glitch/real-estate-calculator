@@ -5670,6 +5670,37 @@
       line-height: 1.6;
     }
 
+    .buyer-fee-card,
+    .buyer-reminder-panel {
+      grid-column: 1 / -1;
+    }
+
+    .buyer-reminder-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .buyer-reminder-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 13px 14px;
+      border: 1px solid rgba(185, 80, 45, .22);
+      border-radius: 10px;
+      background: #fffaf2;
+    }
+
+    .buyer-reminder-card b {
+      flex: 0 0 auto;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: #f1e5d6;
+      color: var(--consultant-navy);
+    }
+
     @media (max-width: 620px) {
       body {
         background: var(--consultant-cream);
@@ -5717,6 +5748,16 @@
         align-items: flex-start;
         flex-direction: column;
         gap: 6px;
+      }
+
+      .buyer-reminder-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .buyer-reminder-card {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 7px;
       }
 
       .workspace {
@@ -6817,7 +6858,7 @@
       const oldPropertyTax = value("buyerOldPropertyTax");
       document.getElementById("buyerResult").innerHTML = `
         ${metric("預估買方需準備現金", cashNeeded, "main")}
-        <div class="metric">
+        <div class="metric buyer-fee-card">
           <span>買方費用合計，不含自備款</span>
           <strong>${money.format(Math.round(totalFees))}</strong>
           <div class="breakdown">
@@ -6831,11 +6872,17 @@
             ${line("地政士、銀行、保險與交屋分攤", serviceFees - documentFee)}
           </div>
         </div>
-        <div class="metric warn">
+        <div class="metric buyer-reminder-panel">
           <span>稅務提醒</span>
-          <div class="breakdown">
-            <div class="line"><span>重購退稅提醒</span><b>${replacementReminder ? "已提醒" : "未勾選"}</b></div>
-            <div class="line"><span>舊制財產交易所得</span><b>${oldPropertyTax ? "後續個綜需檢查" : "目前未標記"}</b></div>
+          <div class="buyer-reminder-grid">
+            <div class="buyer-reminder-card">
+              <span>重購退稅提醒</span>
+              <b>${replacementReminder ? "已提醒" : "未勾選"}</b>
+            </div>
+            <div class="buyer-reminder-card">
+              <span>舊制財產交易所得</span>
+              <b>${oldPropertyTax ? "後續個綜需檢查" : "目前未標記"}</b>
+            </div>
           </div>
         </div>
       `;

@@ -81,6 +81,20 @@ test("房地合一稅以緊湊稅率卡與全寬資格卡整理結果", () => {
   assert.match(indexHtml, /\.tax-self-use-card\s*\{[^}]*grid-column:\s*1 \/ -1/s);
 });
 
+test("買方費用以全寬明細與兩張提醒小卡呈現", () => {
+  const start = indexHtml.indexOf("function calculateBuyer()");
+  const end = indexHtml.indexOf("function monthlyPayment", start);
+  const block = indexHtml.slice(start, end);
+
+  assert.match(block, /class="metric buyer-fee-card"/);
+  assert.match(block, /class="metric buyer-reminder-panel"/);
+  assert.match(block, /class="buyer-reminder-grid"/);
+  assert.equal((block.match(/class="buyer-reminder-card"/g) || []).length, 2);
+  assert.match(block, /replacementReminder \? "已提醒" : "未勾選"/);
+  assert.match(block, /oldPropertyTax \? "後續個綜需檢查" : "目前未標記"/);
+  assert.match(indexHtml, /\.buyer-fee-card,\s*\.buyer-reminder-panel\s*\{[^}]*grid-column:\s*1 \/ -1/s);
+});
+
 test("房貸概算先無條件進位到千元再顯示約幾萬", () => {
   const start = indexHtml.indexOf("function ceilToThousand");
   const end = indexHtml.indexOf("function taxRate", start);
