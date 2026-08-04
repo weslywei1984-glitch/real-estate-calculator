@@ -5637,19 +5637,43 @@
       background: rgba(16, 39, 56, .045);
     }
 
-    .tax-rate-card {
-      align-content: center;
-      gap: 12px;
+    .tax-result-hero,
+    .tax-breakdown-card {
+      grid-column: 1 / -1;
     }
 
-    .tax-rate-context {
-      width: fit-content;
-      padding: 7px 10px;
-      border: 1px solid rgba(185, 80, 45, .24);
-      border-radius: 999px;
-      background: #f8eee6;
-      color: var(--consultant-terracotta-dark);
-      font-weight: 800;
+    .tax-result-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(220px, .75fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .tax-result-amount,
+    .tax-result-rate {
+      display: grid;
+      align-content: center;
+      gap: 7px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+    }
+
+    .tax-result-rate {
+      padding-left: 18px;
+      border-left: 1px solid rgba(255, 250, 240, .24);
+    }
+
+    .tax-result-rate strong {
+      font-size: clamp(1.55rem, 3vw, 2.25rem);
+    }
+
+    .tax-result-rate em {
+      color: rgba(255, 250, 240, .78);
+      font-size: .78rem;
+      font-style: normal;
+      font-weight: 750;
+      line-height: 1.45;
     }
 
     .tax-self-use-card {
@@ -5751,6 +5775,18 @@
       .tabs .tab {
         min-height: 48px;
         font-size: 14px;
+      }
+
+      .tax-result-hero {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+      }
+
+      .tax-result-rate {
+        padding-top: 12px;
+        padding-left: 0;
+        border-top: 1px solid rgba(255, 250, 240, .24);
+        border-left: 0;
       }
 
       .tax-self-use-grid {
@@ -6812,13 +6848,18 @@
         <div class="line"><span>${item.passed ? "已勾選" : "未勾選"}：${item.label}</span><b>${item.passed ? "OK" : "未符合"}</b></div>
       `).join("");
       document.getElementById("taxResult").innerHTML = `
-        ${wanMetric("預估應納房地合一稅", tax, "main")}
-        <div class="metric tax-rate-card">
-          <span>適用稅率</span>
-          <strong>${number.format(rate.rate * 100)}%</strong>
-          <div class="tax-rate-context">${rate.label}</div>
+        <div class="metric main tax-result-hero">
+          <div class="metric tax-result-amount">
+            <span>預估應納房地合一稅</span>
+            <strong>${wanAmount(tax)}</strong>
+          </div>
+          <div class="metric tax-result-rate">
+            <span>適用稅率</span>
+            <strong>${number.format(rate.rate * 100)}%</strong>
+            <em>${rate.label}</em>
+          </div>
         </div>
-        <div class="metric">
+        <div class="metric tax-breakdown-card">
           <span>計算明細</span>
           <div class="breakdown">
             ${wanLine("出售成交價額", salePrice)}

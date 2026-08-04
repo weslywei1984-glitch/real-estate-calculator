@@ -54,7 +54,7 @@ test("萬元欄位第三版會遷移舊的元資料", () => {
 });
 
 test("房地合一稅結果全部以萬元顯示", () => {
-  assert.match(indexHtml, /wanMetric\("預估應納房地合一稅", tax, "main"\)/);
+  assert.match(indexHtml, /<strong>\$\{wanAmount\(tax\)\}<\/strong>/);
   for (const label of [
     "出售成交價額",
     "減：取得成本",
@@ -68,16 +68,21 @@ test("房地合一稅結果全部以萬元顯示", () => {
   }
 });
 
-test("房地合一稅以緊湊稅率卡與全寬資格卡整理結果", () => {
+test("房地合一稅把稅額與適用稅率整合在同一張主卡", () => {
   const start = indexHtml.indexOf("function calculateTax()");
   const end = indexHtml.indexOf("function calculateBuyer()", start);
   const block = indexHtml.slice(start, end);
 
-  assert.match(block, /class="metric tax-rate-card"/);
+  assert.match(block, /class="metric main tax-result-hero"/);
+  assert.match(block, /class="metric tax-result-amount"/);
+  assert.match(block, /class="metric tax-result-rate"/);
+  assert.match(block, /class="metric tax-breakdown-card"/);
+  assert.doesNotMatch(block, /class="metric tax-rate-card"/);
   assert.match(block, /class="metric tax-self-use-card[^\"]*"/);
   assert.match(block, /class="breakdown tax-self-use-grid"/);
   assert.match(block, /class="tax-filing-note"/);
   assert.doesNotMatch(block, /<span>提醒<\/span>/);
+  assert.match(indexHtml, /\.tax-result-hero,\s*\.tax-breakdown-card\s*\{[^}]*grid-column:\s*1 \/ -1/s);
   assert.match(indexHtml, /\.tax-self-use-card\s*\{[^}]*grid-column:\s*1 \/ -1/s);
 });
 
