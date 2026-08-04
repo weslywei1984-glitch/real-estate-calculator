@@ -294,6 +294,16 @@ test("分頁列不換行", () => {
   assert.match(css, /\.tabs\s*\{[^}]*flex-wrap:\s*nowrap/s);
 });
 
+test("四個計算器分頁在桌機與手機使用核定字級", () => {
+  const marker = html.indexOf("/* Consultant B wizard theme */");
+  const css = html.slice(marker, html.indexOf("</style>", marker));
+
+  assert.match(css, /\.tabs \.tab\s*\{[^}]*font-size:\s*16px/s);
+  assert.match(css, /\.tabs \.tab\s*\{[^}]*min-height:\s*48px/s);
+  assert.match(css, /@media \(max-width:\s*620px\)[\s\S]*\.tabs \.tab\s*\{[^}]*font-size:\s*14px/s);
+  assert.match(css, /\.tabs \.tab\s*\{[^}]*white-space:\s*nowrap/s);
+});
+
 test("最後一層主題採用台南小魏品牌色", () => {
   const marker = html.indexOf("/* Tainanwei brand tool theme */");
   assert.ok(marker > -1, "應新增品牌工具主題");
