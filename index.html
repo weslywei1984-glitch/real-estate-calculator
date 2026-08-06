@@ -7309,16 +7309,16 @@
       };
       const riskMessages = {
         "50": {
-          title: "5 成負擔率偏低",
-          note: "還有餘裕可因應利率變動，仍建議保留生活與緊急預備金。"
+          title: "5 成｜負擔偏高",
+          note: "請預留生活費、利率上升與緊急支出。"
         },
         "60": {
-          title: "6 成屬偏高負擔",
-          note: "請連同其他固定支出一起檢視，確認現金流仍有足夠緩衝。"
+          title: "6 成｜壓力高",
+          note: "請確認其他固定支出及緊急預備金是否足夠。"
         },
         "70": {
-          title: "7 成高風險警戒",
-          note: "超過偏高負擔警戒線，建議先降低到舒適購屋預算。"
+          title: "7 成｜風險很高",
+          note: "僅供壓力測試，不建議視為舒適預算。"
         }
       };
       const burdenSlider = document.getElementById("loanAffordBurdenSlider");
@@ -7328,19 +7328,19 @@
       const budgetValue = isComfort
         ? `${wanLabel(snapshot.priceLow)}～${wanLabel(snapshot.priceHigh)}`
         : wanLabel(snapshot.selectedPrice);
-      const paymentLabel = isComfort ? "舒適月付試算" : "月付上限";
+      const paymentLabel = isComfort ? "舒適月付試算" : "月付試算";
       const paymentValue = isComfort
         ? `${number.format(Math.round(snapshot.payLow))}～${number.format(Math.round(snapshot.payHigh))}`
         : number.format(Math.round(snapshot.selectedPay));
       const selectedStatus = isComfort
         ? ""
-        : `<p class="afford-selected-status">目前房價${snapshot.withinSelected ? "符合" : "超過"} ${snapshot.modeLabel}月付上限。</p>`;
+        : `<p class="afford-selected-status">目前房價${snapshot.withinSelected ? "在" : "仍高於"} ${snapshot.modeLabel}試算上限${snapshot.withinSelected ? "內" : ""}。</p>`;
       const selectedTick = isComfort
         ? ""
         : `<i class="afford-runway__selected-tick" aria-hidden="true"></i><em class="afford-runway__selected-label">${snapshot.modeLabel}上限</em>`;
       const baseline = isComfort
         ? ""
-        : `<p class="afford-baseline">舒適範圍：${wanLabel(snapshot.priceLow)}～${wanLabel(snapshot.priceHigh)}，月付 ${number.format(Math.round(snapshot.payLow))}～${number.format(Math.round(snapshot.payHigh))} 元</p>`;
+        : `<p class="afford-baseline">舒適參考：${wanLabel(snapshot.priceLow)}～${wanLabel(snapshot.priceHigh)}｜月付 ${number.format(Math.round(snapshot.payLow))}～${number.format(Math.round(snapshot.payHigh))} 元</p>`;
       const risk = isComfort
         ? ""
         : `<div class="afford-risk"><strong>${riskMessages[snapshot.mode].title}</strong><span>${riskMessages[snapshot.mode].note}</span></div>`;
@@ -7531,10 +7531,10 @@
         <div class="metric afford-runway" id="loanAffordRunway">
           <div class="afford-burden-control">
             <label for="loanAffordBurdenSlider">
-              <span>月付負擔率</span>
+              <span>月付負擔上限</span>
               <output id="loanAffordBurdenValue" for="loanAffordBurdenSlider">${AFFORD_BURDEN_OPTIONS[loanAffordBurdenMode].label}</output>
             </label>
-            <input class="afford-burden-slider" id="loanAffordBurdenSlider" type="range" min="0" max="3" step="1" value="${AFFORD_BURDEN_STEPS.indexOf(loanAffordBurdenMode)}" aria-label="調整月付佔月收入比例與購屋預算跑道" aria-valuetext="${AFFORD_BURDEN_OPTIONS[loanAffordBurdenMode].label}">
+            <input class="afford-burden-slider" id="loanAffordBurdenSlider" type="range" min="0" max="3" step="1" value="${AFFORD_BURDEN_STEPS.indexOf(loanAffordBurdenMode)}" aria-label="設定每月房貸占月薪比例" aria-valuetext="${AFFORD_BURDEN_OPTIONS[loanAffordBurdenMode].label}">
             <div class="afford-burden-labels" aria-hidden="true"><span>舒適</span><span>5 成</span><span>6 成</span><span>7 成</span></div>
           </div>
           <div id="loanAffordRunwayVisual"></div>

@@ -47,19 +47,21 @@ test("舒適模式維持原本三分之一到四成的試算範圍", () => {
 
 test("renders discrete burden choices and the two-value runway summary", () => {
   assert.match(html, /id="loanAffordBurdenSlider"[^>]*type="range"[^>]*min="0"[^>]*max="3"[^>]*step="1"/);
+  assert.match(html, /aria-label="設定每月房貸占月薪比例"/);
+  assert.match(html, /<span>月付負擔上限<\/span>/);
   assert.match(html, /id="loanAffordBurdenValue"/);
   assert.match(html, /<span>舒適<\/span>\s*<span>5 成<\/span>\s*<span>6 成<\/span>\s*<span>7 成<\/span>/);
   assert.match(html, /class="afford-summary-grid"[^>]*aria-live="polite"/);
-  assert.match(html, /afford-baseline/);
-  assert.match(html, /afford-risk/);
+  assert.match(html, /購屋預算上限/);
+  assert.match(html, /const paymentLabel = isComfort \? "舒適月付試算" : "月付試算";/);
+  assert.match(html, /舒適參考：/);
 });
 
 test("includes risk copy for each non-comfort burden mode", () => {
-  assert.match(html, /const riskMessages = \{/);
-  assert.match(html, /"50":\s*\{\s*title:/s);
-  assert.match(html, /"60":\s*\{\s*title:/s);
-  assert.match(html, /"70":\s*\{\s*title:/s);
-  assert.match(html, /riskMessages\[snapshot\.mode\]\.note/);
+  assert.match(html, /5 成｜負擔偏高/);
+  assert.match(html, /6 成｜壓力高/);
+  assert.match(html, /7 成｜風險很高/);
+  assert.match(html, /僅供壓力測試，不建議視為舒適預算/);
 });
 
 test("burden slider only redraws the runway and restart resets comfort mode", () => {
