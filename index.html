@@ -6180,7 +6180,7 @@
         <div class="wizard-result-actions">
           <button class="secondary" type="button" data-copy="tax">複製結果</button>
           <button class="secondary" type="button" data-jpg="tax">存成圖片</button>
-          <button class="primary" type="button" data-clear="tax">重新試算</button>
+          <button class="primary" type="button" data-restart="tax">重新試算</button>
         </div>
       </aside>
       <div class="wizard-mobile-actions">
@@ -6337,7 +6337,7 @@
         <div class="wizard-result-actions">
           <button class="secondary" type="button" data-copy="buyer">複製結果</button>
           <button class="secondary" type="button" data-jpg="buyer">存成圖片</button>
-          <button class="primary" type="button" data-clear="buyer">重新試算</button>
+          <button class="primary" type="button" data-restart="buyer">重新試算</button>
         </div>
       </aside>
       <div class="wizard-mobile-actions">
@@ -6459,7 +6459,7 @@
         <div class="wizard-result-actions">
           <button class="secondary" type="button" data-copy="loan">複製結果</button>
           <button class="secondary" type="button" data-jpg="loan">存成圖片</button>
-          <button class="primary" type="button" data-clear="loan">重新試算</button>
+          <button class="primary" type="button" data-restart="loan">重新試算</button>
         </div>
       </aside>
       <div class="wizard-mobile-actions">
@@ -6629,7 +6629,7 @@
         <div class="wizard-result-actions">
           <button class="secondary" type="button" data-copy="young">複製結果</button>
           <button class="secondary" type="button" data-jpg="young">存成圖片</button>
-          <button class="primary" type="button" data-clear="young">重新試算</button>
+          <button class="primary" type="button" data-restart="young">重新試算</button>
         </div>
       </aside>
       <div class="wizard-mobile-actions">
@@ -6787,7 +6787,9 @@
 
     function formatNumericInput(input) {
       if (!input || input.value === "") return;
-      input.value = number.format(parseNumericValue(input.value));
+      const numeric = strictNumber(input);
+      if (numeric === null || Number.isNaN(numeric)) return;
+      input.value = number.format(numeric);
     }
 
     function formatAllNumericInputs() {
@@ -7608,7 +7610,7 @@
       });
     }
 
-    function resetGroup(group) {
+    function applyGroupDefaults(group) {
       Object.entries(defaults[group]).forEach(([id, preset]) => {
         const el = document.getElementById(id);
         if (!el) return;
@@ -7623,8 +7625,25 @@
       formatAllNumericInputs();
       updateAllWanHints();
       window.syncAllChipGroups?.();
+      window.syncSalarySliders?.forEach(sync => sync());
+    }
+
+    function resetGroup(group) {
+      applyGroupDefaults(group);
       queueSave();
       runGroup(group, { loading: true, feedback: "已套用" });
+    }
+
+    function restartGroup(group) {
+      const config = calculators[group];
+      if (!config) return;
+      const form = document.getElementById(config.formId);
+
+      window.clearTimeout(pendingCalculations[group]);
+      applyGroupDefaults(group);
+      clearValidation(form);
+      queueSave();
+      setResultState(group, "initial", "已恢復預設值", "可以從第一步開始調整試算資料。");
     }
 
     function clearGroup(group) {
@@ -7973,12 +7992,15 @@
       for (const field of fields) {
         field.setCustomValidity("");
         if (field.dataset.numericInput === "true") {
-          const value = parseNumericValue(field.value);
+          const numeric = strictNumber(field);
+          if (numeric === null || Number.isNaN(numeric)) {
+            field.setCustomValidity("請輸入有效數字");
+          }
           const minAttr = field.getAttribute("min");
           const maxAttr = field.getAttribute("max");
           const min = minAttr === null ? null : Number(minAttr);
           const max = maxAttr === null ? null : Number(maxAttr);
-          if ((min !== null && value < min) || (max !== null && value > max)) {
+          if (numeric !== null && !Number.isNaN(numeric) && ((min !== null && numeric < min) || (max !== null && numeric > max))) {
             const range = min !== null && max !== null
               ? `${number.format(min)}～${number.format(max)}`
               : min !== null
@@ -8074,6 +8096,13 @@
     document.querySelectorAll("[data-clear]").forEach(button => {
       button.addEventListener("click", () => {
         clearGroup(button.dataset.clear);
+        resetWizard(button.closest("[data-wizard]"), { focus: false });
+      });
+    });
+
+    document.querySelectorAll("[data-restart]").forEach(button => {
+      button.addEventListener("click", () => {
+        restartGroup(button.dataset.restart);
         resetWizard(button.closest("[data-wizard]"), { focus: false });
       });
     });
