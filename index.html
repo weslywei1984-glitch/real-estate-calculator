@@ -4902,9 +4902,10 @@
       --consultant-muted: #6d695f;
       --consultant-line: #d7cdbb;
       --consultant-shadow: 0 10px 28px rgba(36, 35, 31, .075);
-      --feature-tax: #8e402b;
+      --feature-tax: #164d5c;
+      --feature-tax-accent: #e0a63b;
       --feature-loan: #164d5c;
-      --feature-highlight: #ffe0a8;
+      --feature-highlight: #fff0c8;
       --feature-cream: #fffaf0;
     }
 
@@ -5747,16 +5748,16 @@
 
     .tax-result-hero {
       display: grid;
-      grid-template-columns: minmax(0, 1.25fr) minmax(220px, .75fr);
-      gap: 18px;
-      align-items: stretch;
+      grid-template-columns: minmax(0, 1.35fr) minmax(200px, .65fr);
+      gap: 10px;
+      align-items: center;
     }
 
     .tax-result-amount,
     .tax-result-rate {
       display: grid;
       align-content: center;
-      gap: 7px;
+      gap: 4px;
       padding: 0;
       border: 0;
       background: transparent;
@@ -5780,9 +5781,11 @@
     }
 
     .metric.main.tax-result-hero {
+      padding: 12px 16px;
       border-color: var(--feature-tax);
       background: var(--feature-tax);
       color: var(--feature-cream);
+      box-shadow: inset 0 4px 0 var(--feature-tax-accent);
     }
 
     .tax-result-hero .tax-result-amount strong,
@@ -6994,7 +6997,7 @@
         <div class="metric main tax-result-hero">
           <div class="metric tax-result-amount">
             <span>預估應納房地合一稅</span>
-            <strong>${wanAmount(tax)}</strong>
+            <strong>約 ${wanAmount(tax)}</strong>
           </div>
           <div class="metric tax-result-rate">
             <span>適用稅率</span>

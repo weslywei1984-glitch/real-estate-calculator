@@ -7,11 +7,11 @@ const root = path.join(__dirname, "..");
 const indexHtml = fs.readFileSync(path.join(root, "index.html"), "utf8");
 const helperHtml = fs.readFileSync(path.join(root, "tainan-land-value-helper.html"), "utf8");
 
-test("tax result hero uses the approved terracotta and sand palette", () => {
-  assert.match(indexHtml, /--feature-tax:\s*#8e402b/i);
-  assert.match(indexHtml, /--feature-highlight:\s*#ffe0a8/i);
-  assert.match(indexHtml, /\.metric\.main\.tax-result-hero\s*\{[^}]*border-color:\s*var\(--feature-tax\)[^}]*background:\s*var\(--feature-tax\)/is);
-  assert.match(indexHtml, /\.tax-result-hero[\s\S]*?strong\s*\{[^}]*color:\s*var\(--feature-highlight\)/i);
+test("tax result hero uses the approved lake green, amber, and warm cream palette", () => {
+  assert.match(indexHtml, /--feature-tax:\s*#164d5c/i);
+  assert.match(indexHtml, /--feature-tax-accent:\s*#e0a63b/i);
+  assert.match(indexHtml, /--feature-highlight:\s*#fff0c8/i);
+  assert.match(indexHtml, /\.metric\.main\.tax-result-hero\s*\{[^}]*background:\s*var\(--feature-tax\)[^}]*box-shadow:\s*inset 0 4px 0 var\(--feature-tax-accent\)/is);
 });
 
 test("loan result hero uses the approved lake blue and sand palette", () => {

@@ -23,3 +23,9 @@ test("買方第二步使用核准的貸款與查詢文案", () => {
   assert.match(indexHtml, /查完資料後回填－土地申報地價總額/);
   assert.doesNotMatch(indexHtml, /下面自動算(?:契稅|買賣登記規費)/);
 });
+
+test("房地合一稅結果加上約字並縮減主卡留白", () => {
+  assert.match(indexHtml, /<strong>約 \$\{wanAmount\(tax\)\}<\/strong>/);
+  assert.match(indexHtml, /\.metric\.main\.tax-result-hero\s*\{[^}]*padding:\s*12px 16px/is);
+  assert.match(indexHtml, /@media \(max-width:\s*620px\)[\s\S]*?\.tax-result-rate\s*\{[^}]*border-top:\s*1px solid/is);
+});
