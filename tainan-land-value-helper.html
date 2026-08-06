@@ -1449,8 +1449,8 @@
       </div>
     </section>
 
-    <div class="workspace">
-      <section class="panel" aria-label="查詢步驟與地號整理">
+    <div class="workspace land-value-workspace">
+      <section class="panel land-query-flow" aria-label="查詢步驟與地號整理">
         <div class="panel-head">
           <div>
             <h2>先把資料整理好</h2>
@@ -1484,7 +1484,15 @@
             </div>
           </div>
 
-          <div class="form-grid">
+          <section class="land-query-step" aria-labelledby="landStep1Title">
+            <div class="land-query-step__head">
+              <span aria-hidden="true">01</span>
+              <div>
+                <h2 id="landStep1Title">整理地號</h2>
+                <p>選行政區、小段名，再輸入母號與子號。</p>
+              </div>
+            </div>
+            <div class="form-grid">
             <div class="field">
               <label for="district">行政區</label>
               <div class="control">
@@ -1555,7 +1563,8 @@
                 <input id="subNo" inputmode="numeric" autocomplete="off" placeholder="13" maxlength="4">
               </div>
             </div>
-          </div>
+            </div>
+          </section>
 
           <div class="formatted-box" aria-label="整理後地號">
             <span>官方頁面要填的地號</span>
@@ -1568,9 +1577,15 @@
             <div class="toast" id="landToast" aria-live="polite"></div>
           </div>
 
-          <div class="divider"></div>
-
-          <div class="form-grid">
+          <section class="land-query-step" aria-labelledby="landStep2Title">
+            <div class="land-query-step__head">
+              <span aria-hidden="true">02</span>
+              <div>
+                <h2 id="landStep2Title">補齊換算資料</h2>
+                <p>確認土地面積、公告現值與前次移轉現值。</p>
+              </div>
+            </div>
+            <div class="form-grid">
             <div class="field">
               <label for="areaSqm">土地面積</label>
               <p class="hint">平方公尺和坪數可互相換算。</p>
@@ -1614,7 +1629,17 @@
                 <input id="ownerId" autocomplete="off" maxlength="10" placeholder="身分證字號或統編">
               </div>
             </div>
+            </div>
+          </section>
 
+          <section class="land-query-step land-query-step--action" aria-labelledby="landStep3Title">
+            <div class="land-query-step__head">
+              <span aria-hidden="true">03</span>
+              <div>
+                <h2 id="landStep3Title">取得結果</h2>
+                <p>查詢後，右側會同步更新換算與摘要。</p>
+              </div>
+            </div>
             <div class="field wide query-action-field">
               <div class="button-row" id="queryActionButtons"></div>
               <div id="queryActionToast"></div>
@@ -1643,11 +1668,11 @@
                 </select>
               </div>
             </div>
-          </div>
+          </section>
         </div>
       </section>
 
-      <aside class="panel result-panel" aria-label="換算結果">
+      <aside class="panel result-panel land-result-dashboard" aria-label="換算結果">
         <div class="panel-head">
           <div>
             <h2>查完後看這裡</h2>
@@ -1656,22 +1681,22 @@
         </div>
         <div class="section">
           <div class="metric-grid">
-            <div class="metric main">
+            <div class="metric main land-metric land-metric--primary">
               <span>公告現值坪數換算</span>
               <strong id="currentTotalOut">0 元</strong>
               <small id="currentTotalNote">土地坪數 × 每坪公告現值</small>
             </div>
-            <div class="metric">
+            <div class="metric land-metric land-metric--previous">
               <span>前次移轉現值坪數換算</span>
               <strong id="previousTotalOut">0 元</strong>
               <small id="previousTotalNote">土地坪數 × 每坪前次移轉現值</small>
             </div>
-            <div class="metric">
+            <div class="metric land-metric land-metric--delta">
               <span>土地價格差額</span>
               <strong id="gainTotalOut">0 元</strong>
               <small id="gainTotalNote">這次總額 - 上次總額</small>
             </div>
-            <div class="metric">
+            <div class="metric land-metric land-metric--per-ping">
               <span>每坪公告土地現值</span>
               <strong id="currentPingOut">0 元/坪</strong>
               <small>每平方公尺金額 × 0.3025</small>
@@ -1680,11 +1705,11 @@
 
           <div class="divider"></div>
 
-          <div class="field">
+          <div class="field land-summary-panel">
             <label for="summaryText">給小魏的查詢摘要</label>
             <textarea id="summaryText" readonly></textarea>
           </div>
-          <div class="button-row" style="margin-top: 10px;">
+          <div class="button-row land-dashboard-actions">
             <button class="btn dark" type="button" id="copySummary">複製摘要</button>
             <a class="btn ghost" href="index.html">回到稅費與貸款試算</a>
             <a class="btn ghost" href="land-increment-total.html">算土地漲價總數</a>

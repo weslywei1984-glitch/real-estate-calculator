@@ -19,3 +19,28 @@ test("loan result hero uses the approved lake blue and sand palette", () => {
   assert.match(indexHtml, /\.metric\.main\.loan-payment-hero\s*\{[^}]*border-color:\s*var\(--feature-loan\)[^}]*background:\s*var\(--feature-loan\)/is);
   assert.match(indexHtml, /\.loan-payment-stage\s+strong\s*\{[^}]*color:\s*var\(--feature-highlight\)/i);
 });
+
+test("land helper keeps its approved header and intro unchanged", () => {
+  assert.match(helperHtml, /<header class="brand-hero">\s*<img class="brand-hero__mobile-art" src="assets\/mobile-hero-exact\.jpg" width="1787" height="880" alt="台南小魏 買厝作伙。房地稅費與貸款試算。正式申報仍以稅務機關、地政士、銀行核定為準。">\s*<\/header>/);
+  assert.match(helperHtml, /<section class="tool-intro" aria-labelledby="toolTitle">[\s\S]*?<h1 id="toolTitle">用地號查詢公告現值<\/h1>[\s\S]*?只有門牌先查地號[\s\S]*?<\/section>/);
+});
+
+test("land helper exposes a three-step query flow and result dashboard", () => {
+  assert.match(helperHtml, /class="workspace land-value-workspace"/);
+  assert.match(helperHtml, /class="panel land-query-flow"/);
+  assert.equal((helperHtml.match(/class="land-query-step(?:\s|")/g) || []).length, 3);
+  assert.match(helperHtml, /class="panel result-panel land-result-dashboard"/);
+  assert.match(helperHtml, /class="metric main land-metric land-metric--primary"/);
+});
+
+test("land helper preserves every behavior-bound ID", () => {
+  for (const id of [
+    "district", "sectionName", "mainNo", "subNo", "areaSqm", "areaPing",
+    "currentValue", "previousValue", "queryLandValues", "lookupStatus",
+    "currentTotalOut", "previousTotalOut", "gainTotalOut", "currentPingOut",
+    "summaryText", "copySummary"
+  ]) {
+    assert.match(helperHtml, new RegExp(`id="${id}"`));
+  }
+  assert.match(helperHtml, /const STORAGE_KEY = "tainanLandValueHelperForm"/);
+});
