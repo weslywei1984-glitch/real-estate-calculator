@@ -17,7 +17,8 @@ test("tax result hero uses the approved terracotta and sand palette", () => {
 test("loan result hero uses the approved lake blue and sand palette", () => {
   assert.match(indexHtml, /--feature-loan:\s*#164d5c/i);
   assert.match(indexHtml, /\.metric\.main\.loan-payment-hero\s*\{[^}]*border-color:\s*var\(--feature-loan\)[^}]*background:\s*var\(--feature-loan\)/is);
-  assert.match(indexHtml, /\.loan-payment-stage\s+strong\s*\{[^}]*color:\s*var\(--feature-highlight\)/i);
+  assert.match(indexHtml, /\.metric\.main\.loan-payment-hero\s+\.loan-payment-stage\s+strong\s*\{[^}]*color:\s*var\(--feature-highlight\)/i);
+  assert.match(indexHtml, /\.metric\.main\.loan-payment-hero\s+\.metric\.loan-payment-stage\s*\{[^}]*background:\s*transparent/i);
 });
 
 test("land helper keeps its approved header and intro unchanged", () => {
