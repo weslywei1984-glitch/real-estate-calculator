@@ -52,3 +52,43 @@ test("restoring defaults also synchronizes both salary sliders", () => {
   assert.match(html, /bindSalarySlider\("loanSalarySlider", "loanSalary", "loan"\)/);
   assert.match(html, /bindSalarySlider\("youngSalarySlider", "youngMonthlyIncome", "young"\)/);
 });
+
+test("opening the result step recalculates after restart", () => {
+  const setupSource = html.match(
+    /function setupWizards\(\) \{[\s\S]*?\r?\n    \}(?=\r?\n\r?\n    setupNumericInputs\(\);)/
+  )?.[0];
+  assert.ok(setupSource, "missing setupWizards");
+
+  const listeners = {};
+  const nextButton = {
+    addEventListener(type, handler) {
+      listeners[type] = handler;
+    }
+  };
+  const workspace = {
+    dataset: { wizard: "loan", wizardCurrent: "2" },
+    querySelector(selector) {
+      return selector === "[data-wizard-next]" ? nextButton : null;
+    }
+  };
+  const runs = [];
+  const context = {
+    document: { querySelectorAll: () => [workspace] },
+    validateWizardStep: () => true,
+    wizardSteps: () => ["1", "2", "3", "4"],
+    setWizardStep: (target, index) => {
+      target.dataset.wizardCurrent = String(index);
+    },
+    resetWizard: () => {},
+    runGroup: (...args) => runs.push(args)
+  };
+
+  vm.runInNewContext(`${setupSource}\nsetupWizards();`, context);
+  listeners.click();
+
+  assert.equal(runs.length, 1);
+  assert.equal(runs[0][0], "loan");
+  assert.equal(runs[0][1].loading, true);
+  assert.equal(runs[0][1].feedback, "已更新");
+  assert.equal(workspace.dataset.wizardCurrent, "3");
+});

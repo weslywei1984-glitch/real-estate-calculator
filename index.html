@@ -8221,6 +8221,9 @@
         workspace.querySelector("[data-wizard-next]")?.addEventListener("click", () => {
           if (!validateWizardStep(workspace)) return;
           const index = Number(workspace.dataset.wizardCurrent || 0);
+          if (index === wizardSteps(workspace).length - 2) {
+            runGroup(workspace.dataset.wizard, { loading: true, feedback: "已更新" });
+          }
           setWizardStep(workspace, index + 1, { focus: true });
         });
         resetWizard(workspace, { focus: false });
