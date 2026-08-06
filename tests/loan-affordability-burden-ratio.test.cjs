@@ -59,9 +59,12 @@ test("renders discrete burden choices and the two-value runway summary", () => {
 
 test("includes risk copy for each non-comfort burden mode", () => {
   assert.match(html, /5 成｜負擔偏高/);
+  assert.match(html, /請預留生活費、利率上升與緊急支出。/);
   assert.match(html, /6 成｜壓力高/);
+  assert.match(html, /請確認其他固定支出及緊急預備金是否足夠。/);
   assert.match(html, /7 成｜風險很高/);
   assert.match(html, /僅供壓力測試，不建議視為舒適預算/);
+  assert.match(html, /<span>\$\{riskMessages\[snapshot\.mode\]\.note\}<\/span>/);
 });
 
 test("burden slider only redraws the runway and restart resets comfort mode", () => {
