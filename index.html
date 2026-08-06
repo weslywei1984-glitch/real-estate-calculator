@@ -9,8 +9,8 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="房地稅費與貸款試算｜台南小魏 買厝作伙">
   <meta property="og:description" content="免費試算房地合一稅、買方現金需求、房貸月付與青安貸款 3.0,輸入金額即時算出結果。">
-  <meta property="og:image" content="https://weslywei1984-glitch.github.io/real-estate-calculator/assets/hero-reference.jpg">
-  <meta property="og:url" content="https://weslywei1984-glitch.github.io/real-estate-calculator/">
+  <meta property="og:image" content="https://calc.tainanwei.com/assets/hero-reference.jpg">
+  <meta property="og:url" content="https://calc.tainanwei.com/">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M12 34 32 16l20 18v18H38V40H26v12H12Z' fill='%23f7d77a'/%3E%3C/svg%3E">
   <style>
     :root {
@@ -436,6 +436,18 @@
 
     .hidden {
       display: none;
+    }
+
+    .visually-hidden {
+      position: absolute !important;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
 
     .amortization {
@@ -5656,6 +5668,10 @@
       box-shadow: inset 0 0 0 1px rgba(16, 39, 56, .09);
     }
 
+    .afford-runway__track--selected {
+      margin-bottom: 30px;
+    }
+
     .afford-runway__marker {
       position: absolute;
       left: var(--marker);
@@ -7294,9 +7310,11 @@
     function renderAffordRunway(cardId, options) {
       const card = document.getElementById(cardId);
       if (!card) return;
+      const announcement = document.getElementById("loanAffordAnnouncement");
       const snapshot = affordabilitySnapshot(options);
       if (snapshot.empty) {
         card.innerHTML = `<p class="afford-empty">填入每月薪水，就能看看目前房價落在你的哪一段預算跑道。</p>`;
+        if (announcement) announcement.textContent = "請先填入每月薪水，再選擇月付負擔上限。";
         const burdenSlider = document.getElementById("loanAffordBurdenSlider");
         if (burdenSlider) burdenSlider.disabled = true;
         return;
@@ -7344,13 +7362,17 @@
       const risk = isComfort
         ? ""
         : `<div class="afford-risk"><strong>${riskMessages[snapshot.mode].title}</strong><span>${riskMessages[snapshot.mode].note}</span></div>`;
+      const announcementText = isComfort
+        ? `舒適，購屋預算 ${wanLabel(snapshot.priceLow)}到${wanLabel(snapshot.priceHigh)}，月付 ${number.format(Math.round(snapshot.payLow))}到${number.format(Math.round(snapshot.payHigh))} 元。`
+        : `${snapshot.modeLabel}，購屋預算上限 ${wanLabel(snapshot.selectedPrice)}，月付 ${number.format(Math.round(snapshot.selectedPay))} 元，${riskMessages[snapshot.mode].title.split("｜")[1]}。`;
+      if (announcement) announcement.textContent = announcementText;
       card.innerHTML = `
-        <div class="afford-summary-grid" aria-live="polite" aria-atomic="true">
+        <div class="afford-summary-grid">
           <div class="afford-summary-card"><span>${budgetLabel}</span><strong>${budgetValue}</strong></div>
           <div class="afford-summary-card"><span>${paymentLabel}</span><strong>${paymentValue}<small> 元／月</small></strong></div>
         </div>
         <div class="afford-runway__head"><b class="afford-runway__zone-text">${snapshot.zone}</b></div>
-        <div class="afford-runway__track" role="img" aria-label="目前房價位於${snapshot.zone}區" style="--low:${snapshot.lowPercent}%;--high:${snapshot.highPercent}%;--marker:${snapshot.markerPercent}%;--selected:${snapshot.selectedPercent}%">
+        <div class="afford-runway__track${isComfort ? "" : " afford-runway__track--selected"}" role="img" aria-label="目前房價位於${snapshot.zone}區" style="--low:${snapshot.lowPercent}%;--high:${snapshot.highPercent}%;--marker:${snapshot.markerPercent}%;--selected:${snapshot.selectedPercent}%">
           <i class="afford-runway__marker" aria-hidden="true"></i>
           <em class="afford-runway__marker-label">目前房價 ${wanLabel(options.purchasePrice)}</em>
           ${selectedTick}
@@ -7538,6 +7560,7 @@
             <div class="afford-burden-labels" aria-hidden="true"><span>舒適</span><span>5 成</span><span>6 成</span><span>7 成</span></div>
           </div>
           <div id="loanAffordRunwayVisual"></div>
+          <p class="visually-hidden" id="loanAffordAnnouncement" aria-live="polite" aria-atomic="true"></p>
           <label class="afford-runway__salary" for="loanResultSalarySlider">
             <span>用我的月薪試跑</span>
             <b id="loanResultSalaryValue">${number.format(value("loanSalary") / 10000)} 萬</b>

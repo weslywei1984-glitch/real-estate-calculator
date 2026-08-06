@@ -51,7 +51,7 @@ test("renders discrete burden choices and the two-value runway summary", () => {
   assert.match(html, /<span>月付負擔上限<\/span>/);
   assert.match(html, /id="loanAffordBurdenValue"/);
   assert.match(html, /<span>舒適<\/span>\s*<span>5 成<\/span>\s*<span>6 成<\/span>\s*<span>7 成<\/span>/);
-  assert.match(html, /class="afford-summary-grid"[^>]*aria-live="polite"/);
+  assert.match(html, /class="afford-summary-grid"/);
   assert.match(html, /購屋預算上限/);
   assert.match(html, /const paymentLabel = isComfort \? "舒適月付試算" : "月付試算";/);
   assert.match(html, /舒適參考：/);
@@ -82,6 +82,23 @@ test("lays out summary cards responsively and marks the selected burden", () => 
   assert.match(html, /\.afford-summary-grid\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/s);
   assert.match(html, /\.afford-runway__selected-tick\s*\{/);
   assert.match(html, /@media \(max-width: 620px\)[\s\S]*?\.afford-summary-grid\s*\{[^}]*grid-template-columns:\s*1fr/s);
+});
+
+test("selected burden label uses a reserved row below the runway", () => {
+  assert.match(html, /afford-runway__track\$\{isComfort \? "" : " afford-runway__track--selected"\}/);
+  const selectedTrackRule = html.match(/\.afford-runway__track--selected\s*\{([^}]*)\}/)?.[1];
+  assert.ok(selectedTrackRule, "selected runway modifier exists");
+  const marginBottom = Number(selectedTrackRule.match(/margin-bottom:\s*(\d+)px/)?.[1]);
+  assert.ok(marginBottom >= 24, "selected label has enough vertical clearance from zone labels");
+});
+
+test("burden updates announce a concise summary through a stable live region", () => {
+  assert.match(
+    html,
+    /<p class="visually-hidden" id="loanAffordAnnouncement" aria-live="polite" aria-atomic="true"><\/p>/
+  );
+  assert.doesNotMatch(html, /class="afford-summary-grid"[^>]*aria-live/);
+  assert.match(html, /announcement\.textContent = announcementText/);
 });
 
 test("5 成、6 成、7 成模式依負擔率計算選取月付與房價", () => {

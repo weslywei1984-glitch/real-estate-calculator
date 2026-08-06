@@ -43,6 +43,13 @@ test("主頁土地工具連結留在目前部署網域", () => {
   );
 });
 
+test("主頁社群分享 metadata 使用正式 VPS 網域", () => {
+  const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
+  assert.match(html, /<meta property="og:url" content="https:\/\/calc\.tainanwei\.com\/">/);
+  assert.match(html, /<meta property="og:image" content="https:\/\/calc\.tainanwei\.com\/assets\/[^\"]+">/);
+  assert.doesNotMatch(html, /<meta property="og:(?:url|image)"[^>]*github\.io/i);
+});
+
 test("部署文件描述 Nginx 靜態版本發布且不要求 Node", () => {
   assert.match(deployMd, /calc\.tainanwei\.com/);
   assert.match(deployMd, /\/var\/www\/real-estate-calculator\/current/);
