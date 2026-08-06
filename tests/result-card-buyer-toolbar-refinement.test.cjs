@@ -29,3 +29,18 @@ test("房地合一稅結果加上約字並縮減主卡留白", () => {
   assert.match(indexHtml, /\.metric\.main\.tax-result-hero\s*\{[^}]*padding:\s*12px 16px/is);
   assert.match(indexHtml, /@media \(max-width:\s*620px\)[\s\S]*?\.tax-result-rate\s*\{[^}]*border-top:\s*1px solid/is);
 });
+
+test("土地漲價操作列桌機四顆同排、手機兩欄", () => {
+  assert.match(landHtml, /\.actions\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*\.7fr \.9fr 1\.35fr 1\.35fr;/s);
+  assert.match(landHtml, /@media \(max-width:\s*620px\)[\s\S]*?\.actions\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/s);
+  assert.match(landHtml, /class="btn secondary action-reset" id="resetBtn"/);
+  assert.match(landHtml, /class="btn primary action-sample" id="sampleBtn"/);
+  assert.match(landHtml, /class="btn secondary action-home" href="index\.html"/);
+  assert.match(landHtml, /class="btn ghost action-land" href="tainan-land-value-helper\.html"/);
+});
+
+test("土地漲價操作列使用湖水綠、琥珀與米白配色", () => {
+  assert.match(landHtml, /\.action-sample\s*\{[^}]*background:\s*#e0a63b;[^}]*color:\s*#102738;/s);
+  assert.match(landHtml, /\.action-land\s*\{[^}]*background:\s*#164d5c;[^}]*color:\s*#fffaf0;/s);
+  assert.match(landHtml, /\.action-home\s*\{[^}]*border-color:\s*#164d5c;[^}]*color:\s*#164d5c;/s);
+});

@@ -554,16 +554,18 @@
     }
 
     .actions {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: .7fr .9fr 1.35fr 1.35fr;
       gap: 8px;
       margin-top: 14px;
     }
 
     .actions .btn {
+      width: 100%;
+      min-width: 0;
       min-height: 46px;
-      padding-inline: 12px;
-      font-size: .92rem;
+      padding-inline: 10px;
+      font-size: .88rem;
     }
 
     .btn {
@@ -932,6 +934,10 @@
         align-items: stretch;
       }
 
+      .actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
       .segmented,
       .mode-actions,
       .btn {
@@ -1073,6 +1079,30 @@
       color: var(--consultant-navy);
       border-color: var(--consultant-line);
       background: var(--consultant-paper);
+    }
+
+    .actions .action-reset {
+      border-color: #102738;
+      background: #fffaf0;
+      color: #102738;
+    }
+
+    .actions .action-sample {
+      border-color: #e0a63b;
+      background: #e0a63b;
+      color: #102738;
+    }
+
+    .actions .action-home {
+      border-color: #164d5c;
+      background: #fffaf0;
+      color: #164d5c;
+    }
+
+    .actions .action-land {
+      border-color: #164d5c;
+      background: #164d5c;
+      color: #fffaf0;
     }
 
     .float-contact {
@@ -1291,19 +1321,19 @@
         <div class="form-message" id="formMessage" aria-live="polite"></div>
 
         <div class="actions">
-          <button type="button" class="btn secondary" id="resetBtn">
+          <button type="button" class="btn secondary action-reset" id="resetBtn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v6h6"/></svg>
             清空
           </button>
-          <button type="button" class="btn primary" id="sampleBtn">
+          <button type="button" class="btn primary action-sample" id="sampleBtn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h4"/></svg>
             套用範例
           </button>
-          <a class="btn secondary" href="index.html">
+          <a class="btn secondary action-home" href="index.html">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>
             回稅費與貸款試算
           </a>
-          <a class="btn ghost" href="tainan-land-value-helper.html">
+          <a class="btn ghost action-land" href="tainan-land-value-helper.html">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
             用地號查公告現值
           </a>
