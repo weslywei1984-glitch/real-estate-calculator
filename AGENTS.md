@@ -18,7 +18,7 @@
 4. 新青安 2.0(政策情境試算)
 
 其他檔案:
-- `tainan-land-value-helper.html`:台南公告土地現值查詢。公告現值查詢用 `assets/land-values/` 的各行政區靜態資料,GitHub Pages 上可以直接用;只有「前次移轉現值」API 需要 Node 伺服器(`npm start`,port 8787),該流程目前停用中。
+- `tainan-land-value-helper.html`:台南公告土地現值查詢。公告現值查詢用 `assets/land-values/` 的各行政區靜態資料；「前次移轉現值」API 流程目前停用，正式站不執行 Node 伺服器。
 - `land-increment-total.html`:土地漲價總數額試算。
 
 ## 程式慣例
@@ -52,11 +52,13 @@
 ## 公開瀏覽器存取
 
 - 三個公開頁面不得載入 LINE LIFF SDK 或 `assets/liff-gate.js`，Safari、Chrome 與 LINE 內建瀏覽器都要能直接使用。
-- 對外分享使用 `https://weslywei1984-glitch.github.io/real-estate-calculator/`；子頁面直接加 `/land-increment-total.html` 或 `/tainan-land-value-helper.html`。
+- 對外分享唯一正式網域為 `https://calc.tainanwei.com/`；子頁面直接加 `/land-increment-total.html` 或 `/tainan-land-value-helper.html`。
 - `assets/liff-gate.js` 僅保留作為歷史與回復用途，公開頁面不執行它。
 - 頁面既有 LINE 按鈕只作為使用後的聯絡入口，不可用登入或好友狀態阻擋試算工具。
 
 ## 部署
 
-- 推到 `main` 分支即自動部署 GitHub Pages:https://weslywei1984-glitch.github.io/real-estate-calculator/
-- 部署後告訴使用者換新的 `?v=` 參數避免瀏覽器快取(例如 `?v=6688003`)。
+- 正式環境由 VPS Nginx 靜態服務，root 為 `/var/www/real-estate-calculator/current`。
+- `tainanwei.service` 必須保持 `inactive`，8787 port 必須保持未監聽。
+- GitHub 只作原始碼備份；推送 `main` 不等於正式發布。
+- 正式發布後可使用新的 `?v=` 參數避免瀏覽器快取（例如 `?v=6688003`）。
