@@ -1,39 +1,29 @@
-# 公開部署說明
+# calc.tainanwei.com 靜態部署說明
 
-這個工具需要 Node.js 主機，不能只用靜態網頁空間。
+主計算器由 VPS 上的 Nginx 直接提供靜態檔案，不需要 Node.js 常駐服務。
 
-## 部署設定
+## 正式環境
 
-- Runtime：Node.js 20 以上
-- Build command：不用填，或填 `npm install`
-- Start command：`npm start`
-- Public URL：部署完成後開啟 `/tainan-land-value-helper.html`
+- 網域：`https://calc.tainanwei.com/`
+- Nginx root：`/var/www/real-estate-calculator/current`
+- 版本目錄：`/var/www/real-estate-calculator/releases/<release>`
+- 部署紀錄：`/var/www/real-estate-calculator/deployments/<release>/deployment.txt`
+- 舊的 `tainanwei.service` 必須保持 `inactive`。
+- 8787 port 必須保持未監聽。
 
-## 環境變數
+## 發布流程
 
-一般部署平台會自動提供 `PORT`，不需要另外設定。
+1. 完成本機測試、桌機與手機瀏覽器驗證。
+2. 用 Git commit 前 12 碼建立不可變版本目錄。
+3. 上傳 `git archive`，解壓到新的 release 目錄。
+4. 驗證 release 內容後，原子切換 `current` symlink。
+5. 更新 Nginx 的 `X-Calculator-Release`，執行 `nginx -t` 後 reload。
+6. 驗證正式網域版本標頭、HTML、桌機與手機畫面及 console。
 
-可選：
+## 回復
 
-- `NODE_ENV=production`
-- `DEBUG_TRANSFER=0`
+先用 `readlink -f /var/www/real-estate-calculator/current` 確認目前版本，再把 `current` 原子切回已驗證的前一版 release。更新 `X-Calculator-Release`、通過 `nginx -t` 並 reload 後，重新檢查正式網域。
 
-公開使用時建議保持 `DEBUG_TRANSFER=0`，避免把查詢摘要寫到 `output/last-transfer-result.json`。
+## 本機預覽
 
-## 本機使用
-
-雙擊 `start-tainan-land-value-helper.bat`，或在資料夾內執行：
-
-```bash
-npm start
-```
-
-再開啟：
-
-```text
-http://127.0.0.1:8787/tainan-land-value-helper.html
-```
-
-## 注意事項
-
-前次移轉現值查詢會把使用者填入的地號與權利人統一編號送到本服務，再由本服務送往台南市官方查詢頁。公開給一般人使用前，請確認使用者知道資料會用於官方查詢。
+`npm start` 只用於本機 HTTP 預覽與瀏覽器驗證，不代表正式環境需要 Node.js。

@@ -9,6 +9,7 @@ const publicPages = [
   "land-increment-total.html",
   "tainan-land-value-helper.html",
 ];
+const deployMd = fs.readFileSync(path.join(__dirname, "..", "DEPLOY.md"), "utf8");
 
 test("公開頁面不載入 LINE LIFF 好友鎖", () => {
   for (const file of publicPages) {
@@ -35,4 +36,14 @@ test("主頁土地工具連結留在目前部署網域", () => {
     ),
     false,
   );
+});
+
+test("部署文件描述 Nginx 靜態版本發布且不要求 Node", () => {
+  assert.match(deployMd, /calc\.tainanwei\.com/);
+  assert.match(deployMd, /\/var\/www\/real-estate-calculator\/current/);
+  assert.match(deployMd, /\/var\/www\/real-estate-calculator\/releases\/<release>/);
+  assert.match(deployMd, /tainanwei\.service.*inactive/s);
+  assert.match(deployMd, /8787.*未監聽/s);
+  assert.doesNotMatch(deployMd, /這個工具需要 Node\.js 主機/);
+  assert.doesNotMatch(deployMd, /Start command：`npm start`/);
 });
