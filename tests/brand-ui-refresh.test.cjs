@@ -223,10 +223,10 @@ test("土地查詢連結指向台南市公告土地現值及公告地價", () =>
   assert.match(html, /href="https:\/\/land-query\.tainan\.gov\.tw\/query\/rwd\/valueprice\.jsp\?menu=false"/);
 });
 
-test("抵押權設定倍率改為 1.2 或不設定兩個選項", () => {
+test("抵押權設定倍率保留既有值並使用白話貸款標籤", () => {
   assert.match(html, /data-chip-input="mortgageSettingRatio"/);
-  assert.match(html, /class="chip" data-value="1\.2">1\.2 倍<\/button>/);
-  assert.match(html, /class="chip" data-value="0">不設定<\/button>/);
+  assert.match(html, /class="chip" data-value="1\.2">銀行貸款<\/button>/);
+  assert.match(html, /class="chip" data-value="0">不用貸款<\/button>/);
   assert.match(html, /<input id="mortgageSettingRatio" type="hidden" value="1\.2">/);
 });
 

@@ -6223,20 +6223,20 @@
               </div>
             </div>
             <div class="field" data-wizard-step="2">
-              <label>抵押權設定金額倍率</label>
-              <div class="chip-group chip-quick-row" data-chip-input="mortgageSettingRatio" role="group" aria-label="抵押權設定金額倍率">
-                <button type="button" class="chip" data-value="1.2">1.2 倍</button>
-                <button type="button" class="chip" data-value="0">不設定</button>
-              </div>
-              <input id="mortgageSettingRatio" type="hidden" value="1.2">
-            </div>
-            <div class="field" data-wizard-step="2">
               <label for="buildingValue">房屋評定現值／契價</label>
               <div class="control">
                 <input id="buildingValue" data-money-unit="wan" type="number" min="0" step="0.1" value="100">
                 <span class="unit">萬元</span>
               </div>
-              <div class="field-note">填房屋稅單的「課稅現值」，下面自動算契稅</div>
+              <div class="field-note">填房屋稅單的「課稅現值」</div>
+            </div>
+            <div class="field" data-wizard-step="2">
+              <label>抵押權設定金額倍率</label>
+              <div class="chip-group chip-quick-row" data-chip-input="mortgageSettingRatio" role="group" aria-label="抵押權設定金額倍率">
+                <button type="button" class="chip" data-value="1.2">銀行貸款</button>
+                <button type="button" class="chip" data-value="0">不用貸款</button>
+              </div>
+              <input id="mortgageSettingRatio" type="hidden" value="1.2">
             </div>
             <div class="field" data-wizard-step="2">
               <label for="landDeclaredValue">土地申報地價總額</label>
@@ -6244,10 +6244,10 @@
                 <input id="landDeclaredValue" data-money-unit="wan" type="number" min="0" step="0.1" value="180">
                 <span class="unit">萬元</span>
               </div>
-              <div class="field-note">填公告地價 × 持有面積(m²)，下面自動算買賣登記規費</div>
+              <div class="field-note">填公告地價 × 持有面積（m²）</div>
             </div>
             <div class="lookup-links field wide" data-wizard-step="2" aria-label="土地公告地價查詢連結">
-              <span>查完土地資料後回填上面兩格：</span>
+              <span>查完資料後回填－土地申報地價總額</span>
               <a href="https://land-query.tainan.gov.tw/query/rwd/valueprice.jsp?menu=false" target="_blank" rel="noreferrer">查土地公告現值／公告地價</a>
             </div>
             <div class="field" data-wizard-step="3">
