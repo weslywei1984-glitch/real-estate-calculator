@@ -7107,6 +7107,14 @@
     // 房貸負擔率：月付抓月收入的 1/3 ～ 2/5
     const AFFORD_RATIO_LOW = 1 / 3;
     const AFFORD_RATIO_HIGH = 2 / 5;
+    const AFFORD_BURDEN_OPTIONS = Object.freeze({
+      comfort: Object.freeze({ label: "舒適", ratio: null }),
+      "50": Object.freeze({ label: "5 成", ratio: 0.5 }),
+      "60": Object.freeze({ label: "6 成", ratio: 0.6 }),
+      "70": Object.freeze({ label: "7 成", ratio: 0.7 })
+    });
+    const AFFORD_BURDEN_STEPS = Object.freeze(["comfort", "50", "60", "70"]);
+    let loanAffordBurdenMode = "comfort";
 
     const wanLabel = amount => `${number.format(Math.round(amount / 10000))} 萬`;
 
@@ -7116,7 +7124,9 @@
       const years = Math.max(1, Number(options.years) || 1);
       const downPayment = Math.max(0, Number(options.downPayment) || 0);
       const purchasePrice = Math.max(0, Number(options.purchasePrice) || 0);
-      if (salary <= 0) return { empty: true };
+      const mode = normalizeAffordBurdenMode(options.mode);
+      const modeOption = AFFORD_BURDEN_OPTIONS[mode];
+      if (salary <= 0) return { empty: true, mode, modeLabel: modeOption.label };
 
       const months = Math.max(1, Math.round(years * 12));
       const monthlyRate = annualRate / 100 / 12;
@@ -7124,10 +7134,19 @@
       const payHigh = salary * AFFORD_RATIO_HIGH;
       const priceLow = loanFromPayment(payLow, monthlyRate, months) + downPayment;
       const priceHigh = loanFromPayment(payHigh, monthlyRate, months) + downPayment;
+      const selectedRatio = modeOption.ratio;
+      const selectedPay = selectedRatio === null ? payHigh : salary * selectedRatio;
+      const selectedPrice = loanFromPayment(selectedPay, monthlyRate, months) + downPayment;
       const zone = purchasePrice < priceLow ? "安心" : purchasePrice <= priceHigh ? "剛好" : "挑戰";
-      const scaleMax = Math.max(1, priceHigh * 1.2, purchasePrice * 1.08);
+      const scaleMax = Math.max(1, priceHigh * 1.2, selectedPrice * 1.12, purchasePrice * 1.08);
       return {
         empty: false,
+        mode,
+        modeLabel: modeOption.label,
+        selectedRatio,
+        selectedPay,
+        selectedPrice,
+        withinSelected: purchasePrice <= selectedPrice,
         payLow,
         payHigh,
         priceLow,
@@ -7135,8 +7154,15 @@
         zone,
         markerPercent: clamp(purchasePrice / scaleMax * 100, 0, 100),
         lowPercent: clamp(priceLow / scaleMax * 100, 0, 100),
-        highPercent: clamp(priceHigh / scaleMax * 100, 0, 100)
+        highPercent: clamp(priceHigh / scaleMax * 100, 0, 100),
+        selectedPercent: clamp(selectedPrice / scaleMax * 100, 0, 100)
       };
+    }
+
+    function normalizeAffordBurdenMode(mode) {
+      return Object.prototype.hasOwnProperty.call(AFFORD_BURDEN_OPTIONS, mode)
+        ? mode
+        : "comfort";
     }
 
     function renderAffordRunway(cardId, options) {

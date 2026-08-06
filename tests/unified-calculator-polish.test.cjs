@@ -176,6 +176,12 @@ test("購屋預算跑道沿用三分之一到四成且標記不超界", () => {
   const sandbox = {
     AFFORD_RATIO_LOW: 1 / 3,
     AFFORD_RATIO_HIGH: 2 / 5,
+    AFFORD_BURDEN_OPTIONS: Object.freeze({
+      comfort: Object.freeze({ label: "舒適", ratio: null }),
+      "50": Object.freeze({ label: "5 成", ratio: 0.5 }),
+      "60": Object.freeze({ label: "6 成", ratio: 0.6 }),
+      "70": Object.freeze({ label: "7 成", ratio: 0.7 })
+    }),
     clamp: (value, min, max) => Math.min(max, Math.max(min, value)),
     loanFromPayment: payment => payment * 300
   };
