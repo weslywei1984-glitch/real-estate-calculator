@@ -54,7 +54,7 @@ test("萬元欄位第三版會遷移舊的元資料", () => {
 });
 
 test("房地合一稅結果全部以萬元顯示", () => {
-  assert.match(indexHtml, /<strong>\$\{wanAmount\(tax\)\}<\/strong>/);
+  assert.match(indexHtml, /<strong>約 \$\{wanAmount\(tax\)\}<\/strong>/);
   for (const label of [
     "出售成交價額",
     "減：取得成本",
