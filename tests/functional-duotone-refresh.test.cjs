@@ -44,3 +44,13 @@ test("land helper preserves every behavior-bound ID", () => {
   }
   assert.match(helperHtml, /const STORAGE_KEY = "tainanLandValueHelperForm"/);
 });
+
+test("land helper uses the approved desktop workbench proportions", () => {
+  assert.match(helperHtml, /\.land-value-workspace\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.12fr\)\s+minmax\(340px,\s*\.88fr\)/s);
+  assert.match(helperHtml, /\.land-result-dashboard\s*\{[^}]*position:\s*sticky[^}]*top:\s*12px/s);
+});
+
+test("land helper collapses cleanly and disables sticky positioning on mobile", () => {
+  assert.match(helperHtml, /@media \(max-width:\s*900px\)\s*\{[\s\S]*?\.land-value-workspace\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)[^}]*\}[\s\S]*?\.land-result-dashboard\s*\{[^}]*position:\s*static/s);
+  assert.match(helperHtml, /@media \(max-width:\s*620px\)\s*\{[\s\S]*?\.land-query-step\s*\{[^}]*padding:/s);
+});
