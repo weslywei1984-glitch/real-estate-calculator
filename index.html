@@ -5543,6 +5543,76 @@
         var(--consultant-paper);
     }
 
+    .afford-burden-control {
+      display: grid;
+      gap: 8px;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed var(--consultant-line);
+    }
+
+    .afford-burden-control label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--consultant-navy);
+      font-weight: 800;
+    }
+
+    .afford-burden-control output {
+      color: var(--consultant-terracotta-dark);
+      white-space: nowrap;
+    }
+
+    .afford-burden-slider {
+      width: 100%;
+      min-height: 44px;
+      margin: 0;
+      padding: 0;
+      accent-color: var(--consultant-terracotta-dark);
+    }
+
+    .afford-burden-slider:focus-visible {
+      outline: 3px solid rgba(185, 80, 45, .3);
+      outline-offset: 2px;
+    }
+
+    .afford-burden-labels {
+      display: flex;
+      justify-content: space-between;
+      color: var(--consultant-muted);
+      font-size: .68rem;
+      font-weight: 800;
+    }
+
+    .afford-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .afford-summary-card {
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid var(--consultant-line);
+      border-radius: 10px;
+      background: rgba(255, 253, 247, .88);
+    }
+
+    .afford-summary-card span,
+    .afford-summary-card small {
+      color: var(--consultant-muted);
+      font-size: .7rem;
+      font-weight: 750;
+    }
+
+    .afford-summary-card strong {
+      display: block;
+      margin-top: 4px;
+      color: var(--consultant-navy);
+      font-size: clamp(1.08rem, 2.4vw, 1.42rem);
+      line-height: 1.18;
+    }
+
     .afford-runway__head {
       display: flex;
       justify-content: space-between;
@@ -5609,6 +5679,28 @@
       transform: translateX(-50%);
     }
 
+    .afford-runway__selected-tick {
+      position: absolute;
+      left: var(--selected);
+      top: -5px;
+      width: 2px;
+      height: 24px;
+      background: var(--consultant-terracotta-dark);
+      transform: translateX(-50%);
+    }
+
+    .afford-runway__selected-label {
+      position: absolute;
+      left: clamp(16%, var(--selected), 84%);
+      top: 22px;
+      color: var(--consultant-terracotta-dark);
+      font-size: .66rem;
+      font-style: normal;
+      font-weight: 850;
+      white-space: nowrap;
+      transform: translateX(-50%);
+    }
+
     .afford-runway__labels {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -5640,6 +5732,26 @@
     .afford-runway .afford-stat {
       margin-top: 4px;
       background: rgba(16, 39, 56, .045);
+    }
+
+    .afford-baseline,
+    .afford-selected-status {
+      margin: 0;
+      color: var(--consultant-muted);
+      font-size: .72rem;
+      line-height: 1.5;
+    }
+
+    .afford-risk {
+      display: grid;
+      gap: 3px;
+      padding: 10px 11px;
+      border-left: 4px solid var(--consultant-terracotta-dark);
+      border-radius: 8px;
+      background: #fff3e8;
+      color: #7c2d12;
+      font-size: .72rem;
+      line-height: 1.45;
     }
 
     .loan-payment-hero,
@@ -5869,6 +5981,14 @@
         background: var(--consultant-cream);
       }
 
+      .afford-summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .afford-summary-card strong {
+        font-size: 1.18rem;
+      }
+
       .afford-runway__head {
         align-items: flex-start;
       }
@@ -5876,6 +5996,12 @@
       .afford-runway__marker-label {
         max-width: 118px;
         line-height: 1.25;
+        text-align: center;
+        white-space: normal;
+      }
+
+      .afford-runway__selected-label {
+        max-width: 84px;
         text-align: center;
         white-space: normal;
       }
@@ -7171,6 +7297,8 @@
       const snapshot = affordabilitySnapshot(options);
       if (snapshot.empty) {
         card.innerHTML = `<p class="afford-empty">填入每月薪水，就能看看目前房價落在你的哪一段預算跑道。</p>`;
+        const burdenSlider = document.getElementById("loanAffordBurdenSlider");
+        if (burdenSlider) burdenSlider.disabled = true;
         return;
       }
 
@@ -7179,22 +7307,59 @@
         剛好: "目前房價落在舒適試算帶，可再確認生活支出與利率變動後是否仍從容。",
         挑戰: "目前房價高於舒適試算帶，可從提高自備款、調整總價或重新安排年限著手。"
       };
+      const riskMessages = {
+        "50": {
+          title: "5 成負擔率偏低",
+          note: "還有餘裕可因應利率變動，仍建議保留生活與緊急預備金。"
+        },
+        "60": {
+          title: "6 成屬偏高負擔",
+          note: "請連同其他固定支出一起檢視，確認現金流仍有足夠緩衝。"
+        },
+        "70": {
+          title: "7 成高風險警戒",
+          note: "超過偏高負擔警戒線，建議先降低到舒適購屋預算。"
+        }
+      };
+      const burdenSlider = document.getElementById("loanAffordBurdenSlider");
+      if (burdenSlider) burdenSlider.disabled = false;
+      const isComfort = snapshot.mode === "comfort";
+      const budgetLabel = isComfort ? "舒適購屋預算" : "購屋預算上限";
+      const budgetValue = isComfort
+        ? `${wanLabel(snapshot.priceLow)}～${wanLabel(snapshot.priceHigh)}`
+        : wanLabel(snapshot.selectedPrice);
+      const paymentLabel = isComfort ? "舒適月付試算" : "月付上限";
+      const paymentValue = isComfort
+        ? `${number.format(Math.round(snapshot.payLow))}～${number.format(Math.round(snapshot.payHigh))}`
+        : number.format(Math.round(snapshot.selectedPay));
+      const selectedStatus = isComfort
+        ? ""
+        : `<p class="afford-selected-status">目前房價${snapshot.withinSelected ? "符合" : "超過"} ${snapshot.modeLabel}月付上限。</p>`;
+      const selectedTick = isComfort
+        ? ""
+        : `<i class="afford-runway__selected-tick" aria-hidden="true"></i><em class="afford-runway__selected-label">${snapshot.modeLabel}上限</em>`;
+      const baseline = isComfort
+        ? ""
+        : `<p class="afford-baseline">舒適範圍：${wanLabel(snapshot.priceLow)}～${wanLabel(snapshot.priceHigh)}，月付 ${number.format(Math.round(snapshot.payLow))}～${number.format(Math.round(snapshot.payHigh))} 元</p>`;
+      const risk = isComfort
+        ? ""
+        : `<div class="afford-risk"><strong>${riskMessages[snapshot.mode].title}</strong><span>${riskMessages[snapshot.mode].note}</span></div>`;
       card.innerHTML = `
-        <div class="afford-runway__head">
-          <div><span>你的舒適購屋預算</span><strong>${wanLabel(snapshot.priceLow)}～${wanLabel(snapshot.priceHigh)}</strong></div>
-          <b class="afford-runway__zone-text">${snapshot.zone}</b>
+        <div class="afford-summary-grid" aria-live="polite" aria-atomic="true">
+          <div class="afford-summary-card"><span>${budgetLabel}</span><strong>${budgetValue}</strong></div>
+          <div class="afford-summary-card"><span>${paymentLabel}</span><strong>${paymentValue}<small> 元／月</small></strong></div>
         </div>
-        <div class="afford-runway__track" role="img" aria-label="目前房價位於${snapshot.zone}區" style="--low:${snapshot.lowPercent}%;--high:${snapshot.highPercent}%;--marker:${snapshot.markerPercent}%">
+        <div class="afford-runway__head"><b class="afford-runway__zone-text">${snapshot.zone}</b></div>
+        <div class="afford-runway__track" role="img" aria-label="目前房價位於${snapshot.zone}區" style="--low:${snapshot.lowPercent}%;--high:${snapshot.highPercent}%;--marker:${snapshot.markerPercent}%;--selected:${snapshot.selectedPercent}%">
           <i class="afford-runway__marker" aria-hidden="true"></i>
           <em class="afford-runway__marker-label">目前房價 ${wanLabel(options.purchasePrice)}</em>
+          ${selectedTick}
         </div>
         <div class="afford-runway__labels"><span>安心</span><span>剛好</span><span>挑戰</span></div>
+        ${selectedStatus}
         <p class="afford-note">${messages[snapshot.zone]}</p>
-        <div class="afford-stat">
-          <span>舒適月付試算</span>
-          <strong>${number.format(Math.round(snapshot.payLow))}～${number.format(Math.round(snapshot.payHigh))}</strong>
-          <small>元／月（收入的三分之一到四成）</small>
-        </div>
+        ${baseline}
+        ${risk}
       `;
     }
 
@@ -7364,6 +7529,14 @@
           ${overLoanAmount > 0 ? `<div class="loan-overage-note">貸款超過房價金額：${wanAmount(overLoanAmount)}</div>` : ""}
         </div>
         <div class="metric afford-runway" id="loanAffordRunway">
+          <div class="afford-burden-control">
+            <label for="loanAffordBurdenSlider">
+              <span>月付負擔率</span>
+              <output id="loanAffordBurdenValue" for="loanAffordBurdenSlider">${AFFORD_BURDEN_OPTIONS[loanAffordBurdenMode].label}</output>
+            </label>
+            <input class="afford-burden-slider" id="loanAffordBurdenSlider" type="range" min="0" max="3" step="1" value="${AFFORD_BURDEN_STEPS.indexOf(loanAffordBurdenMode)}" aria-label="調整月付佔月收入比例與購屋預算跑道" aria-valuetext="${AFFORD_BURDEN_OPTIONS[loanAffordBurdenMode].label}">
+            <div class="afford-burden-labels" aria-hidden="true"><span>舒適</span><span>5 成</span><span>6 成</span><span>7 成</span></div>
+          </div>
           <div id="loanAffordRunwayVisual"></div>
           <label class="afford-runway__salary" for="loanResultSalarySlider">
             <span>用我的月薪試跑</span>
@@ -7392,13 +7565,8 @@
         )}
       `;
 
-      renderAffordRunway("loanAffordRunwayVisual", {
-        salary: value("loanSalary"),
-        annualRate: value("annualRate"),
-        years: value("loanYears"),
-        downPayment,
-        purchasePrice
-      });
+      renderCurrentLoanAffordRunway();
+      bindResultAffordBurdenSlider();
       bindResultSalarySlider();
     }
 
@@ -7637,6 +7805,7 @@
     }
 
     function applyGroupDefaults(group) {
+      if (group === "loan") loanAffordBurdenMode = "comfort";
       Object.entries(defaults[group]).forEach(([id, preset]) => {
         const el = document.getElementById(id);
         if (!el) return;
@@ -8523,6 +8692,31 @@
       window.syncSalarySliders = (window.syncSalarySliders || []).concat(syncSliderFromInput);
     }
 
+    function renderCurrentLoanAffordRunway(salary = value("loanSalary")) {
+      renderAffordRunway("loanAffordRunwayVisual", {
+        salary,
+        annualRate: value("annualRate"),
+        years: value("loanYears"),
+        downPayment: Math.max(0, value("loanPurchasePrice") - value("loanAmount")),
+        purchasePrice: value("loanPurchasePrice"),
+        mode: loanAffordBurdenMode
+      });
+    }
+
+    function bindResultAffordBurdenSlider() {
+      const slider = document.getElementById("loanAffordBurdenSlider");
+      const output = document.getElementById("loanAffordBurdenValue");
+      if (!slider || !output) return;
+      slider.addEventListener("input", () => {
+        const index = clamp(Math.round(Number(slider.value) || 0), 0, AFFORD_BURDEN_STEPS.length - 1);
+        loanAffordBurdenMode = AFFORD_BURDEN_STEPS[index];
+        const label = AFFORD_BURDEN_OPTIONS[loanAffordBurdenMode].label;
+        output.value = label;
+        slider.setAttribute("aria-valuetext", label);
+        renderCurrentLoanAffordRunway();
+      });
+    }
+
     function bindResultSalarySlider() {
       const slider = document.getElementById("loanResultSalarySlider");
       if (!slider) return;
@@ -8535,13 +8729,7 @@
         if (resultValue) resultValue.textContent = `${number.format(salaryWan)} 萬`;
         updateAllWanHints();
         queueSave();
-        renderAffordRunway("loanAffordRunwayVisual", {
-          salary: salaryWan * 10000,
-          annualRate: value("annualRate"),
-          years: value("loanYears"),
-          downPayment: Math.max(0, value("loanPurchasePrice") - value("loanAmount")),
-          purchasePrice: value("loanPurchasePrice")
-        });
+        renderCurrentLoanAffordRunway(salaryWan * 10000);
       });
     }
 

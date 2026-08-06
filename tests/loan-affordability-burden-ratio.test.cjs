@@ -45,6 +45,40 @@ test("舒適模式維持原本三分之一到四成的試算範圍", () => {
   assert.equal(result.zone, "挑戰");
 });
 
+test("renders discrete burden choices and the two-value runway summary", () => {
+  assert.match(html, /id="loanAffordBurdenSlider"[^>]*type="range"[^>]*min="0"[^>]*max="3"[^>]*step="1"/);
+  assert.match(html, /id="loanAffordBurdenValue"/);
+  assert.match(html, /<span>舒適<\/span>\s*<span>5 成<\/span>\s*<span>6 成<\/span>\s*<span>7 成<\/span>/);
+  assert.match(html, /class="afford-summary-grid"[^>]*aria-live="polite"/);
+  assert.match(html, /afford-baseline/);
+  assert.match(html, /afford-risk/);
+});
+
+test("includes risk copy for each non-comfort burden mode", () => {
+  assert.match(html, /const riskMessages = \{/);
+  assert.match(html, /"50":\s*\{\s*title:/s);
+  assert.match(html, /"60":\s*\{\s*title:/s);
+  assert.match(html, /"70":\s*\{\s*title:/s);
+  assert.match(html, /riskMessages\[snapshot\.mode\]\.note/);
+});
+
+test("burden slider only redraws the runway and restart resets comfort mode", () => {
+  const start = html.indexOf("function bindResultAffordBurdenSlider");
+  const end = html.indexOf("function bindResultSalarySlider", start);
+  assert.ok(start > -1 && end > start);
+  const handlerSource = html.slice(start, end);
+  assert.match(handlerSource, /loanAffordBurdenMode = AFFORD_BURDEN_STEPS\[/);
+  assert.match(handlerSource, /renderCurrentLoanAffordRunway\(\)/);
+  assert.doesNotMatch(handlerSource, /scheduleGroup|calculateLoan|setNumericInputValue|queueSave/);
+  assert.match(html, /if \(group === "loan"\) loanAffordBurdenMode = "comfort";/);
+});
+
+test("lays out summary cards responsively and marks the selected burden", () => {
+  assert.match(html, /\.afford-summary-grid\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/s);
+  assert.match(html, /\.afford-runway__selected-tick\s*\{/);
+  assert.match(html, /@media \(max-width: 620px\)[\s\S]*?\.afford-summary-grid\s*\{[^}]*grid-template-columns:\s*1fr/s);
+});
+
 test("5 成、6 成、7 成模式依負擔率計算選取月付與房價", () => {
   const { affordabilitySnapshot } = loadAffordabilityModel();
   const cases = [
