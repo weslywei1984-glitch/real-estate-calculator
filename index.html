@@ -4902,6 +4902,10 @@
       --consultant-muted: #6d695f;
       --consultant-line: #d7cdbb;
       --consultant-shadow: 0 10px 28px rgba(36, 35, 31, .075);
+      --feature-tax: #8e402b;
+      --feature-loan: #164d5c;
+      --feature-highlight: #ffe0a8;
+      --feature-cream: #fffaf0;
     }
 
     body {
@@ -5773,6 +5777,27 @@
       font-style: normal;
       font-weight: 750;
       line-height: 1.45;
+    }
+
+    .metric.main.tax-result-hero {
+      border-color: var(--feature-tax);
+      background: var(--feature-tax);
+      color: var(--feature-cream);
+    }
+
+    .tax-result-hero .tax-result-amount strong,
+    .tax-result-hero .tax-result-rate strong {
+      color: var(--feature-highlight);
+    }
+
+    .metric.main.loan-payment-hero {
+      border-color: var(--feature-loan);
+      background: var(--feature-loan);
+      color: var(--feature-cream);
+    }
+
+    .loan-payment-stage strong {
+      color: var(--feature-highlight);
     }
 
     .tax-self-use-card {
