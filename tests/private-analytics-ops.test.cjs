@@ -6,6 +6,23 @@ const test = require('node:test');
 const root = path.resolve(__dirname, '..');
 const read = (...parts) => fs.readFileSync(path.join(root, ...parts), 'utf8');
 
+function locationBlock(config, signature) {
+  const start = config.indexOf(signature);
+  assert.notEqual(start, -1, `missing location: ${signature}`);
+
+  const openBrace = config.indexOf('{', start);
+  assert.notEqual(openBrace, -1, `missing opening brace for: ${signature}`);
+
+  let depth = 0;
+  for (let index = openBrace; index < config.length; index += 1) {
+    if (config[index] === '{') depth += 1;
+    if (config[index] === '}') depth -= 1;
+    if (depth === 0) return config.slice(start, index + 1);
+  }
+
+  assert.fail(`unterminated location: ${signature}`);
+}
+
 test('event rate-limit zone is defined in the nginx http context', () => {
   const httpConfig = read('ops', 'nginx', 'calculator-analytics-http.conf');
   assert.match(
@@ -34,11 +51,33 @@ test('analytics nginx locations expose only the protected PHP-FPM routes', () =>
 test('analytics dashboard and summary require basic auth and prevent indexing or storage', () => {
   const locations = read('ops', 'nginx', 'calculator-analytics-locations.conf');
   const authFile = /auth_basic_user_file \/etc\/nginx\/\.htpasswd-calculator-analytics;/g;
+  const dashboard = locationBlock(locations, 'location ^~ /analytics/');
+  const summary = locationBlock(locations, 'location = /api/analytics/summary');
 
   assert.match(locations, /location = \/analytics\s*\{\s*return 301 \/analytics\/;\s*\}/s);
-  assert.match(locations, /location \^~ \/analytics\/\s*\{[\s\S]*?auth_basic "Private calculator analytics";[\s\S]*?auth_basic_user_file \/etc\/nginx\/\.htpasswd-calculator-analytics;[\s\S]*?X-Robots-Tag "noindex, noarchive" always;[\s\S]*?Cache-Control "no-store" always;/);
-  assert.match(locations, /location = \/api\/analytics\/summary\s*\{[\s\S]*?auth_basic "Private calculator analytics";[\s\S]*?auth_basic_user_file \/etc\/nginx\/\.htpasswd-calculator-analytics;[\s\S]*?Cache-Control "no-store" always;/);
+  assert.match(dashboard, /auth_basic "Private calculator analytics";/);
+  assert.match(dashboard, /auth_basic_user_file \/etc\/nginx\/\.htpasswd-calculator-analytics;/);
+  assert.match(dashboard, /X-Robots-Tag "noindex, noarchive" always;/);
+  assert.match(dashboard, /Cache-Control "no-store" always;/);
+  assert.match(summary, /auth_basic "Private calculator analytics";/);
+  assert.match(summary, /auth_basic_user_file \/etc\/nginx\/\.htpasswd-calculator-analytics;/);
+  assert.match(summary, /Cache-Control "no-store" always;/);
   assert.equal((locations.match(authFile) || []).length, 2);
+});
+
+test('dashboard ^~ location denies PHP-like normalized URIs before static lookup', () => {
+  const locations = read('ops', 'nginx', 'calculator-analytics-locations.conf');
+  const dashboard = locationBlock(locations, 'location ^~ /analytics/');
+  const phpUri = /\.php(?:\/|$)/;
+
+  assert.ok(phpUri.test('/analytics/example.php'));
+  assert.ok(phpUri.test('/analytics/example.php/x'));
+  assert.match(
+    dashboard,
+    /if \(\$uri ~ \\.php\(\?:\/\|\$\)\) \{ return 404; \}/,
+    'the PHP deny guard must be inside the ^~ dashboard location that wins precedence',
+  );
+  assert.match(dashboard, /try_files \$uri \$uri\/ =404;/);
 });
 
 test('analytics source and unintended paths are denied', () => {
