@@ -62,3 +62,13 @@
 - `tainanwei.service` 必須保持 `inactive`，8787 port 必須保持未監聽。
 - GitHub 只作原始碼備份；推送 `main` 不等於正式發布。
 - 正式發布後可使用新的 `?v=` 參數避免瀏覽器快取（例如 `?v=6688003`）。
+
+## 私有分析維運邊界
+
+- 公開計算器與 land value helper 維持 Nginx 靜態服務；只有 `POST /api/analytics/event`、`GET /api/analytics/summary` 兩個精確 API 經 PHP-FPM socket `/run/php/php8.3-fpm.sock`。
+- `/analytics/` 與 summary 受 Basic Auth 保護；帳號固定 `xiaowei`，密碼只在部署時一次隨機產生，不能寫入 Git、測試、文件或 deployment record。
+- SQLite 位於 `/var/lib/real-estate-calculator/analytics.sqlite`，設定位於 `/etc/real-estate-calculator/analytics.env`，認證檔位於 `/etc/nginx/.htpasswd-calculator-analytics`，備份位於 `/var/backups/real-estate-calculator/analytics/`；皆不可置於 web root。
+- Nginx 必須封鎖 `/analytics-api/`、`/ops/`、任意其他 analytics API 與直接 `.php` URL。event 僅 POST、30/m、burst 10 nodelay、2k body、關閉 access log；summary 僅 GET。
+- 部署前後驗證 `nginx -t`、PHP-FPM、匿名與 authenticated 路由、live event smoke、SQLite backup、schema migration 與 rollback 目標。備份以 SQLite `.backup`、`umask 077`、Taiwan 每日 cron，僅保留最新 30 個指定檔案，不可遞迴刪除。
+- `tainanwei.service` 必須保持 `inactive`，8787 必須保持未監聽。正式環境不需要 `npm start` 或 Node listener；analytics 故障不能阻斷公開計算器。
+- 執行 analytics 完整測試：`npm test`；ops focused test：`node --test tests/private-analytics-ops.test.cjs`；PHP focused test：`node tests/run-php-analytics-tests.cjs`。

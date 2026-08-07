@@ -1,0 +1,2 @@
+CRON_TZ=Asia/Taipei
+17 3 * * * root /usr/local/sbin/calc-analytics-backup
