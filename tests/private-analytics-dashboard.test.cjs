@@ -2,6 +2,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
+const vm = require("node:vm");
 
 const dashboardPath = path.join(__dirname, "..", "analytics", "index.html");
 const dashboard = fs.readFileSync(dashboardPath, "utf8");
@@ -74,4 +75,50 @@ test("渲染契約涵蓋本地格式、四項工具、來源表與二十四小�
   assert.match(dashboard, /站內移動/);
   assert.match(dashboard, /Array\.from\(\{\s*length:\s*24\s*\}/);
   assert.match(dashboard, /Asia\/Taipei/);
+});
+
+test("摘要載入失敗後保留 error 狀態並恢復期間按鈕", async () => {
+  const source = dashboard.match(
+    /function setState\(state\) \{[\s\S]*?async function loadAnalytics\(range\) \{[\s\S]*?\n      \}/,
+  )?.[0];
+  assert.ok(source, "missing dashboard loading state functions");
+
+  const shell = {
+    attributes: {},
+    dataset: {},
+    setAttribute(name, value) { this.attributes[name] = value; },
+  };
+  const tabs = [{ disabled: false }, { disabled: false }];
+  const nodes = {
+    calculatorBreakdown: { dataset: {} },
+    referrerTable: { dataset: {} },
+    hourlyChart: { dataset: {} },
+    analyticsError: { hidden: true, textContent: "" },
+    analyticsRetry: { hidden: true },
+  };
+  const context = {
+    shell,
+    tabs,
+    errorNode: nodes.analyticsError,
+    retryButton: nodes.analyticsRetry,
+    document: { getElementById: id => nodes[id] },
+    encodeURIComponent,
+    fetch: async () => { throw new Error("network unavailable"); },
+  };
+
+  vm.runInNewContext(`
+    const shell = globalThis.shell;
+    const tabs = globalThis.tabs;
+    const errorNode = globalThis.errorNode;
+    const retryButton = globalThis.retryButton;
+    ${source}
+    globalThis.loadDashboardAnalytics = loadAnalytics;
+  `, context);
+  await context.loadDashboardAnalytics("30d");
+
+  assert.equal(shell.dataset.state, "error");
+  assert.equal(shell.attributes["aria-busy"], "false");
+  assert.equal(nodes.analyticsError.hidden, false);
+  assert.equal(nodes.analyticsRetry.hidden, false);
+  assert.deepEqual(tabs.map(tab => tab.disabled), [false, false]);
 });

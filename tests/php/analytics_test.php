@@ -359,6 +359,7 @@ $tests['summary aggregates the bounded Taiwan range into complete dashboard dime
         $now = new DateTimeImmutable('2026-08-07T15:00:00+08:00');
         $summary = $store->summary('7d', $now);
 
+        assertSame('2026-08-07T15:00:00+08:00', $summary['generatedAt']);
         assertSame('7d', $summary['range']);
         assertSame(['startDate' => '2026-08-01', 'endDate' => '2026-08-07'], $summary['period']);
         assertSame(['visits' => 12, 'completions' => 9, 'completionsPer100Visits' => 75.0], $summary['totals']);
@@ -486,6 +487,10 @@ $tests['summary endpoint is read-only JSON with no-store cache headers'] = funct
             assertHeaderContains('Content-Type: application/json; charset=utf-8', $response[2]);
             assertHeaderContains('Cache-Control: no-store, max-age=0', $response[2]);
             $body = json_decode($response[1], true, 32, JSON_THROW_ON_ERROR);
+            assertTrue(array_key_exists('generatedAt', $body));
+            assertTrue(is_string($body['generatedAt']));
+            assertTrue((bool) preg_match('/\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}\z/', $body['generatedAt']));
+            assertSame((new DateTimeImmutable($body['generatedAt']))->format(DATE_ATOM), $body['generatedAt']);
             assertSame('all', $body['range']);
             assertSame(1, $body['totals']['visits']);
             assertHttpResponse(405, '', analyticsSummaryRequest($port, 'POST', 'all'));

@@ -224,7 +224,8 @@
       }
 
       function setLoading(isLoading) {
-        setState(isLoading ? "loading" : "success");
+        if (isLoading) setState("loading");
+        shell.setAttribute("aria-busy", String(isLoading));
         tabs.forEach(tab => { tab.disabled = isLoading; });
       }
 

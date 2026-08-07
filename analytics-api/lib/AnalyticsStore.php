@@ -62,6 +62,7 @@ final class AnalyticsStore
         $completions = $totalsByType['completion'] ?? 0;
 
         return [
+            'generatedAt' => $now->setTimezone($this->timezone)->format(DATE_ATOM),
             'range' => $range,
             'period' => [
                 'startDate' => $startDate,
