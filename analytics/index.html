@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, noarchive">
+  <title>台南小魏｜私人分析後台</title>
+  <style>
+    :root {
+      --cream: #f5f0e7;
+      --paper: #fffdf8;
+      --ink: #172b36;
+      --muted: #667477;
+      --terracotta: #b45e45;
+      --teal: #176c69;
+      --line: #d7cdbc;
+      --wash: #ece4d5;
+      --focus: #e18a48;
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--cream); color: var(--ink); }
+    body {
+      margin: 0;
+      min-width: 0;
+      font-family: "Noto Serif TC", "PMingLiU", "Microsoft JhengHei", serif;
+      line-height: 1.55;
+    }
+    button, table { font: inherit; }
+    button:focus-visible, a:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+    }
+    .analytics-shell {
+      width: min(100% - 32px, 1120px);
+      margin: 0 auto;
+      padding: 42px 0 56px;
+    }
+    .analytics-header {
+      display: grid;
+      gap: 6px;
+      padding: 0 0 26px;
+      border-bottom: 2px solid var(--ink);
+    }
+    .eyebrow, .section-kicker {
+      margin: 0;
+      color: var(--terracotta);
+      font-family: "Microsoft JhengHei", sans-serif;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 0; font-size: clamp(2rem, 5vw, 4.2rem); letter-spacing: -.06em; line-height: 1.08; }
+    h2 { margin: 0; font-size: clamp(1.28rem, 3vw, 1.8rem); letter-spacing: -.03em; }
+    .lede { max-width: 46rem; margin: 6px 0 0; color: var(--muted); }
+    .range-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 25px 0;
+    }
+    .range-tabs button, #analyticsRetry {
+      border: 1px solid var(--ink);
+      border-radius: 0;
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      padding: 8px 13px;
+      transition: background-color 150ms ease, color 150ms ease, transform 150ms ease;
+    }
+    .range-tabs button:hover, #analyticsRetry:hover { background: var(--ink); color: var(--paper); }
+    .range-tabs button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+    .range-tabs button:active, #analyticsRetry:active { transform: translateY(1px); }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border: 1px solid var(--line);
+      background: var(--paper);
+    }
+    .metric-card { min-width: 0; padding: 21px; border-right: 1px solid var(--line); }
+    .metric-card:last-child { border-right: 0; }
+    .metric-label, .metric-note { display: block; font-size: .82rem; color: var(--muted); }
+    .metric-value, .tabular { font-variant-numeric: tabular-nums; }
+    .metric-value { display: block; margin: 9px 0 4px; color: var(--ink); font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.35rem, 5vw, 4.4rem); font-weight: 700; letter-spacing: -.07em; line-height: .95; }
+    .analytics-section { margin-top: 24px; border-top: 1px solid var(--line); padding-top: 17px; }
+    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 13px; }
+    .calculator-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-left: 1px solid var(--line); }
+    .calculator-item { min-width: 0; padding: 15px; border: 1px solid var(--line); border-left: 0; background: rgba(255,253,248,.6); }
+    .calculator-item strong { display: block; margin-top: 5px; font-size: 1.55rem; font-variant-numeric: tabular-nums; }
+    .calculator-item span { color: var(--muted); font-size: .82rem; }
+    .chart-frame { overflow: hidden; border: 1px solid var(--line); background: var(--paper); }
+    .trend-graphic { display: block; width: 100%; height: auto; min-height: 225px; }
+    .chart-grid { stroke: var(--line); stroke-width: 1; }
+    .trend-visits { fill: none; stroke: var(--teal); stroke-width: 3; vector-effect: non-scaling-stroke; }
+    .trend-completions { fill: none; stroke: var(--terracotta); stroke-width: 3; vector-effect: non-scaling-stroke; }
+    .chart-label { fill: var(--muted); font-family: "Microsoft JhengHei", sans-serif; font-size: 11px; }
+    .trend-legend { display: flex; flex-wrap: wrap; gap: 15px; padding: 10px 15px 14px; border-top: 1px solid var(--line); color: var(--muted); font-family: "Microsoft JhengHei", sans-serif; font-size: .82rem; }
+    .legend-dot { display: inline-block; width: 10px; height: 10px; margin-right: 5px; }
+    .legend-visits { background: var(--teal); }
+    .legend-completions { background: var(--terracotta); }
+    .empty-copy { margin: 0; padding: 35px 18px; color: var(--muted); text-align: center; }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1.25fr; gap: 24px; }
+    .detail-card { min-width: 0; }
+    .device-row { display: grid; grid-template-columns: 4.3rem minmax(0, 1fr) 3.8rem; gap: 9px; align-items: center; margin: 10px 0; font-size: .9rem; }
+    .device-track { height: 13px; overflow: hidden; background: var(--wash); }
+    .device-fill { display: block; width: 0; height: 100%; background: var(--teal); transition: width 260ms ease; }
+    .device-value { text-align: right; font-variant-numeric: tabular-nums; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); background: var(--paper); }
+    table { width: 100%; border-collapse: collapse; font-family: "Microsoft JhengHei", sans-serif; font-size: .87rem; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; }
+    th { color: var(--muted); font-size: .76rem; font-weight: 700; letter-spacing: .06em; }
+    th:not(:first-child), td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .hourly-bars { display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); align-items: end; gap: 3px; min-height: 154px; padding: 17px 12px 21px; border: 1px solid var(--line); background: var(--paper); }
+    .hour-bar { position: relative; min-width: 0; height: 110px; background: linear-gradient(to top, var(--wash) 1px, transparent 1px); }
+    .hour-bar span { position: absolute; right: 0; bottom: 0; left: 0; min-height: 2px; background: var(--teal); transition: height 260ms ease; }
+    .hour-bar.is-peak span { background: var(--terracotta); }
+    .hour-bar small { position: absolute; top: 114px; left: 50%; color: var(--muted); font-family: "Microsoft JhengHei", sans-serif; font-size: .62rem; transform: translateX(-50%); }
+    .hour-bar:nth-child(odd) small { visibility: hidden; }
+    #analyticsUpdatedAt { margin: 16px 0 0; color: var(--muted); font-family: "Microsoft JhengHei", sans-serif; font-size: .8rem; }
+    #analyticsError { margin: 16px 0 0; padding: 12px 14px; border-left: 4px solid var(--terracotta); background: #f7e8e1; color: #673023; }
+    #analyticsRetry { margin-top: 12px; }
+    .loading-mark { color: var(--teal); }
+    [hidden] { display: none !important; }
+    @media (max-width: 700px) {
+      .analytics-shell { width: min(100% - 24px, 1120px); padding-top: 27px; }
+      .metric-grid, .calculator-list, .detail-grid { grid-template-columns: 1fr; }
+      .metric-card { border-right: 0; border-bottom: 1px solid var(--line); }
+      .metric-card:last-child { border-bottom: 0; }
+      .calculator-item { border-left: 1px solid var(--line); }
+      .detail-grid { gap: 0; }
+      .detail-card + .detail-card { margin-top: 24px; }
+      .hour-bar:nth-child(odd) small { visibility: visible; }
+      .hour-bar small { font-size: .52rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="analytics-shell" data-state="loading" aria-busy="true">
+    <header class="analytics-header">
+      <p class="eyebrow">台南小魏｜私人分析</p>
+      <h1>試算工具使用概況</h1>
+      <p class="lede">資料僅供站主查看，不包含使用者輸入或試算結果。</p>
+    </header>
+
+    <nav class="range-tabs" aria-label="統計期間">
+      <button type="button" data-range="today" aria-pressed="false">今天</button>
+      <button type="button" data-range="7d" aria-pressed="false">最近 7 天</button>
+      <button type="button" data-range="30d" aria-pressed="true">最近 30 天</button>
+      <button type="button" data-range="all" aria-pressed="false">全部期間</button>
+    </nav>
+
+    <section class="metric-grid" aria-label="主要統計" aria-live="polite">
+      <article class="metric-card"><span class="metric-label">造訪次數</span><strong class="metric-value" id="totalVisits">—</strong><span class="metric-note">去識別化統計</span></article>
+      <article class="metric-card"><span class="metric-label">完成試算</span><strong class="metric-value" id="totalCompletions">—</strong><span class="metric-note">進入結果頁時記錄</span></article>
+      <article class="metric-card"><span class="metric-label">每百次造訪完成數</span><strong class="metric-value" id="completionsPer100">—</strong><span class="metric-note">完成次數 ÷ 造訪次數</span></article>
+    </section>
+
+    <section class="analytics-section" aria-labelledby="calculatorHeading">
+      <div class="section-heading"><div><p class="section-kicker">Calculator mix</p><h2 id="calculatorHeading">四項工具完成情形</h2></div></div>
+      <div id="calculatorBreakdown" class="calculator-list" data-state="loading"></div>
+    </section>
+
+    <section class="analytics-section" aria-labelledby="trendHeading">
+      <div class="section-heading"><div><p class="section-kicker">Daily ledger</p><h2 id="trendHeading">每日造訪與完成趨勢</h2></div></div>
+      <div class="chart-frame" data-state="loading">
+        <svg id="trendChart" class="trend-graphic" viewBox="0 0 720 270" role="img" aria-labelledby="trendChartTitle trendChartDesc">
+          <title id="trendChartTitle">每日造訪與完成趨勢圖</title>
+          <desc id="trendChartDesc">等待載入統計資料。</desc>
+        </svg>
+        <div class="trend-legend" aria-label="趨勢圖例"><span><i class="legend-dot legend-visits"></i>造訪</span><span><i class="legend-dot legend-completions"></i>完成</span></div>
+      </div>
+    </section>
+
+    <section class="detail-grid">
+      <section class="analytics-section detail-card" aria-labelledby="deviceHeading">
+        <div class="section-heading"><div><p class="section-kicker">Device split</p><h2 id="deviceHeading">使用裝置</h2></div></div>
+        <div id="deviceBreakdown" data-state="loading"></div>
+      </section>
+      <section class="analytics-section detail-card" aria-labelledby="referrerHeading">
+        <div class="section-heading"><div><p class="section-kicker">Entry ledger</p><h2 id="referrerHeading">主要來源</h2></div></div>
+        <div class="table-wrap"><table id="referrerTable" data-state="loading"><thead><tr><th scope="col">來源</th><th scope="col">造訪</th><th scope="col">占比</th></tr></thead><tbody></tbody></table></div>
+      </section>
+    </section>
+
+    <section class="analytics-section" aria-labelledby="hourlyHeading">
+      <div class="section-heading"><div><p class="section-kicker">Taiwan hours</p><h2 id="hourlyHeading">24 小時造訪分布</h2></div></div>
+      <div id="hourlyChart" class="hourly-bars" data-state="loading" aria-label="台灣時間二十四小時造訪分布"></div>
+    </section>
+
+    <p id="analyticsUpdatedAt">資料更新時間：—</p>
+    <p id="analyticsError" role="alert" hidden></p>
+    <button id="analyticsRetry" type="button" hidden>重新載入</button>
+  </main>
+
+  <script>
+    (() => {
+      const numberFormatter = new Intl.NumberFormat("zh-TW");
+      const percentFormatter = new Intl.NumberFormat("zh-TW", { maximumFractionDigits: 1 });
+      const calculatorLabels = {
+        tax: "房地合一稅",
+        buyer: "買方現金需求",
+        loan: "房貸月付",
+        young: "新青安 2.0"
+      };
+      const calculatorOrder = ["tax", "buyer", "loan", "young"];
+      const shell = document.querySelector(".analytics-shell");
+      const tabs = [...document.querySelectorAll("[data-range]")];
+      const errorNode = document.getElementById("analyticsError");
+      const retryButton = document.getElementById("analyticsRetry");
+      let selectedRange = "30d";
+
+      function setState(state) {
+        shell.dataset.state = state;
+        shell.setAttribute("aria-busy", String(state === "loading"));
+        ["calculatorBreakdown", "referrerTable", "hourlyChart"].forEach(id => {
+          document.getElementById(id).dataset.state = state;
+        });
+      }
+
+      function setLoading(isLoading) {
+        setState(isLoading ? "loading" : "success");
+        tabs.forEach(tab => { tab.disabled = isLoading; });
+      }
+
+      function clearError() {
+        errorNode.hidden = true;
+        errorNode.textContent = "";
+        retryButton.hidden = true;
+      }
+
+      function showError(message) {
+        setState("error");
+        errorNode.textContent = message;
+        errorNode.hidden = false;
+        retryButton.hidden = false;
+      }
+
+      function setSelectedRange(range) {
+        selectedRange = range;
+        tabs.forEach(tab => tab.setAttribute("aria-pressed", String(tab.dataset.range === range)));
+      }
+
+      function formatCount(value) {
+        return numberFormatter.format(Number(value) || 0);
+      }
+
+      function formatPercent(value) {
+        return value == null ? "—" : percentFormatter.format(value) + "%";
+      }
+
+      function appendText(parent, tagName, text, className) {
+        const node = document.createElement(tagName);
+        node.textContent = text;
+        if (className) node.className = className;
+        parent.appendChild(node);
+        return node;
+      }
+
+      function renderCalculators(calculators) {
+        const target = document.getElementById("calculatorBreakdown");
+        const byKey = Object.fromEntries((calculators || []).map(item => [item.key, item]));
+        target.replaceChildren();
+        calculatorOrder.forEach(key => {
+          const item = byKey[key] || { completions: 0, share: null };
+          const card = document.createElement("article");
+          card.className = "calculator-item";
+          appendText(card, "span", calculatorLabels[key]);
+          appendText(card, "strong", formatCount(item.completions));
+          appendText(card, "span", "占完成量 " + formatPercent(item.share));
+          target.appendChild(card);
+        });
+      }
+
+      function svgNode(name, attributes = {}) {
+        const node = document.createElementNS("http://www.w3.org/2000/svg", name);
+        Object.entries(attributes).forEach(([key, value]) => node.setAttribute(key, String(value)));
+        return node;
+      }
+
+      function renderTrend(trend) {
+        const chart = document.getElementById("trendChart");
+        const title = svgNode("title", { id: "trendChartTitle" });
+        const desc = svgNode("desc", { id: "trendChartDesc" });
+        title.textContent = "每日造訪與完成趨勢圖";
+        const entries = Array.isArray(trend) ? trend : [];
+        chart.replaceChildren(title, desc);
+        if (!entries.length) {
+          desc.textContent = "此期間尚無趨勢資料。";
+          const empty = svgNode("text", { x: 360, y: 135, "text-anchor": "middle", class: "chart-label" });
+          empty.textContent = "此期間尚無資料，等第一筆紀錄進來。";
+          chart.appendChild(empty);
+          return;
+        }
+        const width = 720, height = 270, left = 52, right = 20, top = 20, bottom = 35;
+        const maxValue = Math.max(1, ...entries.flatMap(item => [Number(item.visits) || 0, Number(item.completions) || 0]));
+        const x = index => left + (entries.length === 1 ? (width - left - right) / 2 : index * (width - left - right) / (entries.length - 1));
+        const y = value => top + (height - top - bottom) * (1 - (Number(value) || 0) / maxValue);
+        desc.textContent = "共 " + entries.length + " 天，最高單日數值為 " + formatCount(maxValue) + "。";
+        [0, .5, 1].forEach(mark => chart.appendChild(svgNode("line", { x1: left, x2: width - right, y1: y(maxValue * mark), y2: y(maxValue * mark), class: "chart-grid" })));
+        const points = field => entries.map((item, index) => x(index).toFixed(1) + "," + y(item[field]).toFixed(1)).join(" ");
+        chart.appendChild(svgNode("polyline", { points: points("visits"), class: "trend-visits" }));
+        chart.appendChild(svgNode("polyline", { points: points("completions"), class: "trend-completions" }));
+        const labels = entries.length > 6 ? [0, Math.floor((entries.length - 1) / 2), entries.length - 1] : entries.map((_, index) => index);
+        [...new Set(labels)].forEach(index => {
+          const label = svgNode("text", { x: x(index), y: height - 13, "text-anchor": "middle", class: "chart-label" });
+          label.textContent = entries[index].date.slice(5).replace("-", "/");
+          chart.appendChild(label);
+        });
+      }
+
+      function renderDevices(devices) {
+        const target = document.getElementById("deviceBreakdown");
+        const byKey = Object.fromEntries((devices || []).map(item => [item.key, item]));
+        target.replaceChildren();
+        [["mobile", "手機"], ["desktop", "桌機"]].forEach(([key, label]) => {
+          const item = byKey[key] || { visits: 0, share: null };
+          const row = document.createElement("div");
+          row.className = "device-row";
+          appendText(row, "span", label);
+          const track = document.createElement("div");
+          track.className = "device-track";
+          track.setAttribute("role", "progressbar");
+          track.setAttribute("aria-label", label + "造訪占比");
+          track.setAttribute("aria-valuemin", "0");
+          track.setAttribute("aria-valuemax", "100");
+          track.setAttribute("aria-valuenow", String(item.share || 0));
+          const fill = document.createElement("span");
+          fill.className = "device-fill";
+          fill.style.width = Math.max(0, Math.min(100, Number(item.share) || 0)) + "%";
+          track.appendChild(fill);
+          row.appendChild(track);
+          appendText(row, "span", formatCount(item.visits) + " · " + formatPercent(item.share), "device-value");
+          target.appendChild(row);
+        });
+      }
+
+      function readableReferrer(domain) {
+        if (domain === "direct") return "直接開啟";
+        if (domain === "internal") return "站內移動";
+        return domain || "—";
+      }
+
+      function renderReferrers(referrers) {
+        const body = document.querySelector("#referrerTable tbody");
+        body.replaceChildren();
+        const entries = Array.isArray(referrers) ? referrers.slice(0, 10) : [];
+        if (!entries.length) {
+          const row = document.createElement("tr");
+          const cell = document.createElement("td");
+          cell.colSpan = 3;
+          cell.textContent = "此期間尚無來源資料。";
+          row.appendChild(cell);
+          body.appendChild(row);
+          return;
+        }
+        entries.forEach(item => {
+          const row = document.createElement("tr");
+          appendText(row, "td", readableReferrer(item.domain));
+          appendText(row, "td", formatCount(item.visits));
+          appendText(row, "td", formatPercent(item.share));
+          body.appendChild(row);
+        });
+      }
+
+      function renderHours(hours) {
+        const target = document.getElementById("hourlyChart");
+        const byHour = Object.fromEntries((hours || []).map(item => [Number(item.hour), Number(item.visits) || 0]));
+        const entries = Array.from({ length: 24 }, (_, hour) => ({ hour, visits: byHour[hour] || 0 }));
+        const maximum = Math.max(...entries.map(item => item.visits), 0);
+        target.replaceChildren();
+        entries.forEach(item => {
+          const bar = document.createElement("div");
+          bar.className = "hour-bar" + (maximum > 0 && item.visits === maximum ? " is-peak" : "");
+          bar.setAttribute("role", "img");
+          bar.setAttribute("aria-label", item.hour + " 時，" + formatCount(item.visits) + " 次造訪" + (maximum > 0 && item.visits === maximum ? "，此期間最高" : ""));
+          const fill = document.createElement("span");
+          fill.style.height = (maximum ? item.visits / maximum * 100 : 0) + "%";
+          bar.appendChild(fill);
+          appendText(bar, "small", String(item.hour));
+          target.appendChild(bar);
+        });
+      }
+
+      function formatGeneratedAt(value) {
+        if (!value) return "—";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "—";
+        return new Intl.DateTimeFormat("zh-TW", {
+          timeZone: "Asia/Taipei", year: "numeric", month: "long", day: "numeric",
+          hour: "2-digit", minute: "2-digit", hour12: false
+        }).format(date);
+      }
+
+      function renderAnalytics(summary) {
+        const totals = summary && summary.totals ? summary.totals : {};
+        document.getElementById("totalVisits").textContent = formatCount(totals.visits);
+        document.getElementById("totalCompletions").textContent = formatCount(totals.completions);
+        const rate = totals.completionsPer100Visits == null ? "—" : formatPercent(totals.completionsPer100Visits);
+        document.getElementById("completionsPer100").textContent = rate;
+        renderCalculators(summary.calculators);
+        renderTrend(summary.trend);
+        renderDevices(summary.devices);
+        renderReferrers(summary.referrers);
+        renderHours(summary.hours);
+        document.getElementById("analyticsUpdatedAt").textContent = "資料更新時間（台灣）：" + formatGeneratedAt(summary.generatedAt);
+        setState((summary.trend || []).length || Number(totals.visits) || Number(totals.completions) ? "success" : "empty");
+      }
+
+      async function loadAnalytics(range) {
+        setLoading(true);
+        clearError();
+        try {
+          const response = await fetch(
+            "/api/analytics/summary?range=" + encodeURIComponent(range),
+            { credentials: "same-origin", cache: "no-store" }
+          );
+          if (!response.ok) throw new Error("summary unavailable");
+          renderAnalytics(await response.json());
+        } catch {
+          showError("資料暫時無法載入，請稍後再試。");
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      tabs.forEach(tab => tab.addEventListener("click", () => {
+        setSelectedRange(tab.dataset.range);
+        loadAnalytics(selectedRange);
+      }));
+      retryButton.addEventListener("click", () => loadAnalytics(selectedRange));
+      loadAnalytics(selectedRange);
+    })();
+  </script>
+</body>
+</html>
