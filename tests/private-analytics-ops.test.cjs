@@ -1,6 +1,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const { execFileSync } = require('node:child_process');
 const test = require('node:test');
 
 const root = path.resolve(__dirname, '..');
@@ -105,6 +106,17 @@ test('backup uses sqlite online backup with restricted files and exact bounded r
   assert.match(script, /tail -z -n \+31/);
   assert.match(script, /"\$backup_dir"\/analytics-\*\.sqlite\) rm -- "\$old_backup"/);
   assert.doesNotMatch(script, /rm\s+-[A-Za-z]*r[A-Za-z]*\s|rm\s+-[A-Za-z]*f[A-Za-z]*r[A-Za-z]*\s|find .* -delete/);
+});
+
+test('backup script keeps a Linux-executable shebang after checkout', () => {
+  const attributesPath = path.join(root, '.gitattributes');
+  const committedBlob = execFileSync('git', ['show', 'HEAD:ops/analytics-backup.sh']);
+
+  assert.ok(fs.existsSync(attributesPath), 'Git attributes must force LF checkout for shell scripts');
+  const attributes = fs.readFileSync(attributesPath, 'utf8');
+  assert.match(attributes, /^\*\.sh text eol=lf$/m);
+  assert.equal(committedBlob.includes(0x0d), false, 'CRLF would make /usr/bin/env resolve bash\\r on Linux');
+  assert.equal(committedBlob.subarray(0, 20).toString('utf8'), '#!/usr/bin/env bash\n');
 });
 
 test('backup cron runs once each day in Taiwan time', () => {
