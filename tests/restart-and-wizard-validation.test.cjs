@@ -80,7 +80,8 @@ test("opening the result step recalculates after restart", () => {
       target.dataset.wizardCurrent = String(index);
     },
     resetWizard: () => {},
-    runGroup: (...args) => runs.push(args)
+    runGroup: (...args) => runs.push(args),
+    sendPrivateAnalyticsEvent: () => {}
   };
 
   vm.runInNewContext(`${setupSource}\nsetupWizards();`, context);

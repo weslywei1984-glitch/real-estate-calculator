@@ -1914,6 +1914,89 @@
   <script src="assets/tainan-land-value-files.js"></script>
   <script src="assets/tainan-section-codes.js"></script>
   <script>
+    /* Private anonymous analytics client: start */
+    const PRIVATE_ANALYTICS_ENDPOINT = "/api/analytics/event";
+    const PRIVATE_ANALYTICS_VISITOR_KEY = "realEstateAnalyticsVisitor.v1";
+    let privateAnalyticsVisitSent = false;
+    let privateAnalyticsVisitInitialized = false;
+
+    function privateAnalyticsDeviceType() {
+      return window.innerWidth <= 768 ? "mobile" : "desktop";
+    }
+
+    function privateAnalyticsReferrerDomain() {
+      if (!document.referrer) return "direct";
+      try {
+        const url = new URL(document.referrer);
+        if (url.hostname === location.hostname) return "internal";
+        return url.hostname.toLowerCase().replace(/^www\./, "").slice(0, 120);
+      } catch {
+        return "direct";
+      }
+    }
+
+    function getPrivateAnalyticsVisitorId() {
+      try {
+        const existing = localStorage.getItem(PRIVATE_ANALYTICS_VISITOR_KEY);
+        if (existing) return existing;
+        if (!globalThis.crypto || typeof crypto.randomUUID !== "function") return "";
+        const visitorId = crypto.randomUUID();
+        localStorage.setItem(PRIVATE_ANALYTICS_VISITOR_KEY, visitorId);
+        return visitorId;
+      } catch {
+        return "";
+      }
+    }
+
+    function sendPrivateAnalyticsEvent(type, calculator) {
+      const dimensions = {
+        deviceType: privateAnalyticsDeviceType(),
+        referrerDomain: privateAnalyticsReferrerDomain()
+      };
+      const payload = JSON.stringify(type === "visit"
+        ? { type, visitorId: getPrivateAnalyticsVisitorId(), ...dimensions }
+        : { type, calculator, ...dimensions });
+      try {
+        if (typeof navigator.sendBeacon === "function") {
+          const sent = navigator.sendBeacon(
+            PRIVATE_ANALYTICS_ENDPOINT,
+            new Blob([payload], { type: "application/json" })
+          );
+          if (sent) return;
+        }
+      } catch {
+        // Fall through to the one-shot fetch transport.
+      }
+      try {
+        void fetch(PRIVATE_ANALYTICS_ENDPOINT, {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: payload,
+          keepalive: true
+        }).catch(() => {});
+      } catch {
+        // Analytics failures are intentionally invisible to calculator users.
+      }
+    }
+
+    function setupPrivateAnalyticsVisit() {
+      if (privateAnalyticsVisitInitialized) return;
+      privateAnalyticsVisitInitialized = true;
+      const sendVisit = () => {
+        if (privateAnalyticsVisitSent || document.visibilityState !== "visible") return;
+        privateAnalyticsVisitSent = true;
+        if (getPrivateAnalyticsVisitorId()) sendPrivateAnalyticsEvent("visit", "");
+      };
+      if (document.visibilityState === "visible") {
+        sendVisit();
+      } else {
+        document.addEventListener("visibilitychange", sendVisit);
+      }
+    }
+
+    setupPrivateAnalyticsVisit();
+    /* Private anonymous analytics client: end */
     const number = new Intl.NumberFormat("zh-TW", {
       maximumFractionDigits: 2
     });
