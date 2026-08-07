@@ -223,11 +223,29 @@ final class AnalyticsHttp
         if ($domain === 'direct' || $domain === 'internal') {
             return $domain;
         }
-        if (strlen($domain) > 120 || !self::isHostname($domain)) {
+        if (self::isIpOrNumericHost($domain) || strlen($domain) > 120 || !self::isHostname($domain)) {
             throw new AnalyticsHttpException(400);
         }
 
         return $domain;
+    }
+
+    private static function isIpOrNumericHost(string $value): bool
+    {
+        $candidate = $value;
+        if (str_starts_with($candidate, '[') && str_ends_with($candidate, ']')) {
+            $candidate = substr($candidate, 1, -1);
+        }
+        if (filter_var($candidate, FILTER_VALIDATE_IP) !== false || str_contains($candidate, ':')) {
+            return true;
+        }
+
+        foreach (explode('.', $candidate) as $label) {
+            if (!preg_match('/\A(?:0x[0-9a-f]+|[0-9]+)\z/i', $label)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static function isHostname(string $value): bool

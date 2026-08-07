@@ -1428,12 +1428,19 @@
       return window.innerWidth <= 768 ? "mobile" : "desktop";
     }
 
+    function privateAnalyticsIsIpOrNumericHost(hostname) {
+      const candidate = hostname.replace(/^\[|\]$/g, "");
+      if (candidate.includes(":")) return true;
+      return candidate.split(".").every(label => /^(?:0x[0-9a-f]+|[0-9]+)$/i.test(label));
+    }
+
     function privateAnalyticsReferrerDomain() {
       if (!document.referrer) return "direct";
       try {
         const url = new URL(document.referrer);
         if (url.hostname === location.hostname) return "internal";
-        return url.hostname.toLowerCase().replace(/^www\./, "").slice(0, 120);
+        const hostname = url.hostname.toLowerCase().replace(/^www\./, "");
+        return privateAnalyticsIsIpOrNumericHost(hostname) ? "external" : hostname.slice(0, 120);
       } catch {
         return "direct";
       }

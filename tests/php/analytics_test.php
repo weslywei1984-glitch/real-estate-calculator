@@ -184,6 +184,44 @@ $tests['referrer domains normalize and overlong values are rejected'] = function
     ));
 };
 
+$tests['IP and numeric referrer hosts are rejected without bucket mutation'] = function (): void {
+    [$store, $pdo, $config, $dir] = newTemporaryStoreWithConfig();
+
+    try {
+        foreach ([
+            '192.0.2.55',
+            '2001:db8::1',
+            '[2001:db8::1]',
+            '2130706433',
+            '0x7f000001',
+            '017700000001',
+            '0177.0.0.1',
+            '127.1',
+            '0x7f.0.0.1',
+        ] as $referrerDomain) {
+            $body = json_encode([
+                'type' => 'completion',
+                'calculator' => 'tax',
+                'deviceType' => 'desktop',
+                'referrerDomain' => $referrerDomain,
+            ], JSON_THROW_ON_ERROR);
+            assertThrowsStatus(
+                400,
+                fn (): array => AnalyticsHttp::parseEvent(
+                    sameOriginServer('application/json'),
+                    $body,
+                    $config['allowedOrigin']
+                )
+            );
+            assertSame(0, allMetricCount($pdo));
+        }
+    } finally {
+        $store = null;
+        $pdo = null;
+        cleanupDirectory($dir);
+    }
+};
+
 $tests['parser rejects invalid strict event contracts'] = function (): void {
     $allowedOrigin = 'https://calc.tainanwei.com';
     $validVisit = '{"type":"visit","visitorId":"11111111-1111-4111-8111-111111111111","deviceType":"mobile","referrerDomain":"direct"}';

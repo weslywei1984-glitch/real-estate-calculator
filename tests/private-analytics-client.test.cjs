@@ -142,6 +142,30 @@ test("referrer classification distinguishes direct, internal, external, and desk
   }
 });
 
+test("every public analytics client hides IP and numeric referrer hosts", () => {
+  const privateReferrers = [
+    "http://192.0.2.55/path",
+    "http://[2001:db8::1]/path",
+    "http://2130706433/path",
+    "http://0x7f000001/path",
+    "http://0177.0.0.1/path",
+    "http://127.1/path",
+    "http://0x7f.0.0.1/path"
+  ];
+
+  for (const pageName of publicPages) {
+    const block = analyticsBlock(readPage(pageName));
+    for (const referrer of privateReferrers) {
+      const fixture = clientFixture({ referrer });
+      vm.runInNewContext(
+        `${block}\nthis.referrerDomain = privateAnalyticsReferrerDomain();`,
+        fixture.context
+      );
+      assert.equal(fixture.context.referrerDomain, "external", `${pageName}: ${referrer}`);
+    }
+  }
+});
+
 test("each calculator records one completion only when rapid next clicks enter its result", () => {
   const html = readPage("index.html");
   const setupSource = html.match(
