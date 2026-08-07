@@ -341,6 +341,162 @@ $tests['event endpoint returns empty status-only responses without leaks'] = fun
     }
 };
 
+$tests['summary aggregates the bounded Taiwan range into complete dashboard dimensions'] = function (): void {
+    [$store, $pdo, $dir] = newTemporaryStore();
+
+    try {
+        seedMetricBucket($pdo, '2026-07-01', 3, 'visit', '', 'mobile', 'direct', 4);
+        seedMetricBucket($pdo, '2026-07-01', 3, 'completion', 'tax', 'desktop', 'internal', 2);
+        seedMetricBucket($pdo, '2026-08-01', 0, 'visit', '', 'mobile', 'direct', 4);
+        seedMetricBucket($pdo, '2026-08-01', 0, 'completion', 'tax', 'desktop', 'internal', 2);
+        seedMetricBucket($pdo, '2026-08-03', 8, 'visit', '', 'desktop', 'z.example', 3);
+        seedMetricBucket($pdo, '2026-08-03', 8, 'completion', 'buyer', 'desktop', 'internal', 3);
+        seedMetricBucket($pdo, '2026-08-05', 8, 'visit', '', 'mobile', 'alpha.example', 1);
+        seedMetricBucket($pdo, '2026-08-05', 8, 'completion', 'loan', 'desktop', 'internal', 1);
+        seedMetricBucket($pdo, '2026-08-07', 23, 'visit', '', 'desktop', 'direct', 4);
+        seedMetricBucket($pdo, '2026-08-07', 23, 'completion', 'young', 'desktop', 'internal', 3);
+
+        $now = new DateTimeImmutable('2026-08-07T15:00:00+08:00');
+        $summary = $store->summary('7d', $now);
+
+        assertSame('7d', $summary['range']);
+        assertSame(['startDate' => '2026-08-01', 'endDate' => '2026-08-07'], $summary['period']);
+        assertSame(['visits' => 12, 'completions' => 9, 'completionsPer100Visits' => 75.0], $summary['totals']);
+        assertSame([
+            ['key' => 'tax', 'completions' => 2, 'share' => 22.2],
+            ['key' => 'buyer', 'completions' => 3, 'share' => 33.3],
+            ['key' => 'loan', 'completions' => 1, 'share' => 11.1],
+            ['key' => 'young', 'completions' => 3, 'share' => 33.3],
+        ], $summary['calculators']);
+        assertSame([
+            ['date' => '2026-08-01', 'visits' => 4, 'completions' => 2],
+            ['date' => '2026-08-02', 'visits' => 0, 'completions' => 0],
+            ['date' => '2026-08-03', 'visits' => 3, 'completions' => 3],
+            ['date' => '2026-08-04', 'visits' => 0, 'completions' => 0],
+            ['date' => '2026-08-05', 'visits' => 1, 'completions' => 1],
+            ['date' => '2026-08-06', 'visits' => 0, 'completions' => 0],
+            ['date' => '2026-08-07', 'visits' => 4, 'completions' => 3],
+        ], $summary['trend']);
+        assertSame([
+            ['key' => 'mobile', 'visits' => 5, 'share' => 41.7],
+            ['key' => 'desktop', 'visits' => 7, 'share' => 58.3],
+        ], $summary['devices']);
+        assertSame([
+            ['domain' => 'direct', 'visits' => 8, 'share' => 66.7],
+            ['domain' => 'z.example', 'visits' => 3, 'share' => 25.0],
+            ['domain' => 'alpha.example', 'visits' => 1, 'share' => 8.3],
+        ], $summary['referrers']);
+        assertSame(24, count($summary['hours']));
+        assertSame(['hour' => 0, 'visits' => 4], $summary['hours'][0]);
+        assertSame(['hour' => 8, 'visits' => 4], $summary['hours'][8]);
+        assertSame(['hour' => 23, 'visits' => 4], $summary['hours'][23]);
+
+        $today = $store->summary('today', $now);
+        assertSame(['startDate' => '2026-08-07', 'endDate' => '2026-08-07'], $today['period']);
+        assertSame(4, $today['totals']['visits']);
+
+        $thirtyDays = $store->summary('30d', $now);
+        assertSame(['startDate' => '2026-07-09', 'endDate' => '2026-08-07'], $thirtyDays['period']);
+        assertSame(12, $thirtyDays['totals']['visits']);
+        assertSame(30, count($thirtyDays['trend']));
+
+        $all = $store->summary('all', $now);
+        assertSame(['startDate' => null, 'endDate' => '2026-08-07'], $all['period']);
+        assertSame(16, $all['totals']['visits']);
+        assertSame(['date' => '2026-07-01', 'visits' => 4, 'completions' => 2], $all['trend'][0]);
+        assertSame(['date' => '2026-08-07', 'visits' => 4, 'completions' => 3], $all['trend'][37]);
+    } finally {
+        $store = null;
+        $pdo = null;
+        cleanupDirectory($dir);
+    }
+};
+
+$tests['summary returns zero-safe values and limits ordered visit referrers'] = function (): void {
+    [$store, $pdo, $dir] = newTemporaryStore();
+
+    try {
+        $now = new DateTimeImmutable('2026-08-07T15:00:00+08:00');
+        seedMetricBucket($pdo, '2026-08-07', 4, 'completion', 'tax', 'desktop', 'internal', 2);
+        $emptyVisits = $store->summary('today', $now);
+        assertSame(['visits' => 0, 'completions' => 2, 'completionsPer100Visits' => null], $emptyVisits['totals']);
+        assertSame([
+            ['key' => 'mobile', 'visits' => 0, 'share' => null],
+            ['key' => 'desktop', 'visits' => 0, 'share' => null],
+        ], $emptyVisits['devices']);
+        assertSame([], $emptyVisits['referrers']);
+        assertSame(['hour' => 4, 'visits' => 0], $emptyVisits['hours'][4]);
+
+        foreach (range('a', 'l') as $letter) {
+            seedMetricBucket($pdo, '2026-08-07', 9, 'visit', '', 'mobile', $letter . '.example', 1);
+        }
+        $limited = $store->summary('today', $now);
+        assertSame(10, count($limited['referrers']));
+        assertSame('a.example', $limited['referrers'][0]['domain']);
+        assertSame('j.example', $limited['referrers'][9]['domain']);
+
+        [$emptyStore, $emptyPdo, $emptyDir] = newTemporaryStore();
+        try {
+            $empty = $emptyStore->summary('all', $now);
+            assertSame([], $empty['trend']);
+            assertSame(['startDate' => null, 'endDate' => '2026-08-07'], $empty['period']);
+        } finally {
+            $emptyStore = null;
+            $emptyPdo = null;
+            cleanupDirectory($emptyDir);
+        }
+    } finally {
+        $store = null;
+        $pdo = null;
+        cleanupDirectory($dir);
+    }
+};
+
+$tests['summary parser accepts only GET and one optional supported range'] = function (): void {
+    assertSame('30d', AnalyticsHttp::parseSummaryRange(['REQUEST_METHOD' => 'GET'], []));
+    assertSame('today', AnalyticsHttp::parseSummaryRange(['REQUEST_METHOD' => 'GET'], ['range' => 'today']));
+    assertSame('7d', AnalyticsHttp::parseSummaryRange(['REQUEST_METHOD' => 'GET'], ['range' => '7d']));
+    assertSame('all', AnalyticsHttp::parseSummaryRange(['REQUEST_METHOD' => 'GET'], ['range' => 'all']));
+    assertThrowsStatus(400, fn (): string => AnalyticsHttp::parseSummaryRange(['REQUEST_METHOD' => 'GET'], ['range' => 'yesterday']));
+    assertThrowsStatus(400, fn (): string => AnalyticsHttp::parseSummaryRange(['REQUEST_METHOD' => 'GET'], ['range' => ['today']]));
+    assertThrowsStatus(400, fn (): string => AnalyticsHttp::parseSummaryRange(['REQUEST_METHOD' => 'GET'], ['range' => 'today', 'extra' => '1']));
+    assertThrowsStatus(405, fn (): string => AnalyticsHttp::parseSummaryRange(['REQUEST_METHOD' => 'POST'], []));
+};
+
+$tests['summary endpoint is read-only JSON with no-store cache headers'] = function (): void {
+    $dir = newTemporaryDirectory();
+    $configPath = $dir . DIRECTORY_SEPARATOR . 'analytics.env';
+    $databasePath = $dir . DIRECTORY_SEPARATOR . 'analytics.sqlite';
+
+    try {
+        [$port, $reservation] = reserveLocalPort();
+        fclose($reservation);
+        $origin = 'http://127.0.0.1:' . $port;
+        writeAnalyticsConfig($configPath, $databasePath, $origin);
+        $pdo = AnalyticsDatabase::connect(['databasePath' => $databasePath]);
+        AnalyticsDatabase::migrate($pdo, __DIR__ . '/../../analytics-api/schema.sql');
+        seedMetricBucket($pdo, '2026-08-07', 8, 'visit', '', 'mobile', 'direct', 1);
+        $pdo = null;
+
+        $server = startAnalyticsServer($configPath, $port);
+        try {
+            waitForAnalyticsServer($port);
+            $response = analyticsSummaryRequest($port, 'GET', 'all');
+            assertSame(200, $response[0]);
+            assertHeaderContains('Content-Type: application/json; charset=utf-8', $response[2]);
+            assertHeaderContains('Cache-Control: no-store, max-age=0', $response[2]);
+            $body = json_decode($response[1], true, 32, JSON_THROW_ON_ERROR);
+            assertSame('all', $body['range']);
+            assertSame(1, $body['totals']['visits']);
+            assertHttpResponse(405, '', analyticsSummaryRequest($port, 'POST', 'all'));
+        } finally {
+            stopAnalyticsServer($server);
+        }
+    } finally {
+        cleanupDirectory($dir);
+    }
+};
+
 function assertSame(mixed $expected, mixed $actual): void
 {
     if ($expected !== $actual) {
@@ -433,6 +589,25 @@ function metricCount(PDO $pdo, string $eventType, string $calculator): int
     $statement = $pdo->prepare('SELECT COALESCE(SUM(count), 0) FROM metric_buckets WHERE event_type = ? AND calculator = ?');
     $statement->execute([$eventType, $calculator]);
     return (int) $statement->fetchColumn();
+}
+
+function seedMetricBucket(
+    PDO $pdo,
+    string $date,
+    int $hour,
+    string $eventType,
+    string $calculator,
+    string $deviceType,
+    string $referrerDomain,
+    int $count
+): void {
+    $statement = $pdo->prepare(
+        'INSERT INTO metric_buckets (
+            local_date, local_hour, event_type, calculator,
+            device_type, referrer_domain, count
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)'
+    );
+    $statement->execute([$date, $hour, $eventType, $calculator, $deviceType, $referrerDomain, $count]);
 }
 
 function allMetricCount(PDO $pdo): int
@@ -615,6 +790,39 @@ function analyticsEndpointRequest(int $port, string $method, string $body, strin
         throw new RuntimeException('Local analytics response did not include an HTTP status.');
     }
     return [(int) $matches[1], $responseBody, $headerBlock];
+}
+
+function analyticsSummaryRequest(int $port, string $method, string $range): array
+{
+    $socket = stream_socket_client('tcp://127.0.0.1:' . $port, $errorNumber, $errorMessage, 5);
+    if ($socket === false) {
+        throw new RuntimeException('Unable to contact local analytics server: ' . $errorMessage);
+    }
+    $request = implode("\r\n", [
+        $method . ' /analytics-api/summary.php?range=' . rawurlencode($range) . ' HTTP/1.1',
+        'Host: 127.0.0.1:' . $port,
+        'Connection: close',
+        '',
+        '',
+    ]);
+    fwrite($socket, $request);
+    $rawResponse = stream_get_contents($socket);
+    fclose($socket);
+    if (!is_string($rawResponse)) {
+        throw new RuntimeException('Unable to read local analytics response.');
+    }
+    [$headerBlock, $responseBody] = array_pad(explode("\r\n\r\n", $rawResponse, 2), 2, '');
+    if (!preg_match('/\AHTTP\/\d(?:\.\d)?\s+(\d{3})/', $headerBlock, $matches)) {
+        throw new RuntimeException('Local analytics response did not include an HTTP status.');
+    }
+    return [(int) $matches[1], $responseBody, $headerBlock];
+}
+
+function assertHeaderContains(string $expected, string $headers): void
+{
+    if (!str_contains($headers, $expected)) {
+        throw new RuntimeException('Expected response headers to contain ' . $expected . ' but received ' . $headers);
+    }
 }
 
 function assertHttpResponse(int $expectedStatus, string $expectedBody, array $response): void

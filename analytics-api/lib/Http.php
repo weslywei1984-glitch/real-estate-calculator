@@ -18,6 +18,23 @@ final class AnalyticsHttp
 {
     private const MAX_BODY_BYTES = 2048;
 
+    public static function parseSummaryRange(array $server, array $query): string
+    {
+        if (($server['REQUEST_METHOD'] ?? '') !== 'GET') {
+            throw new AnalyticsHttpException(405);
+        }
+        if ($query === []) {
+            return '30d';
+        }
+        if (array_keys($query) !== ['range'] || !is_string($query['range'])) {
+            throw new AnalyticsHttpException(400);
+        }
+        if (!in_array($query['range'], ['today', '7d', '30d', 'all'], true)) {
+            throw new AnalyticsHttpException(400);
+        }
+        return $query['range'];
+    }
+
     public static function parseEvent(array $server, string $rawBody, string $allowedOrigin): array
     {
         self::assertMethod($server);
