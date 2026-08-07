@@ -8,7 +8,7 @@ final class AnalyticsConfig
     public static function load(?string $path = null): array
     {
         $configPath = $path ?? self::localOverridePath() ?? self::DEFAULT_PATH;
-        $values = parse_ini_file($configPath, false, INI_SCANNER_RAW);
+        $values = @parse_ini_file($configPath, false, INI_SCANNER_RAW);
         if ($values === false) {
             throw new RuntimeException('Unable to load analytics configuration.');
         }
@@ -33,7 +33,7 @@ final class AnalyticsConfig
 
     private static function localOverridePath(): ?string
     {
-        if (PHP_SAPI !== 'cli') {
+        if (PHP_SAPI !== 'cli' && PHP_SAPI !== 'cli-server') {
             return null;
         }
 

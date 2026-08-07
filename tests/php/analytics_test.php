@@ -219,6 +219,128 @@ $tests['common bots are parsed as skipped without retaining user agent'] = funct
     assertSame(['type', 'calculator', 'visitorId', 'deviceType', 'referrerDomain', 'skipBot'], array_keys($event));
 };
 
+$tests['failed bucket writes roll back visit cleanup and dedupe changes'] = function (): void {
+    [$store, $pdo, $dir] = newTemporaryStore();
+
+    try {
+        $now = new DateTimeImmutable('2026-08-07T12:00:00+08:00');
+        $timestamp = $now->getTimestamp();
+        $expiredHash = hash_hmac('sha256', '11111111-1111-4111-8111-111111111111', str_repeat('a', 64));
+        $existingVisitorId = '22222222-2222-4222-8222-222222222222';
+        $existingHash = hash_hmac('sha256', $existingVisitorId, str_repeat('a', 64));
+        $newVisitorId = '33333333-3333-4333-8333-333333333333';
+        $newHash = hash_hmac('sha256', $newVisitorId, str_repeat('a', 64));
+
+        $dedupeInsert = $pdo->prepare(
+            'INSERT INTO visit_dedupe (visitor_hash, last_counted_at, updated_at) VALUES (?, ?, ?)'
+        );
+        $dedupeInsert->execute([$expiredHash, 1, 1]);
+        $dedupeInsert->execute([$existingHash, $timestamp - 21600, $timestamp - 30]);
+        $pdo->exec("INSERT INTO metric_buckets (local_date, local_hour, event_type, calculator, device_type, referrer_domain, count) VALUES ('2026-08-07', 12, 'completion', 'tax', 'desktop', 'internal', 7)");
+        $pdo->exec("CREATE TRIGGER abort_metric_bucket_insert BEFORE INSERT ON metric_buckets BEGIN SELECT RAISE(ABORT, 'forced bucket failure'); END");
+
+        assertThrows(fn (): bool => $store->record(visitEvent($existingVisitorId), $now));
+        assertSame(1, dedupeRowCount($pdo, $expiredHash));
+        assertSame([$timestamp - 21600, $timestamp - 30], dedupeTimestamps($pdo, $existingHash));
+        assertSame(7, allMetricCount($pdo));
+
+        assertThrows(fn (): bool => $store->record(visitEvent($newVisitorId), $now));
+        assertSame(1, dedupeRowCount($pdo, $expiredHash));
+        assertSame(0, dedupeRowCount($pdo, $newHash));
+        assertSame(7, allMetricCount($pdo));
+    } finally {
+        $dedupeInsert = null;
+        $store = null;
+        $pdo = null;
+        cleanupDirectory($dir);
+    }
+};
+
+$tests['event endpoint returns empty status-only responses without leaks'] = function (): void {
+    $dir = newTemporaryDirectory();
+    $configPath = $dir . DIRECTORY_SEPARATOR . 'analytics.env';
+    $databasePath = $dir . DIRECTORY_SEPARATOR . 'analytics.sqlite';
+
+    try {
+        [$port, $reservation] = reserveLocalPort();
+        fclose($reservation);
+        $origin = 'http://127.0.0.1:' . $port;
+        writeAnalyticsConfig($configPath, $databasePath, $origin);
+        $pdo = AnalyticsDatabase::connect(['databasePath' => $databasePath]);
+        AnalyticsDatabase::migrate($pdo, __DIR__ . '/../../analytics-api/schema.sql');
+        $pdo = null;
+
+        $server = startAnalyticsServer($configPath, $port);
+        try {
+            waitForAnalyticsServer($port);
+            $validBody = '{"type":"visit","visitorId":"11111111-1111-4111-8111-111111111111","deviceType":"mobile","referrerDomain":"direct"}';
+            assertHttpResponse(204, '', analyticsEndpointRequest($port, 'POST', $validBody, $origin));
+            assertHttpResponse(204, '', analyticsEndpointRequest($port, 'POST', $validBody, $origin));
+            assertHttpResponse(204, '', analyticsEndpointRequest(
+                $port,
+                'POST',
+                $validBody,
+                $origin,
+                ['User-Agent' => 'Googlebot/2.1']
+            ));
+            assertHttpResponse(400, '', analyticsEndpointRequest($port, 'POST', '{"type":"visit"}', $origin));
+        } finally {
+            stopAnalyticsServer($server);
+        }
+
+        $pdo = AnalyticsDatabase::connect(['databasePath' => $databasePath]);
+        assertSame(1, allMetricCount($pdo));
+        $pdo = null;
+
+        $missingConfigServer = startAnalyticsServer($dir . DIRECTORY_SEPARATOR . 'missing.env', $port);
+        try {
+            waitForAnalyticsServer($port);
+            assertHttpResponseWithoutDetail(
+                500,
+                'Unable to load analytics configuration',
+                analyticsEndpointRequest($port, 'POST', $validBody, $origin)
+            );
+        } finally {
+            stopAnalyticsServer($missingConfigServer);
+        }
+
+        $databaseFailureConfig = $dir . DIRECTORY_SEPARATOR . 'database-failure.env';
+        writeAnalyticsConfig($databaseFailureConfig, $dir, $origin);
+        $databaseFailureServer = startAnalyticsServer($databaseFailureConfig, $port);
+        try {
+            waitForAnalyticsServer($port);
+            assertHttpResponseWithoutDetail(
+                500,
+                'database',
+                analyticsEndpointRequest($port, 'POST', $validBody, $origin)
+            );
+        } finally {
+            stopAnalyticsServer($databaseFailureServer);
+        }
+
+        $writeFailureConfig = $dir . DIRECTORY_SEPARATOR . 'write-failure.env';
+        $writeFailureDatabase = $dir . DIRECTORY_SEPARATOR . 'write-failure.sqlite';
+        writeAnalyticsConfig($writeFailureConfig, $writeFailureDatabase, $origin);
+        $pdo = AnalyticsDatabase::connect(['databasePath' => $writeFailureDatabase]);
+        AnalyticsDatabase::migrate($pdo, __DIR__ . '/../../analytics-api/schema.sql');
+        $pdo->exec("CREATE TRIGGER abort_metric_bucket_insert BEFORE INSERT ON metric_buckets BEGIN SELECT RAISE(ABORT, 'forced endpoint write failure'); END");
+        $pdo = null;
+        $writeFailureServer = startAnalyticsServer($writeFailureConfig, $port);
+        try {
+            waitForAnalyticsServer($port);
+            assertHttpResponseWithoutDetail(
+                500,
+                'forced endpoint write failure',
+                analyticsEndpointRequest($port, 'POST', $validBody, $origin)
+            );
+        } finally {
+            stopAnalyticsServer($writeFailureServer);
+        }
+    } finally {
+        cleanupDirectory($dir);
+    }
+};
+
 function assertSame(mixed $expected, mixed $actual): void
 {
     if ($expected !== $actual) {
@@ -316,6 +438,201 @@ function metricCount(PDO $pdo, string $eventType, string $calculator): int
 function allMetricCount(PDO $pdo): int
 {
     return (int) $pdo->query('SELECT COALESCE(SUM(count), 0) FROM metric_buckets')->fetchColumn();
+}
+
+function dedupeRowCount(PDO $pdo, string $visitorHash): int
+{
+    $statement = $pdo->prepare('SELECT COUNT(*) FROM visit_dedupe WHERE visitor_hash = ?');
+    $statement->execute([$visitorHash]);
+    return (int) $statement->fetchColumn();
+}
+
+function dedupeTimestamps(PDO $pdo, string $visitorHash): array
+{
+    $statement = $pdo->prepare('SELECT last_counted_at, updated_at FROM visit_dedupe WHERE visitor_hash = ?');
+    $statement->execute([$visitorHash]);
+    $row = $statement->fetch();
+    if (!is_array($row)) {
+        throw new RuntimeException('Expected visit dedupe row to exist');
+    }
+    return [(int) $row['last_counted_at'], (int) $row['updated_at']];
+}
+
+function newTemporaryDirectory(): string
+{
+    $dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'calc-analytics-' . bin2hex(random_bytes(6));
+    mkdir($dir, 0700, true);
+    return $dir;
+}
+
+function writeAnalyticsConfig(string $configPath, string $databasePath, string $origin): void
+{
+    file_put_contents($configPath, implode(PHP_EOL, [
+        'database_path = "' . str_replace('\\', '/', $databasePath) . '"',
+        'hmac_key = "' . str_repeat('a', 64) . '"',
+        'allowed_origin = "' . $origin . '"',
+    ]));
+}
+
+function reserveLocalPort(): array
+{
+    $socket = stream_socket_server('tcp://127.0.0.1:0', $errorNumber, $errorMessage);
+    if ($socket === false) {
+        throw new RuntimeException('Unable to reserve local test port: ' . $errorMessage);
+    }
+    $address = stream_socket_get_name($socket, false);
+    if (!is_string($address) || !preg_match('/:(\d+)\z/', $address, $matches)) {
+        fclose($socket);
+        throw new RuntimeException('Unable to determine local test port.');
+    }
+    return [(int) $matches[1], $socket];
+}
+
+function startAnalyticsServer(string $configPath, int $port): array
+{
+    $previousConfig = getenv('CALC_ANALYTICS_CONFIG');
+    putenv('CALC_ANALYTICS_CONFIG=' . $configPath);
+    $repoPath = realpath(__DIR__ . '/../..');
+    if ($repoPath === false) {
+        throw new RuntimeException('Unable to resolve analytics repository path.');
+    }
+    $pipes = [];
+    $process = proc_open(
+        analyticsServerCommand($port, $repoPath),
+        [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+        $pipes,
+        $repoPath
+    );
+    if (!is_resource($process)) {
+        restoreAnalyticsConfig($previousConfig);
+        throw new RuntimeException('Unable to start local analytics server.');
+    }
+    foreach ($pipes as $pipe) {
+        stream_set_blocking($pipe, false);
+    }
+    return [$process, $pipes, $previousConfig];
+}
+
+function analyticsServerCommand(int $port, string $repoPath): array
+{
+    $command = [PHP_BINARY];
+    if (!barePhpHasSqlite()) {
+        if (PHP_OS_FAMILY !== 'Windows') {
+            throw new RuntimeException('The local PHP server requires pdo_sqlite.');
+        }
+        $extensionDirectory = dirname(PHP_BINARY) . DIRECTORY_SEPARATOR . 'ext';
+        $command = array_merge($command, [
+            '-d', 'extension_dir=' . $extensionDirectory,
+            '-d', 'extension=pdo_sqlite',
+            '-d', 'extension=sqlite3',
+        ]);
+    }
+    return array_merge($command, ['-S', '127.0.0.1:' . $port, '-t', $repoPath]);
+}
+
+function barePhpHasSqlite(): bool
+{
+    $pipes = [];
+    $process = proc_open([PHP_BINARY, '-m'], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+    if (!is_resource($process)) {
+        throw new RuntimeException('Unable to inspect local PHP modules.');
+    }
+    $modules = stream_get_contents($pipes[1]);
+    $errors = stream_get_contents($pipes[2]);
+    fclose($pipes[1]);
+    fclose($pipes[2]);
+    $status = proc_close($process);
+    if ($status !== 0 || !is_string($modules)) {
+        throw new RuntimeException('Unable to inspect local PHP modules: ' . $errors);
+    }
+    return preg_match('/^pdo_sqlite$/mi', $modules) === 1;
+}
+
+function stopAnalyticsServer(array $server): void
+{
+    [$process, $pipes, $previousConfig] = $server;
+    if (is_resource($process)) {
+        proc_terminate($process);
+        proc_close($process);
+    }
+    foreach ($pipes as $pipe) {
+        if (is_resource($pipe)) {
+            fclose($pipe);
+        }
+    }
+    restoreAnalyticsConfig($previousConfig);
+}
+
+function restoreAnalyticsConfig(string|false $previousConfig): void
+{
+    if ($previousConfig === false) {
+        putenv('CALC_ANALYTICS_CONFIG');
+        return;
+    }
+    putenv('CALC_ANALYTICS_CONFIG=' . $previousConfig);
+}
+
+function waitForAnalyticsServer(int $port): void
+{
+    for ($attempt = 0; $attempt < 30; $attempt++) {
+        $socket = @stream_socket_client('tcp://127.0.0.1:' . $port, $errorNumber, $errorMessage, 0.1);
+        if (is_resource($socket)) {
+            fclose($socket);
+            return;
+        }
+        usleep(100000);
+    }
+    throw new RuntimeException('Local analytics server did not start in time.');
+}
+
+function analyticsEndpointRequest(int $port, string $method, string $body, string $origin, array $extraHeaders = []): array
+{
+    $socket = stream_socket_client('tcp://127.0.0.1:' . $port, $errorNumber, $errorMessage, 5);
+    if ($socket === false) {
+        throw new RuntimeException('Unable to contact local analytics server: ' . $errorMessage);
+    }
+    $headers = array_merge([
+        'Host' => '127.0.0.1:' . $port,
+        'Content-Type' => 'application/json',
+        'Content-Length' => (string) strlen($body),
+        'Origin' => $origin,
+        'Referer' => $origin . '/calculator',
+        'Sec-Fetch-Site' => 'same-origin',
+        'Connection' => 'close',
+    ], $extraHeaders);
+    $lines = [$method . ' /analytics-api/event.php HTTP/1.1'];
+    foreach ($headers as $name => $value) {
+        $lines[] = $name . ': ' . $value;
+    }
+    fwrite($socket, implode("\r\n", $lines) . "\r\n\r\n" . $body);
+    $rawResponse = stream_get_contents($socket);
+    fclose($socket);
+    if (!is_string($rawResponse)) {
+        throw new RuntimeException('Unable to read local analytics response.');
+    }
+    [$headerBlock, $responseBody] = array_pad(explode("\r\n\r\n", $rawResponse, 2), 2, '');
+    if (!preg_match('/\AHTTP\/\d(?:\.\d)?\s+(\d{3})/', $headerBlock, $matches)) {
+        throw new RuntimeException('Local analytics response did not include an HTTP status.');
+    }
+    return [(int) $matches[1], $responseBody, $headerBlock];
+}
+
+function assertHttpResponse(int $expectedStatus, string $expectedBody, array $response): void
+{
+    if ($expectedStatus !== $response[0]) {
+        throw new RuntimeException(
+            'Expected HTTP ' . $expectedStatus . ' but received HTTP ' . $response[0] . ': ' . $response[2]
+            . ' BODY=' . $response[1]
+        );
+    }
+    assertSame($expectedBody, $response[1]);
+}
+
+function assertHttpResponseWithoutDetail(int $expectedStatus, string $forbiddenDetail, array $response): void
+{
+    assertSame($expectedStatus, $response[0]);
+    assertSame('', $response[1]);
+    assertFalse(str_contains($response[1], $forbiddenDetail));
 }
 
 function sameOriginServer(string $contentType, ?int $contentLength = null): array
