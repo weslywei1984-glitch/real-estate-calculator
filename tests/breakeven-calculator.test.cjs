@@ -24,6 +24,19 @@ function loadBreakEvenCore() {
   return sandbox;
 }
 
+function loadBreakEvenStorage() {
+  const start = html.indexOf("// Standalone break-even storage: start");
+  const endMarker = "// Standalone break-even storage: end";
+  const end = html.indexOf(endMarker, start);
+  assert.ok(start > -1 && end > start, "應提供獨立暫存純函式");
+  const sandbox = {};
+  vm.runInNewContext(
+    `${html.slice(start, end + endMarker.length)}\nthis.storageApi = { loadBreakEvenSavedData, BREAKEVEN_STORAGE_KEY };`,
+    sandbox,
+  );
+  return sandbox.storageApi;
+}
+
 function baseModel(overrides = {}) {
   return {
     purchasePrice: 10_000_000,
@@ -294,4 +307,34 @@ test("平轉分頁接入預設值、計算器、摘要與日期稅制同步", ()
   assert.match(html, /breakeven:\s*"房屋平轉成本試算"/);
   assert.match(html, /function syncBreakEvenInterface\(\)/);
   assert.match(html, /function collectBreakEvenInput\(\)/);
+});
+
+test("獨立暫存優先，新 key 缺少時只匯入舊平轉欄位", () => {
+  const { loadBreakEvenSavedData, BREAKEVEN_STORAGE_KEY } = loadBreakEvenStorage();
+  const values = new Map([["realEstateCalcInputs.v1", JSON.stringify({
+    __moneyUnitVersion: 3,
+    breakevenPurchasePrice: "1234",
+    breakevenSellerBrokerRate: "4",
+    purchasePrice: "9999",
+  })]]);
+  const storage = {
+    getItem: key => values.get(key) ?? null,
+    setItem: (key, value) => values.set(key, value),
+  };
+
+  const imported = loadBreakEvenSavedData(storage);
+  assert.equal(imported.breakevenPurchasePrice, "1234");
+  assert.equal(imported.breakevenSellerBrokerRate, "4");
+  assert.equal(imported.purchasePrice, undefined);
+  assert.ok(values.has(BREAKEVEN_STORAGE_KEY));
+  assert.ok(values.has("realEstateCalcInputs.v1"));
+});
+
+test("獨立頁提供獨立暫存、清空、複製與圖片輸出", () => {
+  assert.match(html, /const BREAKEVEN_STORAGE_KEY = "realEstateBreakevenInputs\.v1"/);
+  assert.match(html, /const LEGACY_STORAGE_KEY = "realEstateCalcInputs\.v1"/);
+  assert.match(html, /function saveBreakEvenInputs\(/);
+  assert.match(html, /function restoreBreakEvenInputs\(/);
+  assert.match(html, /function copyBreakEvenSummary\(/);
+  assert.match(html, /async function downloadBreakEvenResultJpg\(/);
 });

@@ -8594,24 +8594,83 @@
       Object.keys(calculators).forEach(group => runGroup(group, options));
     }
 
-    const STORAGE_KEY = "realEstateCalcInputs.v1";
+    // Standalone break-even storage: start
+    const BREAKEVEN_STORAGE_KEY = "realEstateBreakevenInputs.v1";
+    const LEGACY_STORAGE_KEY = "realEstateCalcInputs.v1";
+    const BREAKEVEN_FIELD_IDS = Object.freeze([
+      "breakevenPurchasePrice", "breakevenAcquisitionDate", "breakevenSaleDate",
+      "breakevenBuyerBrokerRate", "breakevenSellerBrokerRate", "breakevenExpectedSalePrice",
+      "breakevenAreaPing", "breakevenOutstandingLoan", "breakevenNegotiationRate",
+      "breakevenCostMode", "breakevenQuickPurchaseCosts", "breakevenQuickImprovements",
+      "breakevenQuickHoldingCosts", "breakevenQuickSellingCosts", "breakevenDeedTax",
+      "breakevenStampTax", "breakevenRegistrationFees", "breakevenScrivenerBankFees",
+      "breakevenOtherPurchaseCosts", "breakevenAdvancedImprovements", "breakevenMortgageInterest",
+      "breakevenManagementFees", "breakevenHouseTax", "breakevenLandTax",
+      "breakevenInsuranceCosts", "breakevenRepairCosts", "breakevenOtherHoldingCosts",
+      "breakevenSellingScrivenerFee", "breakevenMortgageCancellationFee", "breakevenEscrowFee",
+      "breakevenMarketingMovingFee", "breakevenOtherSellingCosts", "breakevenLandValueTax",
+      "breakevenLandGain", "breakevenPriorTransactionLoss", "breakevenDeductibleLandValueTax",
+      "breakevenLandDataConfirmed", "breakevenAcquisitionReceipts", "breakevenTransferExpenseMode",
+      "breakevenResidentType", "breakevenTaxMode", "breakevenManualTaxAmount",
+      "breakevenManualTaxConfirmed", "breakevenSelfUseRegistered", "breakevenSelfUseSixYears",
+      "breakevenSelfUseNoRentalBusiness", "breakevenSelfUseNoPriorClaim", "breakevenSpecialRate"
+    ]);
+
+    function readStoredObject(storage, key) {
+      try {
+        const parsed = JSON.parse(storage.getItem(key));
+        return parsed && typeof parsed === "object" ? parsed : null;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function loadBreakEvenSavedData(storage) {
+      const current = readStoredObject(storage, BREAKEVEN_STORAGE_KEY);
+      if (current) return current;
+      const legacy = readStoredObject(storage, LEGACY_STORAGE_KEY);
+      if (!legacy) return null;
+      const imported = Object.fromEntries(
+        BREAKEVEN_FIELD_IDS
+          .filter(id => Object.hasOwn(legacy, id))
+          .map(id => [id, legacy[id]])
+      );
+      if (!Object.keys(imported).length) return null;
+      imported.__moneyUnitVersion = Number(legacy.__moneyUnitVersion) || 1;
+      try {
+        storage.setItem(BREAKEVEN_STORAGE_KEY, JSON.stringify(imported));
+      } catch (error) {
+        /* 私密模式或空間不足時仍回傳可匯入資料 */
+      }
+      return imported;
+    }
+    // Standalone break-even storage: end
+
+    const STORAGE_KEY = BREAKEVEN_STORAGE_KEY;
     const NEW_WAN_FIELD_IDS = new Set(["sellExpense", "landGain", "buildingValue", "landDeclaredValue"]);
     let saveTimer;
 
-    function saveInputs() {
+    function saveBreakEvenInputs(storage = localStorage) {
       const data = {
         __moneyUnitVersion: 3,
         __loanRatioUnitVersion: 2,
         __annualRateDefaultVersion: 2
       };
-      document.querySelectorAll("form input[id], form select[id]").forEach(el => {
+      BREAKEVEN_FIELD_IDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
         data[el.id] = el.type === "checkbox" ? el.checked : String(el.value || "").replace(/,/g, "");
       });
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        storage.setItem(STORAGE_KEY, JSON.stringify(data));
       } catch (error) {
         /* 私密模式或空間不足時略過 */
       }
+      return data;
+    }
+
+    function saveInputs() {
+      return saveBreakEvenInputs(localStorage);
     }
 
     function queueSave() {
@@ -8619,14 +8678,12 @@
       saveTimer = window.setTimeout(saveInputs, 150);
     }
 
-    function restoreInputs() {
-      let data = null;
-      try {
-        data = JSON.parse(localStorage.getItem(STORAGE_KEY));
-      } catch (error) {
-        return;
+    function restoreBreakEvenInputs(storage = localStorage) {
+      const data = loadBreakEvenSavedData(storage);
+      if (!data || typeof data !== "object") {
+        applyGroupDefaults("breakeven");
+        return false;
       }
-      if (!data || typeof data !== "object") return;
       const moneyUnitVersion = Number(data.__moneyUnitVersion) || 1;
       const loanRatioUnitVersion = Number(data.__loanRatioUnitVersion) || 1;
       const annualRateDefaultVersion = Number(data.__annualRateDefaultVersion) || 1;
@@ -8648,6 +8705,11 @@
         }
       });
       formatAllNumericInputs();
+      return true;
+    }
+
+    function restoreInputs() {
+      return restoreBreakEvenInputs(localStorage);
     }
 
     function wizardSteps(workspace) {
@@ -9100,8 +9162,16 @@
       flashButton(button, copied ? "已複製，可貼到 LINE" : "複製失敗");
     }
 
+    function copyBreakEvenSummary(button) {
+      return copySummary("breakeven", button);
+    }
+
+    async function downloadBreakEvenResultJpg() {
+      return downloadResultJpg("breakeven");
+    }
+
     document.querySelectorAll("[data-copy]").forEach(button => {
-      button.addEventListener("click", () => copySummary(button.dataset.copy, button));
+      button.addEventListener("click", () => copyBreakEvenSummary(button));
     });
 
     document.querySelectorAll("[data-jpg]").forEach(button => {
@@ -9113,7 +9183,7 @@
           return;
         }
         flashButton(button, "產生圖片中...");
-        downloadResultJpg(group).then(outcome => {
+        downloadBreakEvenResultJpg().then(outcome => {
           if (!outcome) {
             flashButton(button, "產生失敗");
             return;
@@ -9306,4 +9376,3 @@
   </script>
 </body>
 </html>
-
