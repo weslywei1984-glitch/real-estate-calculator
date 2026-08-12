@@ -4,14 +4,13 @@ const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
 
-const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
+const publicHtml = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
+const html = fs.readFileSync(path.join(__dirname, "..", "breakeven.html"), "utf8");
 
 function breakEvenWorkspace() {
-  const start = html.indexOf('data-panel="breakeven"');
-  const next = html.indexOf('<section class="workspace', start + 1);
-  const sources = html.indexOf('<section class="sources"', start + 1);
-  const end = next > -1 ? next : sources;
-  assert.ok(start > -1 && end > start, "應提供平轉成本工作區");
+  const start = html.indexOf('data-wizard="breakeven"');
+  const end = html.indexOf('<section class="sources"', start + 1);
+  assert.ok(start > -1 && end > start, "獨立頁應提供平轉成本工作區");
   return html.slice(start, end);
 }
 
@@ -231,9 +230,11 @@ test("拒絕日期顛倒、負值、超額仲介費與異常議價率", () => {
   assert.throws(() => solveBreakEvenPrice(baseModel({ negotiationRate: 100 }), false), /議價率/);
 });
 
-test("第五分頁以 breakeven hash 提供四步驟平轉工作區", () => {
+test("獨立頁提供 noindex 與四步驟平轉工作區", () => {
   const section = breakEvenWorkspace();
-  assert.match(html, /class="tab[^\"]*"[^>]*data-tab="breakeven"[^>]*>平轉成本<\/button>/);
+  const bodyMarkup = html.slice(html.indexOf("<body"), html.indexOf("<script"));
+  assert.match(html, /<meta[^>]+name="robots"[^>]+content="noindex,\s*nofollow,\s*noarchive"/i);
+  assert.doesNotMatch(bodyMarkup, /class="tabs"|data-tab="(?:tax|buyer|loan|young|breakeven)"/);
   assert.match(section, /data-wizard="breakeven"/);
   assert.match(section, /id="breakevenForm"/);
   assert.match(section, /id="breakevenResult"/);
