@@ -5,6 +5,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
+const breakevenHtml = fs.readFileSync(path.join(__dirname, "..", "breakeven.html"), "utf8");
 const exactMobileHeroPath = path.join(__dirname, "..", "assets", "mobile-hero-exact.jpg");
 
 function workspace(name) {
@@ -30,7 +31,7 @@ test("Consultant B theme is the final visual layer", () => {
   assert.match(css, /--consultant-terracotta:\s*#b9502d/);
 });
 
-for (const name of ["tax", "buyer", "loan", "young", "breakeven"]) {
+for (const name of ["tax", "buyer", "loan", "young"]) {
   test(`${name} exposes one four-step wizard`, () => {
     const section = workspace(name);
     assert.match(section, new RegExp(`data-wizard="${name}"`));
@@ -42,6 +43,16 @@ for (const name of ["tax", "buyer", "loan", "young", "breakeven"]) {
     assert.match(section, /data-wizard-next/);
   });
 }
+
+test("standalone breakeven exposes one four-step wizard", () => {
+  assert.match(breakevenHtml, /data-wizard="breakeven"/);
+  for (const step of [1, 2, 3, 4]) {
+    assert.match(breakevenHtml, new RegExp(`data-wizard-step="${step}"`));
+  }
+  assert.match(breakevenHtml, /class="wizard-mobile-head"/);
+  assert.match(breakevenHtml, /data-wizard-back/);
+  assert.match(breakevenHtml, /data-wizard-next/);
+});
 
 test("wizard controller applies presentation state at every viewport", () => {
   assert.doesNotMatch(html, /WIZARD_MOBILE_QUERY/);
@@ -183,7 +194,7 @@ test("source references are structured lists at every width", () => {
   const css = consultantCss();
   const shared = css.slice(0, css.indexOf("@media (max-width: 900px)"));
 
-  assert.equal((html.match(/<li class="source-item">/g) || []).length, 8);
+  assert.equal((html.match(/<li class="source-item">/g) || []).length, 5);
   assert.match(shared, /\.sources-list\s*\{[^}]*display:\s*grid/s);
   assert.match(shared, /\.source-item\s*\{[^}]*grid-template-columns:\s*auto minmax\(0,\s*1fr\)/s);
   assert.doesNotMatch(shared, /\.source-item:not\(:last-child\)::after\s*\{[^}]*content:\s*"；"/s);

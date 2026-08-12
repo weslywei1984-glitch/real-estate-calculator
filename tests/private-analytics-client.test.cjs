@@ -19,7 +19,7 @@ function readPage(name) {
 function analyticsBlock(html) {
   const match = html.match(markerPattern);
   assert.ok(match, "missing marked private analytics client");
-  return match[0];
+  return match[0].replace(/\r\n/g, "\n");
 }
 
 function clientFixture({ visibilityState = "visible", referrer = "", innerWidth = 1024, beaconResult = true } = {}) {
@@ -81,6 +81,12 @@ test("all public pages share the byte-identical private analytics client without
     assert.doesNotMatch(html, /analytics[^\n>]*(?:counter|total|count)[^\n>]*[=>]/i);
     assert.doesNotMatch(block, /(?:alert\(|console\.error\(|setTimeout\()/);
   }
+});
+
+test("unlisted break-even page does not send public analytics", () => {
+  const standalone = readPage("breakeven.html");
+  assert.doesNotMatch(standalone, /Private anonymous analytics client/);
+  assert.doesNotMatch(standalone, /\/api\/analytics\/event|sendPrivateAnalyticsEvent/);
 });
 
 test("visit waits for visibility, is once-only, and records anonymous normalized dimensions", () => {

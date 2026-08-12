@@ -295,10 +295,13 @@ test("分頁列不換行", () => {
   assert.match(css, /\.tabs\s*\{[^}]*flex-wrap:\s*nowrap/s);
 });
 
-test("五個計算器分頁在桌機與手機使用核定字級", () => {
+test("四個計算器分頁在桌機與手機使用核定字級", () => {
   const marker = html.indexOf("/* Consultant B wizard theme */");
   const css = html.slice(marker, html.indexOf("</style>", marker));
+  const tabNav = html.match(/<nav class="tabs"[\s\S]*?<\/nav>/)?.[0] || "";
+  const publicTabs = [...tabNav.matchAll(/data-tab="([^"]+)"/g)].map(match => match[1]);
 
+  assert.deepEqual(publicTabs, ["tax", "buyer", "loan", "young"]);
   assert.match(css, /\.tabs \.tab\s*\{[^}]*font-size:\s*16px/s);
   assert.match(css, /\.tabs \.tab\s*\{[^}]*min-height:\s*48px/s);
   assert.match(css, /@media \(max-width:\s*620px\)[\s\S]*\.tabs \.tab\s*\{[^}]*font-size:\s*14px/s);

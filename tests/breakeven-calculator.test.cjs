@@ -338,3 +338,11 @@ test("獨立頁提供獨立暫存、清空、複製與圖片輸出", () => {
   assert.match(html, /function copyBreakEvenSummary\(/);
   assert.match(html, /async function downloadBreakEvenResultJpg\(/);
 });
+
+test("公開首頁完全不含平轉工具或獨立頁入口", () => {
+  assert.doesNotMatch(publicHtml, /data-tab="breakeven"|data-panel="breakeven"/);
+  assert.doesNotMatch(publicHtml, /breakevenForm|breakevenResult|#breakeven/);
+  assert.doesNotMatch(publicHtml, /href=["']breakeven\.html["']/);
+  assert.doesNotMatch(publicHtml, /function (?:parseBreakEvenDate|calculateBreakEven|syncBreakEvenInterface)\(/);
+  assert.doesNotMatch(publicHtml, /\bbreakeven\s*:\s*\{/);
+});
