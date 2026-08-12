@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>房地稅費與貸款試算｜台南小魏 買厝作伙</title>
-  <meta name="description" content="免費試算房地合一稅、買方現金需求、房貸月付與青安貸款 3.0。輸入金額即時計算,含自住優惠檢核與五階段利率攤還表。台南小魏 魏泉承 0927-617-207。">
+  <meta name="description" content="免費試算房屋平轉不賠售價、房地合一稅、買方現金需求、房貸月付與青安貸款 3.0。輸入成本即時反推最低成交價。台南小魏 魏泉承 0927-617-207。">
   <meta name="theme-color" content="#102738">
   <meta property="og:type" content="website">
   <meta property="og:title" content="房地稅費與貸款試算｜台南小魏 買厝作伙">
-  <meta property="og:description" content="免費試算房地合一稅、買方現金需求、房貸月付與青安貸款 3.0,輸入金額即時算出結果。">
+  <meta property="og:description" content="免費試算房屋平轉不賠售價、房地合一稅、買方現金需求、房貸月付與青安貸款 3.0。">
   <meta property="og:image" content="https://calc.tainanwei.com/assets/hero-reference.jpg">
   <meta property="og:url" content="https://calc.tainanwei.com/">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M12 34 32 16l20 18v18H38V40H26v12H12Z' fill='%23f7d77a'/%3E%3C/svg%3E">
@@ -6153,6 +6153,38 @@
         font-size: clamp(.9rem, 4.15vw, 1.15rem);
       }
 
+      .breakeven-cost-panel {
+        grid-template-columns: 1fr;
+        padding: 12px;
+      }
+
+      .breakeven-panel-title {
+        display: grid;
+        gap: 4px;
+      }
+
+      .breakeven-result-hero {
+        gap: 8px;
+      }
+
+      .breakeven-floor-card {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 7px 12px;
+        padding: 15px;
+      }
+
+      .breakeven-floor-card span,
+      .breakeven-floor-card em {
+        grid-column: 1;
+      }
+
+      .breakeven-floor-card strong {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+        font-size: clamp(1.35rem, 7vw, 1.75rem);
+      }
+
     }
 
     :focus-visible {
@@ -6165,6 +6197,204 @@
       .tab,
       button {
         transition: none !important;
+      }
+    }
+
+    /* Break-even cost dashboard */
+    .tab-breakeven[aria-selected="true"] {
+      background: var(--consultant-terracotta);
+      color: #fffdf7;
+    }
+
+    .breakeven-workspace .panel-head .note {
+      color: var(--consultant-terracotta);
+      font-weight: 800;
+    }
+
+    .breakeven-mode-intro,
+    .breakeven-tax-status {
+      grid-column: 1 / -1;
+      display: grid;
+      gap: 5px;
+      padding: 13px 14px;
+      border: 1px solid rgba(16, 39, 56, .14);
+      border-left: 4px solid var(--consultant-terracotta);
+      border-radius: 10px;
+      background: #fffaf0;
+      color: var(--consultant-navy);
+      line-height: 1.55;
+    }
+
+    .breakeven-mode-intro strong,
+    .breakeven-tax-status strong {
+      font-size: .92rem;
+    }
+
+    .breakeven-mode-intro span,
+    .breakeven-tax-status span {
+      color: var(--consultant-muted);
+      font-size: .82rem;
+    }
+
+    .breakeven-cost-panel {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      padding: 16px;
+      border: 1px solid rgba(16, 39, 56, .12);
+      border-radius: 12px;
+      background: rgba(255, 253, 247, .78);
+    }
+
+    .breakeven-cost-panel[hidden],
+    .breakeven-manual-tax[hidden] {
+      display: none !important;
+    }
+
+    .breakeven-panel-title {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed rgba(16, 39, 56, .18);
+    }
+
+    .breakeven-panel-title strong {
+      color: var(--consultant-navy);
+      font-size: .95rem;
+    }
+
+    .breakeven-panel-title span {
+      color: var(--consultant-muted);
+      font-size: .78rem;
+    }
+
+    .breakeven-result-hero {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      grid-column: 1 / -1;
+      padding: 0;
+      border: 0;
+      background: transparent;
+    }
+
+    .breakeven-floor-card {
+      display: grid;
+      align-content: space-between;
+      gap: 12px;
+      min-height: 142px;
+      padding: 18px;
+      border-radius: 13px;
+      box-shadow: 0 12px 30px rgba(16, 39, 56, .11);
+    }
+
+    .breakeven-floor-card span,
+    .breakeven-floor-card em {
+      font-style: normal;
+      line-height: 1.4;
+    }
+
+    .breakeven-floor-card span {
+      font-size: .8rem;
+      font-weight: 800;
+      letter-spacing: .04em;
+    }
+
+    .breakeven-floor-card strong {
+      font-size: clamp(1.45rem, 3.2vw, 2.15rem);
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .breakeven-floor-card em {
+      font-size: .74rem;
+      opacity: .82;
+    }
+
+    .breakeven-floor-card--transaction {
+      border: 1px solid rgba(31, 111, 112, .28);
+      background: #e8f2ec;
+      color: #173c3e;
+    }
+
+    .breakeven-floor-card--full {
+      background: var(--consultant-navy);
+      color: #fffaf0;
+    }
+
+    .breakeven-floor-card--full span,
+    .breakeven-floor-card--full strong,
+    .breakeven-floor-card--full em {
+      color: #fffaf0;
+    }
+
+    .breakeven-floor-card--asking {
+      border: 1px solid rgba(185, 80, 45, .22);
+      background: #f4dfc5;
+      color: #70311f;
+    }
+
+    .breakeven-facts,
+    .breakeven-breakdown,
+    .breakeven-completeness {
+      grid-column: 1 / -1;
+    }
+
+    .breakeven-facts {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+    }
+
+    .breakeven-fact {
+      display: grid;
+      gap: 7px;
+      min-width: 0;
+      padding: 14px;
+      border: 1px solid rgba(16, 39, 56, .13);
+      border-radius: 11px;
+      background: #fffdf7;
+    }
+
+    .breakeven-fact span {
+      color: var(--consultant-muted);
+      font-size: .76rem;
+    }
+
+    .breakeven-fact strong {
+      color: var(--consultant-navy);
+      font-size: 1.12rem;
+      white-space: nowrap;
+    }
+
+    .breakeven-completeness.is-complete {
+      border-color: rgba(31, 111, 112, .26);
+      background: #edf5ef;
+    }
+
+    .breakeven-completeness ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+      color: var(--consultant-muted);
+      font-size: .82rem;
+      line-height: 1.65;
+    }
+
+    @media (max-width: 900px) {
+      .breakeven-result-hero,
+      .breakeven-facts {
+        grid-template-columns: 1fr;
+      }
+
+      .breakeven-floor-card {
+        min-height: 0;
       }
     }
 
@@ -6184,7 +6414,7 @@
         <p class="brand-hero__eyebrow">TAINAN REAL ESTATE CALCULATOR</p>
         <p class="brand-hero__badge">台南小魏 買厝作伙</p>
         <h1><span class="brand-hero__title-line">房地稅費與</span><span class="brand-hero__title-line brand-hero__title-line--accent">貸款試算</span></h1>
-        <p class="brand-hero__lead">房地合一稅、買方稅費、貸款月付與可負擔總價，一次整理成看得懂的數字。</p>
+        <p class="brand-hero__lead">平轉不賠價、房地合一稅、買方稅費、貸款月付與可負擔總價，一次整理成看得懂的數字。</p>
 
         <div class="brand-hero__actions">
           <button class="brand-hero__cta" type="button" id="heroCta">立即開始試算 <span aria-hidden="true">→</span></button>
@@ -6212,6 +6442,7 @@
       <button class="tab" type="button" data-tab="buyer" aria-selected="false">買方費用</button>
       <button class="tab" type="button" data-tab="loan" aria-selected="false">貸款計算</button>
       <button class="tab tab-young" type="button" data-tab="young" aria-selected="false">青安貸款 3.0</button>
+      <button class="tab tab-breakeven" type="button" data-tab="breakeven" aria-selected="false">平轉成本</button>
     </nav>
 
     <section class="workspace" data-panel="tax" data-wizard="tax" data-wizard-current="0" data-wizard-titles='["成交資料","可扣除項目","適用條件","試算結果"]'>
@@ -6780,6 +7011,281 @@
       </div>
     </section>
 
+    <section class="workspace breakeven-workspace hidden" data-panel="breakeven" data-wizard="breakeven" data-wizard-current="0" data-wizard-titles='["房屋資料","實際成本","出售與稅務","不賠結果"]'>
+      <div class="wizard-mobile-head" aria-live="polite">
+        <div>
+          <span class="wizard-mobile-count">01 / 04</span>
+          <h2 class="wizard-mobile-title" tabindex="-1">房屋資料</h2>
+        </div>
+        <div class="wizard-mobile-progress" aria-hidden="true"><span></span></div>
+      </div>
+
+      <form class="panel" id="breakevenForm">
+        <div class="panel-head">
+          <h2>房屋平轉成本</h2>
+          <span class="note">反推至少要賣多少才不賠</span>
+        </div>
+        <div class="section">
+          <div class="form-grid">
+            <div class="breakeven-mode-intro" data-wizard-step="1">
+              <strong>先抓成交底線，再決定開價</strong>
+              <span>平轉價只算交易成本；完整不賠價會再加上利息、管理費與持有稅費。</span>
+            </div>
+            <div class="field" data-wizard-step="1">
+              <label for="breakevenPurchasePrice">買入總價</label>
+              <div class="control">
+                <input id="breakevenPurchasePrice" data-money-unit="wan" type="number" min="0.1" step="0.1" value="1000" required>
+                <span class="unit">萬元</span>
+              </div>
+            </div>
+            <div class="field" data-wizard-step="1">
+              <label for="breakevenAcquisitionDate">取得日期</label>
+              <div class="control">
+                <input id="breakevenAcquisitionDate" type="date" required>
+                <span class="unit">過戶日</span>
+              </div>
+            </div>
+            <div class="field" data-wizard-step="1">
+              <label for="breakevenSaleDate">預計出售日期</label>
+              <div class="control">
+                <input id="breakevenSaleDate" type="date" required>
+                <span class="unit">過戶日</span>
+              </div>
+            </div>
+            <div class="field" data-wizard-step="1">
+              <label for="breakevenBuyerBrokerRate">買進仲介費率</label>
+              <div class="control">
+                <input id="breakevenBuyerBrokerRate" type="number" min="0" max="6" step="0.1" value="2">
+                <span class="unit">%</span>
+              </div>
+              <div class="field-note">預設 2%，請依買進時實際合約調整</div>
+            </div>
+            <div class="field" data-wizard-step="1">
+              <label for="breakevenSellerBrokerRate">賣出仲介費率</label>
+              <div class="control">
+                <input id="breakevenSellerBrokerRate" type="number" min="0" max="6" step="0.1" value="4">
+                <span class="unit">%</span>
+              </div>
+              <div class="field-note">預設 4%，實際以委託銷售契約為準</div>
+            </div>
+            <div class="field" data-wizard-step="1">
+              <label for="breakevenExpectedSalePrice">預想成交價（選填）</label>
+              <div class="control">
+                <input id="breakevenExpectedSalePrice" data-money-unit="wan" type="number" min="0" step="0.1" value="0">
+                <span class="unit">萬元</span>
+              </div>
+            </div>
+            <div class="field" data-wizard-step="1">
+              <label for="breakevenAreaPing">建物坪數（選填）</label>
+              <div class="control">
+                <input id="breakevenAreaPing" type="number" min="0" step="0.01" value="0">
+                <span class="unit">坪</span>
+              </div>
+            </div>
+            <div class="field" data-wizard-step="1">
+              <label for="breakevenOutstandingLoan">剩餘房貸（選填）</label>
+              <div class="control">
+                <input id="breakevenOutstandingLoan" data-money-unit="wan" type="number" min="0" step="0.1" value="0">
+                <span class="unit">萬元</span>
+              </div>
+              <div class="field-note">只計算交屋後實拿，不會當成成本重複扣除</div>
+            </div>
+            <div class="field" data-wizard-step="1">
+              <label for="breakevenNegotiationRate">預留議價空間</label>
+              <div class="control">
+                <input id="breakevenNegotiationRate" type="number" min="0" max="99.9" step="0.1" value="5">
+                <span class="unit">%</span>
+              </div>
+            </div>
+
+            <div class="field wide" data-wizard-step="2">
+              <label for="breakevenCostMode">成本填寫方式</label>
+              <div class="control">
+                <select id="breakevenCostMode">
+                  <option value="quick">快速填寫：直接填合計</option>
+                  <option value="advanced">進階明細：逐項列出</option>
+                </select>
+                <span class="unit">模式</span>
+              </div>
+              <div class="field-note">只會採用目前選擇的模式，不會把兩邊重複相加</div>
+            </div>
+
+            <div class="breakeven-cost-panel" data-cost-mode-panel="quick" data-wizard-step="2">
+              <div class="breakeven-panel-title">
+                <strong>快速成本</strong>
+                <span>仲介費已由第一步費率自動計算，下面不要再重複填</span>
+              </div>
+              <div class="field">
+                <label for="breakevenQuickPurchaseCosts">其他買進費用</label>
+                <div class="control">
+                  <input id="breakevenQuickPurchaseCosts" data-money-unit="wan" type="number" min="0" step="0.1" value="10">
+                  <span class="unit">萬元</span>
+                </div>
+                <div class="field-note">契稅、印花稅、登記、地政士與銀行費等</div>
+              </div>
+              <div class="field">
+                <label for="breakevenQuickImprovements">裝修改良費</label>
+                <div class="control">
+                  <input id="breakevenQuickImprovements" data-money-unit="wan" type="number" min="0" step="0.1" value="0">
+                  <span class="unit">萬元</span>
+                </div>
+              </div>
+              <div class="field wide">
+                <label for="breakevenQuickHoldingCosts">持有成本合計</label>
+                <div class="control">
+                  <input id="breakevenQuickHoldingCosts" data-money-unit="wan" type="number" min="0" step="0.1" value="60">
+                  <span class="unit">萬元</span>
+                </div>
+                <div class="field-note">房貸利息、管理費、房屋稅、地價稅、保險與維護支出</div>
+              </div>
+            </div>
+
+            <div class="breakeven-cost-panel" data-cost-mode-panel="advanced" data-wizard-step="2" hidden>
+              <div class="breakeven-panel-title">
+                <strong>買進與持有明細</strong>
+                <span>已排除房貸本金，只列真正支出的成本</span>
+              </div>
+              <div class="field"><label for="breakevenDeedTax">契稅</label><div class="control"><input id="breakevenDeedTax" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div></div>
+              <div class="field"><label for="breakevenStampTax">印花稅</label><div class="control"><input id="breakevenStampTax" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div></div>
+              <div class="field"><label for="breakevenRegistrationFees">登記與規費</label><div class="control"><input id="breakevenRegistrationFees" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div></div>
+              <div class="field"><label for="breakevenScrivenerBankFees">地政士與銀行費</label><div class="control"><input id="breakevenScrivenerBankFees" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div></div>
+              <div class="field"><label for="breakevenOtherPurchaseCosts">其他買進費</label><div class="control"><input id="breakevenOtherPurchaseCosts" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div></div>
+              <div class="field"><label for="breakevenAdvancedImprovements">裝修改良費</label><div class="control"><input id="breakevenAdvancedImprovements" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div></div>
+              <div class="field"><label for="breakevenMortgageInterest">已付房貸利息</label><div class="control"><input id="breakevenMortgageInterest" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div></div>
+              <div class="field"><label for="breakevenManagementFees">管理費</label><div class="control"><input id="breakevenManagementFees" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div></div>
+              <div class="field"><label for="breakevenHouseTax">房屋稅</label><div class="control"><input id="breakevenHouseTax" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div></div>
+              <div class="field"><label for="breakevenLandTax">地價稅</label><div class="control"><input id="breakevenLandTax" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div></div>
+              <div class="field"><label for="breakevenInsuranceCosts">保險費</label><div class="control"><input id="breakevenInsuranceCosts" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div></div>
+              <div class="field"><label for="breakevenRepairCosts">維護修繕</label><div class="control"><input id="breakevenRepairCosts" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div></div>
+              <div class="field"><label for="breakevenOtherHoldingCosts">其他持有成本</label><div class="control"><input id="breakevenOtherHoldingCosts" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div></div>
+            </div>
+
+            <div class="breakeven-cost-panel" data-cost-mode-panel="quick" data-wizard-step="3">
+              <div class="breakeven-panel-title">
+                <strong>快速出售費用</strong>
+                <span>不含賣方仲介費與土地增值稅</span>
+              </div>
+              <div class="field wide">
+                <label for="breakevenQuickSellingCosts">其他出售固定費用</label>
+                <div class="control">
+                  <input id="breakevenQuickSellingCosts" data-money-unit="wan" type="number" min="0" step="0.1" value="10">
+                  <span class="unit">萬元</span>
+                </div>
+                <div class="field-note">地政士、塗銷、履保、廣告、清潔搬運等</div>
+              </div>
+            </div>
+
+            <div class="breakeven-cost-panel" data-cost-mode-panel="advanced" data-wizard-step="3" hidden>
+              <div class="breakeven-panel-title">
+                <strong>出售費用明細</strong>
+                <span>賣方仲介費會依成交價自動反推</span>
+              </div>
+              <div class="field"><label for="breakevenSellingScrivenerFee">出售地政士費</label><div class="control"><input id="breakevenSellingScrivenerFee" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div></div>
+              <div class="field"><label for="breakevenMortgageCancellationFee">貸款塗銷費</label><div class="control"><input id="breakevenMortgageCancellationFee" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div></div>
+              <div class="field"><label for="breakevenEscrowFee">履約保證費</label><div class="control"><input id="breakevenEscrowFee" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div></div>
+              <div class="field"><label for="breakevenMarketingMovingFee">廣告、清潔與搬運</label><div class="control"><input id="breakevenMarketingMovingFee" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div></div>
+              <div class="field wide"><label for="breakevenOtherSellingCosts">其他出售費用</label><div class="control"><input id="breakevenOtherSellingCosts" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div></div>
+            </div>
+
+            <div class="field" data-wizard-step="3">
+              <label for="breakevenLandValueTax">土地增值稅</label>
+              <div class="control"><input id="breakevenLandValueTax" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div>
+            </div>
+            <div class="field" data-wizard-step="3">
+              <label for="breakevenLandGain">土地漲價總數額</label>
+              <div class="control"><input id="breakevenLandGain" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div>
+            </div>
+            <div class="field" data-wizard-step="3">
+              <label for="breakevenDeductibleLandValueTax">可列報土地增值稅特殊扣除額</label>
+              <div class="control"><input id="breakevenDeductibleLandValueTax" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div>
+              <div class="field-note">不確定時填 0，正式由稅務機關或地政士確認</div>
+            </div>
+            <div class="lookup-links field wide" data-wizard-step="3" aria-label="土地稅務工具">
+              <span>查完再回填：</span>
+              <div class="lookup-buttons">
+                <a href="tainan-land-value-helper.html">查土地公告現值</a>
+                <a href="land-increment-total.html">查土地漲價總數額</a>
+              </div>
+            </div>
+            <label class="check-row field wide" data-wizard-step="3">
+              <input id="breakevenLandDataConfirmed" type="checkbox" checked>
+              <span><b>已確認土地稅資料</b><span>已依稅單、地政士資料或土地工具確認土地增值稅與土地漲價總數額；未勾選仍可估算，但結果會標示資料尚未完整。</span></span>
+            </label>
+            <label class="check-row field wide" data-wizard-step="3">
+              <input id="breakevenAcquisitionReceipts" type="checkbox" checked>
+              <span><b>取得與改良費可提出憑證</b><span>勾選後，買進仲介費、其他買進費與合格裝修改良費才會列入房地合一稅成本扣除。</span></span>
+            </label>
+            <div class="field" data-wizard-step="3">
+              <label for="breakevenTransferExpenseMode">出售移轉費用認列</label>
+              <div class="control">
+                <select id="breakevenTransferExpenseMode">
+                  <option value="actual">有憑證，按實際費用</option>
+                  <option value="deemed">憑證不足，成交價 3%（上限 30 萬）</option>
+                </select>
+                <span class="unit">稅務</span>
+              </div>
+            </div>
+            <div class="field" data-wizard-step="3">
+              <label for="breakevenResidentType">出售人身分</label>
+              <div class="control">
+                <select id="breakevenResidentType"><option value="resident">境內居住者個人</option><option value="nonresident">非境內居住者個人</option></select>
+                <span class="unit">稅率</span>
+              </div>
+            </div>
+            <div class="field" data-wizard-step="3">
+              <label for="breakevenTaxMode">房地交易所得稅</label>
+              <div class="control">
+                <select id="breakevenTaxMode"><option value="auto">依條件自動估算</option><option value="manual">手動輸入稅額</option></select>
+                <span class="unit">模式</span>
+              </div>
+            </div>
+            <div class="breakeven-tax-status" id="breakevenTaxStatus" data-wizard-step="3" aria-live="polite">
+              <strong>填寫取得與出售日期後，自動判斷稅制</strong>
+              <span>2016 年以前取得或不適用房地合一稅 2.0 時，會切換為手動輸入。</span>
+            </div>
+            <div class="field breakeven-manual-tax" data-wizard-step="3" data-manual-tax-field hidden>
+              <label for="breakevenManualTaxAmount">手動估算稅額</label>
+              <div class="control"><input id="breakevenManualTaxAmount" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div>
+            </div>
+            <label class="check-row field breakeven-manual-tax" data-wizard-step="3" data-manual-tax-field hidden>
+              <input id="breakevenManualTaxConfirmed" type="checkbox">
+              <span><b>已確認手動稅額</b><span>此金額已依國稅局、會計師或地政士提供的資料填寫。</span></span>
+            </label>
+
+            <div class="checks field wide" data-wizard-step="3">
+              <label class="check-row"><input id="breakevenSelfUseRegistered" type="checkbox"><span><b>本人、配偶或未成年子女設籍</b><span>出售前已在該房地辦竣戶籍登記。</span></span></label>
+              <label class="check-row"><input id="breakevenSelfUseSixYears" type="checkbox"><span><b>持有並實際自住連續滿 6 年</b><span>日期與實際居住條件都必須符合。</span></span></label>
+              <label class="check-row"><input id="breakevenSelfUseNoRentalBusiness" type="checkbox"><span><b>交易前 6 年沒有出租、營業或執行業務使用</b><span>有出租或營業使用時不可套用自住優惠。</span></span></label>
+              <label class="check-row"><input id="breakevenSelfUseNoPriorClaim" type="checkbox"><span><b>本人、配偶及未成年子女近 6 年未使用過自住優惠</b><span>同一家庭近期已使用者原則上不能重複適用。</span></span></label>
+              <label class="check-row"><input id="breakevenSpecialRate" type="checkbox"><span><b>適用 20% 特別情形</b><span>例如公告非自願因素等；不確定時不要勾選。</span></span></label>
+            </div>
+
+            <div class="actions field wide" data-wizard-step="3">
+              <button class="primary" type="button" data-clear="breakeven">清空</button>
+              <button class="secondary" type="button" data-reset="breakeven">套用範例</button>
+              <button class="secondary" type="button" data-copy="breakeven">複製結果</button>
+              <button class="secondary" type="button" data-jpg="breakeven">存成圖片</button>
+            </div>
+            <p class="note field wide" data-wizard-step="3">本工具僅供成本與售價估算，正式仍以稅務機關、地政士與實際契約核定為準。</p>
+          </div>
+        </div>
+      </form>
+
+      <aside class="panel wizard-step" data-wizard-step="4">
+        <div class="panel-head"><h2>不賠售價結果</h2></div>
+        <div class="result-stack" id="breakevenResult"></div>
+        <div class="wizard-result-actions">
+          <button class="secondary" type="button" data-copy="breakeven">複製結果</button>
+          <button class="secondary" type="button" data-jpg="breakeven">存成圖片</button>
+          <button class="primary" type="button" data-restart="breakeven">重新試算</button>
+        </div>
+      </aside>
+      <div class="wizard-mobile-actions">
+        <button type="button" class="secondary" data-wizard-back>上一步</button>
+        <button type="button" class="primary" data-wizard-next>下一步</button>
+      </div>
+    </section>
+
     <div class="float-contact" id="floatContact" aria-label="聯絡台南小魏">
       <a class="float-contact__btn" href="tel:+886927617207" aria-label="撥打電話 0927-617-207">
         <span class="float-contact__icon" aria-hidden="true">☎</span>
@@ -6800,6 +7306,24 @@
           <span class="source-item__body">
             房地合一稅基與自住房地優惠參考
             <a href="https://www.mof.gov.tw/houseandland/multiplehtml/de144e74630c4ac59f2d84a068c889c9" target="_blank" rel="noreferrer">財政部房地合一稅制設計</a>
+          </span>
+        </li>
+        <li class="source-item">
+          <span class="source-item__body">
+            平轉成本可減除項目、移轉費用 3% 與 30 萬元上限參考
+            <a href="https://www.etax.nat.gov.tw/etwmain/tax-info/understanding/tax-q-and-a/national/individual-income-tax/house-tax-and-land-tax-consolidation-question/bD1Kz5A" target="_blank" rel="noreferrer">財政部稅務入口網／房地交易成本費用</a>
+          </span>
+        </li>
+        <li class="source-item">
+          <span class="source-item__body">
+            個人房地交易持有期間稅率與自住 400 萬元免稅額參考
+            <a href="https://www.etax.nat.gov.tw/etwmain/alien-tax-service/individual-house-land-transaction-tax/m75JLQo" target="_blank" rel="noreferrer">財政部稅務入口網／適用稅率</a>
+          </span>
+        </li>
+        <li class="source-item">
+          <span class="source-item__body">
+            土地增值稅與土地漲價總數額試算參考
+            <a href="https://www.etax.nat.gov.tw/etwmain/etw158w/2501" target="_blank" rel="noreferrer">財政部稅務入口網／房地交易案件試算</a>
           </span>
         </li>
         <li class="source-item">
@@ -6942,6 +7466,29 @@
     const youngPolicy = window.YoungHousingLoan3;
     const GENERAL_LOAN_RATE = 2.5; // 超過青安額度部分，常見一般房貸利率假設（非官方利率，僅供試算參考）
 
+    function taipeiTodayIso() {
+      return new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Taipei",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).format(new Date());
+    }
+
+    function shiftIsoYear(isoDate, years) {
+      const [year, month, day] = String(isoDate).split("-").map(Number);
+      const shifted = new Date(Date.UTC(year + years, month - 1, day));
+      if (month === 2 && day === 29 && shifted.getUTCMonth() === 2) shifted.setUTCDate(0);
+      return [
+        shifted.getUTCFullYear(),
+        String(shifted.getUTCMonth() + 1).padStart(2, "0"),
+        String(shifted.getUTCDate()).padStart(2, "0")
+      ].join("-");
+    }
+
+    const breakEvenDefaultSaleDate = taipeiTodayIso();
+    const breakEvenDefaultAcquisitionDate = shiftIsoYear(breakEvenDefaultSaleDate, -1);
+
     const defaults = {
       tax: {
         salePrice: 0,
@@ -6999,6 +7546,55 @@
         youngNoHome: true,
         youngSelfUse: true,
         youngFirstUse: true
+      },
+      breakeven: {
+        breakevenPurchasePrice: 10000000,
+        breakevenAcquisitionDate: breakEvenDefaultAcquisitionDate,
+        breakevenSaleDate: breakEvenDefaultSaleDate,
+        breakevenBuyerBrokerRate: 2,
+        breakevenSellerBrokerRate: 4,
+        breakevenExpectedSalePrice: 0,
+        breakevenAreaPing: 0,
+        breakevenOutstandingLoan: 0,
+        breakevenNegotiationRate: 5,
+        breakevenCostMode: "quick",
+        breakevenQuickPurchaseCosts: 100000,
+        breakevenQuickImprovements: 0,
+        breakevenQuickHoldingCosts: 600000,
+        breakevenQuickSellingCosts: 100000,
+        breakevenDeedTax: 0,
+        breakevenStampTax: 0,
+        breakevenRegistrationFees: 0,
+        breakevenScrivenerBankFees: 0,
+        breakevenOtherPurchaseCosts: 0,
+        breakevenAdvancedImprovements: 0,
+        breakevenMortgageInterest: 0,
+        breakevenManagementFees: 0,
+        breakevenHouseTax: 0,
+        breakevenLandTax: 0,
+        breakevenInsuranceCosts: 0,
+        breakevenRepairCosts: 0,
+        breakevenOtherHoldingCosts: 0,
+        breakevenSellingScrivenerFee: 0,
+        breakevenMortgageCancellationFee: 0,
+        breakevenEscrowFee: 0,
+        breakevenMarketingMovingFee: 0,
+        breakevenOtherSellingCosts: 0,
+        breakevenLandValueTax: 0,
+        breakevenLandGain: 0,
+        breakevenDeductibleLandValueTax: 0,
+        breakevenLandDataConfirmed: true,
+        breakevenAcquisitionReceipts: true,
+        breakevenTransferExpenseMode: "actual",
+        breakevenResidentType: "resident",
+        breakevenTaxMode: "auto",
+        breakevenManualTaxAmount: 0,
+        breakevenManualTaxConfirmed: false,
+        breakevenSelfUseRegistered: false,
+        breakevenSelfUseSixYears: false,
+        breakevenSelfUseNoRentalBusiness: false,
+        breakevenSelfUseNoPriorClaim: false,
+        breakevenSpecialRate: false
       }
     };
 
@@ -7079,6 +7675,73 @@
         });
         input.addEventListener("blur", () => formatNumericInput(input));
       });
+    }
+
+    function syncBreakEvenInterface() {
+      const costMode = document.getElementById("breakevenCostMode")?.value || "quick";
+      document.querySelectorAll("[data-cost-mode-panel]").forEach(panel => {
+        panel.hidden = panel.dataset.costModePanel !== costMode;
+      });
+
+      const acquisitionInput = document.getElementById("breakevenAcquisitionDate");
+      const saleInput = document.getElementById("breakevenSaleDate");
+      const taxMode = document.getElementById("breakevenTaxMode");
+      const status = document.getElementById("breakevenTaxStatus");
+      if (!acquisitionInput || !saleInput || !taxMode || !status) return;
+
+      const acquisitionDate = parseBreakEvenDate(acquisitionInput.value);
+      const saleDate = parseBreakEvenDate(saleInput.value);
+      if (acquisitionDate && saleDate && saleDate >= acquisitionDate) {
+        try {
+          const profile = breakEvenTaxProfile({
+            ...collectBreakEvenInput(),
+            purchasePrice: Math.max(1, value("breakevenPurchasePrice"))
+          });
+          if (profile.manualRequired) {
+            taxMode.value = "manual";
+            taxMode.dataset.forcedManual = "true";
+            status.innerHTML = `<strong>此日期組合改用手動稅額</strong><span>${profile.label}</span>`;
+          } else {
+            if (taxMode.dataset.forcedManual === "true") taxMode.value = "auto";
+            delete taxMode.dataset.forcedManual;
+            status.innerHTML = taxMode.value === "manual"
+              ? `<strong>目前採手動稅額覆寫</strong><span>自動判斷為「${profile.label}」，手動金額會取代自動估算。</span>`
+              : `<strong>自動估算：${profile.label}</strong><span>出售價格改變時，稅額會一起重新反推。</span>`;
+          }
+        } catch (error) {
+          status.innerHTML = `<strong>日期或資料需要修正</strong><span>${error.message}</span>`;
+        }
+      } else {
+        status.innerHTML = `<strong>填寫有效的取得與出售日期</strong><span>系統會依周年日判斷持有期間與適用稅率。</span>`;
+      }
+
+      const manual = taxMode.value === "manual";
+      document.querySelectorAll("[data-manual-tax-field]").forEach(field => {
+        field.hidden = !manual;
+      });
+    }
+
+    function setupBreakEvenInterface() {
+      const acquisitionInput = document.getElementById("breakevenAcquisitionDate");
+      const saleInput = document.getElementById("breakevenSaleDate");
+      if (!acquisitionInput || !saleInput) return;
+      if (!acquisitionInput.value) acquisitionInput.value = breakEvenDefaultAcquisitionDate;
+      if (!saleInput.value) saleInput.value = breakEvenDefaultSaleDate;
+      for (const id of [
+        "breakevenCostMode",
+        "breakevenAcquisitionDate",
+        "breakevenSaleDate",
+        "breakevenTaxMode",
+        "breakevenResidentType",
+        "breakevenSelfUseRegistered",
+        "breakevenSelfUseSixYears",
+        "breakevenSelfUseNoRentalBusiness",
+        "breakevenSelfUseNoPriorClaim",
+        "breakevenSpecialRate"
+      ]) {
+        document.getElementById(id)?.addEventListener("change", syncBreakEvenInterface);
+      }
+      syncBreakEvenInterface();
     }
 
     function setupChipGroups() {
@@ -7191,6 +7854,421 @@
       if (years <= 5) return { rate: 0.35, label: "境內個人，持有超過 2 年至 5 年 35%" };
       if (years <= 10) return { rate: 0.20, label: "境內個人，持有超過 5 年至 10 年 20%" };
       return { rate: 0.15, label: "境內個人，持有超過 10 年 15%" };
+    }
+
+    function parseBreakEvenDate(value) {
+      const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (!match) return null;
+      const year = Number(match[1]);
+      const month = Number(match[2]);
+      const day = Number(match[3]);
+      const date = new Date(Date.UTC(year, month - 1, day));
+      if (
+        date.getUTCFullYear() !== year ||
+        date.getUTCMonth() !== month - 1 ||
+        date.getUTCDate() !== day
+      ) return null;
+      return date;
+    }
+
+    function breakEvenAnniversary(acquisitionDate, years) {
+      const anniversary = new Date(acquisitionDate.getTime());
+      const month = anniversary.getUTCMonth();
+      anniversary.setUTCFullYear(anniversary.getUTCFullYear() + years);
+      // 2/29 在非閏年以 2/28 作為滿週年日，避免 Date 自動跳到 3/1。
+      if (month === 1 && acquisitionDate.getUTCDate() === 29 && anniversary.getUTCMonth() === 2) {
+        anniversary.setUTCDate(0);
+      }
+      return anniversary;
+    }
+
+    function completedBreakEvenYears(acquisitionDate, saleDate, years) {
+      return saleDate >= breakEvenAnniversary(acquisitionDate, years);
+    }
+
+    function passedBreakEvenYears(acquisitionDate, saleDate, years) {
+      return saleDate > breakEvenAnniversary(acquisitionDate, years);
+    }
+
+    function sumBreakEvenFields(input, fields) {
+      return fields.reduce((total, field) => total + (Number(input[field]) || 0), 0);
+    }
+
+    function breakEvenCostTotals(input) {
+      if (input.costMode !== "advanced") {
+        return {
+          purchaseCosts: Number(input.quickPurchaseCosts) || 0,
+          improvements: Number(input.quickImprovements) || 0,
+          holdingCosts: Number(input.quickHoldingCosts) || 0,
+          sellingCosts: Number(input.quickSellingCosts) || 0
+        };
+      }
+      return {
+        purchaseCosts: sumBreakEvenFields(input, [
+          "deedTax",
+          "stampTax",
+          "registrationFees",
+          "scrivenerBankFees",
+          "otherPurchaseCosts"
+        ]),
+        improvements: Number(input.advancedImprovements) || 0,
+        holdingCosts: sumBreakEvenFields(input, [
+          "mortgageInterest",
+          "managementFees",
+          "houseTax",
+          "landTax",
+          "insuranceCosts",
+          "repairCosts",
+          "otherHoldingCosts"
+        ]),
+        sellingCosts: sumBreakEvenFields(input, [
+          "sellingScrivenerFee",
+          "mortgageCancellationFee",
+          "escrowFee",
+          "marketingMovingFee",
+          "otherSellingCosts"
+        ])
+      };
+    }
+
+    function validateBreakEvenModel(input) {
+      const purchasePrice = Number(input.purchasePrice);
+      if (!Number.isFinite(purchasePrice) || purchasePrice <= 0) {
+        throw new Error("買入總價必須大於 0");
+      }
+      const acquisitionDate = parseBreakEvenDate(input.acquisitionDate);
+      const saleDate = parseBreakEvenDate(input.saleDate);
+      if (!acquisitionDate || !saleDate) throw new Error("請填寫有效的取得與出售日期");
+      if (saleDate < acquisitionDate) throw new Error("出售日期不可早於取得日期");
+
+      for (const [label, amount] of [
+        ["其他買進費用", input.quickPurchaseCosts],
+        ["裝修改良費", input.quickImprovements],
+        ["持有成本", input.quickHoldingCosts],
+        ["出售費用", input.quickSellingCosts],
+        ["土地增值稅", input.landValueTax],
+        ["土地漲價總數額", input.landGain],
+        ["可扣除土地增值稅", input.deductibleLandValueTax],
+        ["手動稅額", input.manualTaxAmount],
+        ["預想成交價", input.expectedSalePrice],
+        ["剩餘房貸", input.outstandingLoan],
+        ["建物坪數", input.areaPing],
+        ...[
+          "deedTax", "stampTax", "registrationFees", "scrivenerBankFees",
+          "otherPurchaseCosts", "advancedImprovements", "mortgageInterest",
+          "managementFees", "houseTax", "landTax", "insuranceCosts",
+          "repairCosts", "otherHoldingCosts", "sellingScrivenerFee",
+          "mortgageCancellationFee", "escrowFee", "marketingMovingFee",
+          "otherSellingCosts"
+        ].map(field => [field, input[field]])
+      ]) {
+        const numericAmount = Number(amount) || 0;
+        if (!Number.isFinite(numericAmount) || numericAmount < 0) {
+          throw new Error(`${label}不可為負數`);
+        }
+      }
+
+      const buyerBrokerRate = Number(input.buyerBrokerRate);
+      const sellerBrokerRate = Number(input.sellerBrokerRate);
+      if (
+        !Number.isFinite(buyerBrokerRate) || buyerBrokerRate < 0 || buyerBrokerRate > 6 ||
+        !Number.isFinite(sellerBrokerRate) || sellerBrokerRate < 0 || sellerBrokerRate > 6
+      ) throw new Error("仲介費率須介於 0%～6%");
+
+      const negotiationRate = Number(input.negotiationRate);
+      if (!Number.isFinite(negotiationRate) || negotiationRate < 0 || negotiationRate >= 100) {
+        throw new Error("議價率須介於 0%～未滿 100%");
+      }
+      return { acquisitionDate, saleDate };
+    }
+
+    function breakEvenTaxProfile(input) {
+      const { acquisitionDate, saleDate } = validateBreakEvenModel(input);
+      const automaticEligible =
+        acquisitionDate >= parseBreakEvenDate("2016-01-01") &&
+        saleDate >= parseBreakEvenDate("2021-07-01");
+      if (!automaticEligible) {
+        return {
+          automaticEligible: false,
+          manualRequired: true,
+          selfUse: false,
+          rate: null,
+          label: "舊制或非房地合一稅 2.0 案件，請手動輸入稅額"
+        };
+      }
+
+      const resident = input.residentType !== "nonresident";
+      const selfUse = resident &&
+        completedBreakEvenYears(acquisitionDate, saleDate, 6) &&
+        Boolean(input.selfUseRegistered) &&
+        Boolean(input.selfUseSixYears) &&
+        Boolean(input.selfUseNoRentalBusiness) &&
+        Boolean(input.selfUseNoPriorClaim);
+      if (!resident) {
+        return passedBreakEvenYears(acquisitionDate, saleDate, 2)
+          ? { automaticEligible: true, manualRequired: false, selfUse: false, rate: 0.35, label: "非境內個人，持有超過 2 年 35%" }
+          : { automaticEligible: true, manualRequired: false, selfUse: false, rate: 0.45, label: "非境內個人，持有 2 年以內 45%" };
+      }
+      if (selfUse) {
+        return { automaticEligible: true, manualRequired: false, selfUse: true, rate: 0.10, label: "自住房地優惠：400 萬免稅，超過部分 10%" };
+      }
+      if (input.specialRate) {
+        return { automaticEligible: true, manualRequired: false, selfUse: false, rate: 0.20, label: "特別情形 20%" };
+      }
+      if (!passedBreakEvenYears(acquisitionDate, saleDate, 2)) {
+        return { automaticEligible: true, manualRequired: false, selfUse: false, rate: 0.45, label: "境內個人，持有 2 年以內 45%" };
+      }
+      if (!passedBreakEvenYears(acquisitionDate, saleDate, 5)) {
+        return { automaticEligible: true, manualRequired: false, selfUse: false, rate: 0.35, label: "境內個人，持有超過 2 年至 5 年 35%" };
+      }
+      if (!passedBreakEvenYears(acquisitionDate, saleDate, 10)) {
+        return { automaticEligible: true, manualRequired: false, selfUse: false, rate: 0.20, label: "境內個人，持有超過 5 年至 10 年 20%" };
+      }
+      return { automaticEligible: true, manualRequired: false, selfUse: false, rate: 0.15, label: "境內個人，持有超過 10 年 15%" };
+    }
+
+    function estimateBreakEvenTax(salePrice, input) {
+      validateBreakEvenModel(input);
+      const price = Number(salePrice);
+      if (!Number.isFinite(price) || price < 0) throw new Error("出售價格必須是有效金額");
+      const profile = breakEvenTaxProfile(input);
+      if (input.taxMode === "manual") {
+        if (!input.manualTaxConfirmed) throw new Error("請確認並手動輸入稅額");
+        return {
+          tax: Number(input.manualTaxAmount) || 0,
+          grossIncome: null,
+          taxableIncome: null,
+          acquisitionDeduction: null,
+          transferDeduction: null,
+          profile: { ...profile, label: "採用手動輸入稅額" },
+          manual: true
+        };
+      }
+      if (profile.manualRequired) throw new Error("本案件需手動輸入稅額");
+
+      const totals = breakEvenCostTotals(input);
+      const buyerBrokerFee = Number(input.purchasePrice) * Number(input.buyerBrokerRate) / 100;
+      const sellerBrokerFee = price * Number(input.sellerBrokerRate) / 100;
+      const acquisitionDeduction = input.acquisitionReceipts
+        ? buyerBrokerFee + totals.purchaseCosts + totals.improvements
+        : 0;
+      const transferDeduction = input.transferExpenseMode === "deemed"
+        ? Math.min(price * 0.03, 300_000)
+        : sellerBrokerFee + totals.sellingCosts;
+      const grossIncome = Math.max(
+        0,
+        price - Number(input.purchasePrice) - acquisitionDeduction - transferDeduction -
+          Number(input.landGain || 0) - Number(input.deductibleLandValueTax || 0)
+      );
+      const exemption = profile.selfUse ? Math.min(grossIncome, 4_000_000) : 0;
+      const taxableIncome = Math.max(0, grossIncome - exemption);
+      return {
+        tax: taxableIncome * profile.rate,
+        grossIncome,
+        taxableIncome,
+        exemption,
+        acquisitionDeduction,
+        transferDeduction,
+        profile,
+        manual: false
+      };
+    }
+
+    function breakEvenNetAtPrice(salePrice, input, includeHoldingCosts) {
+      const totals = breakEvenCostTotals(input);
+      const buyerBrokerFee = Number(input.purchasePrice) * Number(input.buyerBrokerRate) / 100;
+      const sellerBrokerFee = salePrice * Number(input.sellerBrokerRate) / 100;
+      const taxEstimate = estimateBreakEvenTax(salePrice, input);
+      const historicalCost = Number(input.purchasePrice) + buyerBrokerFee + totals.purchaseCosts + totals.improvements +
+        (includeHoldingCosts ? totals.holdingCosts : 0);
+      const saleOutflow = sellerBrokerFee + totals.sellingCosts + Number(input.landValueTax || 0) + taxEstimate.tax;
+      return {
+        net: salePrice - saleOutflow - historicalCost,
+        historicalCost,
+        saleOutflow,
+        sellerBrokerFee,
+        taxEstimate,
+        totals
+      };
+    }
+
+    function solveBreakEvenPrice(input, includeHoldingCosts) {
+      validateBreakEvenModel(input);
+      let low = 0;
+      let high = Math.max(Number(input.purchasePrice), 1);
+      while (breakEvenNetAtPrice(high, input, includeHoldingCosts).net < 0 && high < 1_000_000_000_000) {
+        high *= 2;
+      }
+      if (high >= 1_000_000_000_000 && breakEvenNetAtPrice(high, input, includeHoldingCosts).net < 0) {
+        throw new Error("費率或成本過高，無法反推出合理售價");
+      }
+      for (let iteration = 0; iteration < 80 && high - low > 1; iteration += 1) {
+        const midpoint = (low + high) / 2;
+        if (breakEvenNetAtPrice(midpoint, input, includeHoldingCosts).net >= 0) high = midpoint;
+        else low = midpoint;
+      }
+      return high;
+    }
+
+    function roundUpToTenThousand(amount) {
+      const numericAmount = Number(amount);
+      if (!Number.isFinite(numericAmount) || numericAmount <= 0) return 0;
+      return Math.ceil(numericAmount / 10_000) * 10_000;
+    }
+
+    function buildBreakEvenSummary(input) {
+      validateBreakEvenModel(input);
+      const transactionPrice = solveBreakEvenPrice(input, false);
+      const fullPrice = solveBreakEvenPrice(input, true);
+      const askingPrice = fullPrice / (1 - Number(input.negotiationRate) / 100);
+      const comparisonPrice = Number(input.expectedSalePrice) > 0 ? Number(input.expectedSalePrice) : fullPrice;
+      const comparison = breakEvenNetAtPrice(comparisonPrice, input, true);
+      const fullSnapshot = breakEvenNetAtPrice(fullPrice, input, true);
+      const warnings = [];
+      const notices = [];
+      if (!input.landDataConfirmed) warnings.push("土地增值稅與土地漲價總數額尚未確認");
+      if (!input.acquisitionReceipts) warnings.push("取得與改良費沒有完整憑證，房地合一稅未列入該筆扣除");
+      if (input.taxMode === "manual") notices.push("房地交易所得稅採手動輸入金額覆寫自動估算");
+      return {
+        transactionPrice,
+        fullPrice,
+        askingPrice,
+        expectedProfit: comparison.net,
+        comparisonPrice,
+        cashAfterMortgage: comparisonPrice - comparison.saleOutflow - Number(input.outstandingLoan || 0),
+        pricePerPing: Number(input.areaPing) > 0 ? fullPrice / Number(input.areaPing) : 0,
+        fullTax: fullSnapshot.taxEstimate.tax,
+        taxProfile: fullSnapshot.taxEstimate.profile,
+        totals: fullSnapshot.totals,
+        buyerBrokerFee: Number(input.purchasePrice) * Number(input.buyerBrokerRate) / 100,
+        sellerBrokerFee: fullSnapshot.sellerBrokerFee,
+        warnings,
+        notices,
+        complete: warnings.length === 0
+      };
+    }
+
+    function collectBreakEvenInput() {
+      return {
+        purchasePrice: value("breakevenPurchasePrice"),
+        acquisitionDate: document.getElementById("breakevenAcquisitionDate").value,
+        saleDate: document.getElementById("breakevenSaleDate").value,
+        buyerBrokerRate: value("breakevenBuyerBrokerRate"),
+        sellerBrokerRate: value("breakevenSellerBrokerRate"),
+        costMode: selectValue("breakevenCostMode"),
+        quickPurchaseCosts: value("breakevenQuickPurchaseCosts"),
+        quickImprovements: value("breakevenQuickImprovements"),
+        quickHoldingCosts: value("breakevenQuickHoldingCosts"),
+        quickSellingCosts: value("breakevenQuickSellingCosts"),
+        deedTax: value("breakevenDeedTax"),
+        stampTax: value("breakevenStampTax"),
+        registrationFees: value("breakevenRegistrationFees"),
+        scrivenerBankFees: value("breakevenScrivenerBankFees"),
+        otherPurchaseCosts: value("breakevenOtherPurchaseCosts"),
+        advancedImprovements: value("breakevenAdvancedImprovements"),
+        mortgageInterest: value("breakevenMortgageInterest"),
+        managementFees: value("breakevenManagementFees"),
+        houseTax: value("breakevenHouseTax"),
+        landTax: value("breakevenLandTax"),
+        insuranceCosts: value("breakevenInsuranceCosts"),
+        repairCosts: value("breakevenRepairCosts"),
+        otherHoldingCosts: value("breakevenOtherHoldingCosts"),
+        sellingScrivenerFee: value("breakevenSellingScrivenerFee"),
+        mortgageCancellationFee: value("breakevenMortgageCancellationFee"),
+        escrowFee: value("breakevenEscrowFee"),
+        marketingMovingFee: value("breakevenMarketingMovingFee"),
+        otherSellingCosts: value("breakevenOtherSellingCosts"),
+        landValueTax: value("breakevenLandValueTax"),
+        landGain: value("breakevenLandGain"),
+        deductibleLandValueTax: value("breakevenDeductibleLandValueTax"),
+        landDataConfirmed: value("breakevenLandDataConfirmed"),
+        acquisitionReceipts: value("breakevenAcquisitionReceipts"),
+        transferExpenseMode: selectValue("breakevenTransferExpenseMode"),
+        residentType: selectValue("breakevenResidentType"),
+        taxMode: selectValue("breakevenTaxMode"),
+        manualTaxAmount: value("breakevenManualTaxAmount"),
+        manualTaxConfirmed: value("breakevenManualTaxConfirmed"),
+        selfUseRegistered: value("breakevenSelfUseRegistered"),
+        selfUseSixYears: value("breakevenSelfUseSixYears"),
+        selfUseNoRentalBusiness: value("breakevenSelfUseNoRentalBusiness"),
+        selfUseNoPriorClaim: value("breakevenSelfUseNoPriorClaim"),
+        specialRate: value("breakevenSpecialRate"),
+        negotiationRate: value("breakevenNegotiationRate"),
+        expectedSalePrice: value("breakevenExpectedSalePrice"),
+        outstandingLoan: value("breakevenOutstandingLoan"),
+        areaPing: value("breakevenAreaPing")
+      };
+    }
+
+    function calculateBreakEven() {
+      const input = collectBreakEvenInput();
+      const summary = buildBreakEvenSummary(input);
+      const transactionDisplay = roundUpToTenThousand(summary.transactionPrice);
+      const fullDisplay = roundUpToTenThousand(summary.fullPrice);
+      const askingDisplay = roundUpToTenThousand(summary.askingPrice);
+      const expectedWasProvided = input.expectedSalePrice > 0;
+      const comparisonLabel = expectedWasProvided ? "預想成交價完整損益" : "完整不賠價損益";
+      const comparisonTone = summary.expectedProfit < 0 ? "color:#9f2f24" : "color:#1f6f70";
+      const perPingText = summary.pricePerPing > 0 ? wanAmount(summary.pricePerPing) : "未填坪數";
+      const warnings = [
+        ...summary.warnings.map(item => `<li>${item}</li>`),
+        ...summary.notices.map(item => `<li>${item}</li>`)
+      ].join("");
+
+      document.getElementById("breakevenResult").innerHTML = `
+        <div class="metric breakeven-result-hero">
+          <div class="metric breakeven-floor-card breakeven-floor-card--transaction">
+            <span>交易平轉最低成交價</span>
+            <strong>至少 ${wanAmount(transactionDisplay)}</strong>
+            <em>買進、改良與本次出售費用打平</em>
+          </div>
+          <div class="metric breakeven-floor-card breakeven-floor-card--full">
+            <span>含持有成本完整不賠價</span>
+            <strong>至少 ${wanAmount(fullDisplay)}</strong>
+            <em>再回收利息、管理費與持有稅費</em>
+          </div>
+          <div class="metric breakeven-floor-card breakeven-floor-card--asking">
+            <span>預留 ${number.format(input.negotiationRate)}% 建議開價</span>
+            <strong>至少 ${wanAmount(askingDisplay)}</strong>
+            <em>以完整不賠價反推，仍須搭配市場行情</em>
+          </div>
+        </div>
+        <div class="metric breakeven-facts">
+          <div class="metric breakeven-fact">
+            <span>${comparisonLabel}</span>
+            <strong style="${comparisonTone}">${summary.expectedProfit >= 0 ? "+" : ""}${wanAmount(summary.expectedProfit)}</strong>
+          </div>
+          <div class="metric breakeven-fact">
+            <span>清償房貸後可拿回現金</span>
+            <strong>${wanAmount(summary.cashAfterMortgage)}</strong>
+          </div>
+          <div class="metric breakeven-fact">
+            <span>完整不賠每坪成交價</span>
+            <strong>${perPingText}</strong>
+          </div>
+        </div>
+        <div class="metric breakeven-breakdown">
+          <span>完整不賠價成本拆解</span>
+          <div class="breakdown">
+            ${wanLine("原始買入總價", input.purchasePrice)}
+            ${wanLine(`買進仲介費 ${number.format(input.buyerBrokerRate)}%`, summary.buyerBrokerFee)}
+            ${wanLine("其他買進費用", summary.totals.purchaseCosts)}
+            ${wanLine("裝修改良費", summary.totals.improvements)}
+            ${wanLine("持有成本", summary.totals.holdingCosts)}
+            ${wanLine(`賣出仲介費 ${number.format(input.sellerBrokerRate)}%`, summary.sellerBrokerFee)}
+            ${wanLine("其他出售固定費用", summary.totals.sellingCosts)}
+            ${wanLine("土地增值稅", input.landValueTax)}
+            ${wanLine("預估房地交易所得稅", summary.fullTax)}
+          </div>
+          <div class="note">${summary.taxProfile.label}。剩餘房貸本金沒有列入成本，只從可拿回現金扣除。</div>
+        </div>
+        <div class="metric breakeven-completeness ${summary.complete ? "is-complete" : "warn"}">
+          <span>${summary.complete ? "資料完整度：已完成主要確認" : "資料完整度：尚未完整"}</span>
+          <strong>${summary.complete ? "可作為成本底線參考" : "請先補齊或確認缺少資料"}</strong>
+          ${warnings ? `<ul>${warnings}</ul>` : ""}
+          <div class="note">本試算僅供參考，正式仍以稅務機關、地政士與實際契約核定為準。</div>
+        </div>
+      `;
     }
 
     function calculateTax() {
@@ -7934,6 +9012,7 @@
       updateAllWanHints();
       window.syncAllChipGroups?.();
       window.syncSalarySliders?.forEach(sync => sync());
+      if (group === "breakeven") syncBreakEvenInterface();
     }
 
     function resetGroup(group) {
@@ -7974,6 +9053,7 @@
       clearValidation(form);
       updateAllWanHints();
       window.syncAllChipGroups?.();
+      if (group === "breakeven") syncBreakEvenInterface();
       queueSave();
       setResultState(group, "empty", "🧹 已清空，重新開始", "填寫左側欄位後，結果會自動更新。");
 
@@ -7991,7 +9071,8 @@
       tax: { formId: "taxForm", resultId: "taxResult", run: calculateTax },
       buyer: { formId: "buyerForm", resultId: "buyerResult", run: calculateBuyer },
       loan: { formId: "loanForm", resultId: "loanResult", run: calculateLoan },
-      young: { formId: "youngForm", resultId: "youngResult", run: calculateYoung }
+      young: { formId: "youngForm", resultId: "youngResult", run: calculateYoung },
+      breakeven: { formId: "breakevenForm", resultId: "breakevenResult", run: calculateBreakEven }
     };
 
     const pendingCalculations = {};
@@ -8350,6 +9431,7 @@
 
     setupNumericInputs();
     restoreInputs();
+    setupBreakEvenInterface();
     setupChipGroups();
     setupWanHints();
     showInitialStates();
@@ -8427,7 +9509,8 @@
       tax: "房地合一稅試算",
       buyer: "買方現金需求試算",
       loan: "房貸月付試算",
-      young: "青安貸款 3.0 試算"
+      young: "青安貸款 3.0 試算",
+      breakeven: "房屋平轉成本試算"
     };
 
     function buildSummaryRows(group) {

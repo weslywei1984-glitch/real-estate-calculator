@@ -295,7 +295,7 @@ test("分頁列不換行", () => {
   assert.match(css, /\.tabs\s*\{[^}]*flex-wrap:\s*nowrap/s);
 });
 
-test("四個計算器分頁在桌機與手機使用核定字級", () => {
+test("五個計算器分頁在桌機與手機使用核定字級", () => {
   const marker = html.indexOf("/* Consultant B wizard theme */");
   const css = html.slice(marker, html.indexOf("</style>", marker));
 
