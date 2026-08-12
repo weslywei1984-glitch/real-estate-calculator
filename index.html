@@ -6239,9 +6239,9 @@
     .breakeven-cost-panel {
       grid-column: 1 / -1;
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: 1fr;
       gap: 14px;
-      padding: 16px;
+      padding: 12px;
       border: 1px solid rgba(16, 39, 56, .12);
       border-radius: 12px;
       background: rgba(255, 253, 247, .78);
@@ -6385,6 +6385,21 @@
       color: var(--consultant-muted);
       font-size: .82rem;
       line-height: 1.65;
+    }
+
+    .breakeven-workspace .wizard-mobile-actions {
+      grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .breakeven-workspace[data-wizard-result="true"] .breakeven-wizard-clear {
+      display: none;
+    }
+
+    @media (min-width: 621px) {
+      .breakeven-cost-panel {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        padding: 16px;
+      }
     }
 
     @media (max-width: 900px) {
@@ -7196,6 +7211,11 @@
               <div class="control"><input id="breakevenLandGain" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div>
             </div>
             <div class="field" data-wizard-step="3">
+              <label for="breakevenPriorTransactionLoss">交易日前 3 年房地交易損失（選填）</label>
+              <div class="control"><input id="breakevenPriorTransactionLoss" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div>
+              <div class="field-note">僅填稅務機關核定可扣抵的損失金額</div>
+            </div>
+            <div class="field" data-wizard-step="3">
               <label for="breakevenDeductibleLandValueTax">可列報土地增值稅特殊扣除額</label>
               <div class="control"><input id="breakevenDeductibleLandValueTax" data-money-unit="wan" type="number" min="0" step="0.1" value="0"><span class="unit">萬元</span></div>
               <div class="field-note">不確定時填 0，正式由稅務機關或地政士確認</div>
@@ -7281,6 +7301,7 @@
         </div>
       </aside>
       <div class="wizard-mobile-actions">
+        <button type="button" class="secondary breakeven-wizard-clear" data-clear="breakeven">清空</button>
         <button type="button" class="secondary" data-wizard-back>上一步</button>
         <button type="button" class="primary" data-wizard-next>下一步</button>
       </div>
@@ -7582,6 +7603,7 @@
         breakevenOtherSellingCosts: 0,
         breakevenLandValueTax: 0,
         breakevenLandGain: 0,
+        breakevenPriorTransactionLoss: 0,
         breakevenDeductibleLandValueTax: 0,
         breakevenLandDataConfirmed: true,
         breakevenAcquisitionReceipts: true,
@@ -7680,7 +7702,11 @@
     function syncBreakEvenInterface() {
       const costMode = document.getElementById("breakevenCostMode")?.value || "quick";
       document.querySelectorAll("[data-cost-mode-panel]").forEach(panel => {
-        panel.hidden = panel.dataset.costModePanel !== costMode;
+        const active = panel.dataset.costModePanel === costMode;
+        panel.hidden = !active;
+        panel.querySelectorAll("input, select, textarea").forEach(control => {
+          control.disabled = !active;
+        });
       });
 
       const acquisitionInput = document.getElementById("breakevenAcquisitionDate");
@@ -7718,6 +7744,9 @@
       const manual = taxMode.value === "manual";
       document.querySelectorAll("[data-manual-tax-field]").forEach(field => {
         field.hidden = !manual;
+        field.querySelectorAll("input, select, textarea").forEach(manualControl => {
+          manualControl.disabled = !manual;
+        });
       });
     }
 
@@ -7948,6 +7977,7 @@
         ["出售費用", input.quickSellingCosts],
         ["土地增值稅", input.landValueTax],
         ["土地漲價總數額", input.landGain],
+        ["前 3 年房地交易損失", input.priorTransactionLoss],
         ["可扣除土地增值稅", input.deductibleLandValueTax],
         ["手動稅額", input.manualTaxAmount],
         ["預想成交價", input.expectedSalePrice],
@@ -8040,6 +8070,7 @@
           taxableIncome: null,
           acquisitionDeduction: null,
           transferDeduction: null,
+          priorLossDeduction: null,
           profile: { ...profile, label: "採用手動輸入稅額" },
           manual: true
         };
@@ -8055,10 +8086,11 @@
       const transferDeduction = input.transferExpenseMode === "deemed"
         ? Math.min(price * 0.03, 300_000)
         : sellerBrokerFee + totals.sellingCosts;
+      const priorLossDeduction = Number(input.priorTransactionLoss) || 0;
       const grossIncome = Math.max(
         0,
         price - Number(input.purchasePrice) - acquisitionDeduction - transferDeduction -
-          Number(input.landGain || 0) - Number(input.deductibleLandValueTax || 0)
+          priorLossDeduction - Number(input.landGain || 0) - Number(input.deductibleLandValueTax || 0)
       );
       const exemption = profile.selfUse ? Math.min(grossIncome, 4_000_000) : 0;
       const taxableIncome = Math.max(0, grossIncome - exemption);
@@ -8069,6 +8101,7 @@
         exemption,
         acquisitionDeduction,
         transferDeduction,
+        priorLossDeduction,
         profile,
         manual: false
       };
@@ -8180,6 +8213,7 @@
         otherSellingCosts: value("breakevenOtherSellingCosts"),
         landValueTax: value("breakevenLandValueTax"),
         landGain: value("breakevenLandGain"),
+        priorTransactionLoss: value("breakevenPriorTransactionLoss"),
         deductibleLandValueTax: value("breakevenDeductibleLandValueTax"),
         landDataConfirmed: value("breakevenLandDataConfirmed"),
         acquisitionReceipts: value("breakevenAcquisitionReceipts"),
@@ -8258,6 +8292,7 @@
             ${wanLine(`賣出仲介費 ${number.format(input.sellerBrokerRate)}%`, summary.sellerBrokerFee)}
             ${wanLine("其他出售固定費用", summary.totals.sellingCosts)}
             ${wanLine("土地增值稅", input.landValueTax)}
+            ${wanLine("稅務扣除：前 3 年交易損失", input.priorTransactionLoss)}
             ${wanLine("預估房地交易所得稅", summary.fullTax)}
           </div>
           <div class="note">${summary.taxProfile.label}。剩餘房貸本金沒有列入成本，只從可拿回現金扣除。</div>
@@ -9133,6 +9168,7 @@
       clearValidation(form);
       let valid = true;
       form.querySelectorAll("[data-numeric-input]").forEach(input => {
+        if (input.disabled) return;
         const numeric = strictNumber(input);
         const label = form.querySelector(`label[for="${input.id}"]`);
         const name = label ? label.textContent.trim() : "此欄位";
@@ -9379,6 +9415,7 @@
       ]))];
 
       for (const field of fields) {
+        if (field.disabled) continue;
         field.setCustomValidity("");
         if (field.dataset.numericInput === "true") {
           const numeric = strictNumber(field);

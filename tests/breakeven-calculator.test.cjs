@@ -57,6 +57,7 @@ function baseModel(overrides = {}) {
     otherSellingCosts: 0,
     landValueTax: 0,
     landGain: 0,
+    priorTransactionLoss: 0,
     deductibleLandValueTax: 0,
     acquisitionReceipts: true,
     transferExpenseMode: "actual",
@@ -171,6 +172,15 @@ test("自住房地先扣 400 萬免稅額再按 10% 計稅", () => {
   assert.equal(taxed.tax, 48_000);
 });
 
+test("交易日前 3 年房地交易損失會從課稅所得扣除", () => {
+  const { estimateBreakEvenTax } = loadBreakEvenCore();
+  const withoutLoss = estimateBreakEvenTax(12_000_000, baseModel());
+  const withLoss = estimateBreakEvenTax(12_000_000, baseModel({ priorTransactionLoss: 500_000 }));
+
+  assert.equal(withLoss.priorLossDeduction, 500_000);
+  assert.equal(withoutLoss.tax - withLoss.tax, 225_000);
+});
+
 test("固定案例反推出交易平轉價與含持有成本不賠價", () => {
   const { solveBreakEvenPrice, roundUpToTenThousand } = loadBreakEvenCore();
   const model = baseModel();
@@ -232,6 +242,7 @@ test("第五分頁以 breakeven hash 提供四步驟平轉工作區", () => {
   }
   assert.match(section, /data-copy="breakeven"/);
   assert.match(section, /data-jpg="breakeven"/);
+  assert.match(section, /class="secondary breakeven-wizard-clear" data-clear="breakeven">清空/);
 });
 
 test("快速與進階成本欄位完整且由單一模式控制", () => {
@@ -254,12 +265,17 @@ test("快速與進階成本欄位完整且由單一模式控制", () => {
   ]) {
     assert.match(section, new RegExp(`id="${id}"`), id);
   }
+  assert.match(html, /control\.disabled\s*=\s*!active/);
+  assert.match(html, /manualControl\.disabled\s*=\s*!manual/);
+  assert.match(html, /if \(input\.disabled\) return/);
+  assert.match(html, /if \(field\.disabled\) continue/);
 });
 
 test("平轉稅務欄位區分自動估算、手動覆寫與資料完整度", () => {
   const section = breakEvenWorkspace();
   for (const id of [
-    "breakevenLandValueTax", "breakevenLandGain", "breakevenDeductibleLandValueTax",
+    "breakevenLandValueTax", "breakevenLandGain", "breakevenPriorTransactionLoss",
+    "breakevenDeductibleLandValueTax",
     "breakevenAcquisitionReceipts", "breakevenTransferExpenseMode", "breakevenResidentType",
     "breakevenTaxMode", "breakevenManualTaxAmount", "breakevenManualTaxConfirmed",
     "breakevenLandDataConfirmed", "breakevenSelfUseRegistered", "breakevenSelfUseSixYears",
