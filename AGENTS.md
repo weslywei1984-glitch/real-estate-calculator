@@ -10,15 +10,15 @@
 
 ## 專案是什麼
 
-台灣不動產試算工具,給台南的買賣方客戶使用。主頁 `index.html` 是單一檔案的網頁應用,含五個計算器:
+台灣不動產試算工具,給台南的買賣方客戶使用。主頁 `index.html` 是單一檔案的網頁應用,含四個公開計算器:
 
 1. 房地合一稅(出售所得)
 2. 買方現金需求(稅費、規費、代辦費)
 3. 房貸月付(本息平均/本金平均、寬限期)
 4. 青安貸款 3.0(政策情境試算)
-5. 房屋平轉成本(交易平轉、完整不賠價與建議開價)
 
 其他檔案:
+- `breakeven.html`:不放在公開導覽的房屋平轉成本獨立工具，正式網址為 `/breakeven.html`。使用獨立 localStorage key `realEstateBreakevenInputs.v1`，不得接入公開分析事件，也不得從 `index.html` 加入連結。
 - `tainan-land-value-helper.html`:台南公告土地現值查詢。公告現值查詢用 `assets/land-values/` 的各行政區靜態資料；「前次移轉現值」API 流程目前停用，正式站不執行 Node 伺服器。
 - `land-increment-total.html`:土地漲價總數額試算。
 
@@ -27,8 +27,8 @@
 - `index.html` 的 CSS、JS 全部寫在同一個檔案內,不拆檔、不引入外部框架或 CDN。
 - CSS 有三層主題疊加,最後一層(墨綠+金色的「IMAGE2」風格)是目前的視覺,新樣式加在 `</style>` 前面。
 - 金額輸入欄用 `setupNumericInputs()` 轉成千分位文字輸入;新增金額欄位時照現有 `.field > .control` 結構寫即可自動套用。
-- 使用者輸入會存在 localStorage(key:`realEstateCalcInputs.v1`),新增欄位時記得在 `defaults` 物件補預設值。
-- 分頁狀態記在網址 hash(`#tax` / `#buyer` / `#loan` / `#young` / `#breakeven`)。
+- 公開四工具輸入存在 localStorage(key:`realEstateCalcInputs.v1`)；平轉獨立頁使用 `realEstateBreakevenInputs.v1`。新增欄位時記得在對應頁面的 `defaults` 與儲存欄位清單補預設值。
+- 公開分頁狀態記在網址 hash(`#tax` / `#buyer` / `#loan` / `#young`)；`#breakeven` 不得加回公開首頁。
 
 ## 修改規則
 
@@ -36,7 +36,7 @@
 - 買方仲介服務費**固定為成交總價 2%**,寫死在程式裡,不做成可調整欄位(使用者 2026-07-08 指示)。
 - 新青安 2.0 是「研議中」的情境試算,相關文案要保留「尚待行政院核定」等免責說明。
 - 頁面上的免責聲明(正式以稅務機關、地政士、銀行核定為準)不可刪除。
-- 改完要在本機開起來驗證五個計算器都能算出結果、手機版(375px)排版正常、console 沒有錯誤。
+- 改完要在本機開起來驗證四個公開計算器與 `breakeven.html` 都能算出結果、手機版(375px)排版正常、console 沒有錯誤。
 
 ## 社群貼文風格(成交文、開發文、買方故事、屋主溝通文、房仲日常貼文)
 
@@ -52,7 +52,7 @@
 
 ## 公開瀏覽器存取
 
-- 三個公開頁面不得載入 LINE LIFF SDK 或 `assets/liff-gate.js`，Safari、Chrome 與 LINE 內建瀏覽器都要能直接使用。
+- 三個公開分享頁面與不公開導覽的 `breakeven.html` 均不得載入 LINE LIFF SDK 或 `assets/liff-gate.js`，Safari、Chrome 與 LINE 內建瀏覽器都要能直接使用。
 - 對外分享唯一正式網域為 `https://calc.tainanwei.com/`；子頁面直接加 `/land-increment-total.html` 或 `/tainan-land-value-helper.html`。
 - `assets/liff-gate.js` 僅保留作為歷史與回復用途，公開頁面不執行它。
 - 頁面既有 LINE 按鈕只作為使用後的聯絡入口，不可用登入或好友狀態阻擋試算工具。

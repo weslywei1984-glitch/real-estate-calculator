@@ -346,3 +346,10 @@ test("公開首頁完全不含平轉工具或獨立頁入口", () => {
   assert.doesNotMatch(publicHtml, /function (?:parseBreakEvenDate|calculateBreakEven|syncBreakEvenInterface)\(/);
   assert.doesNotMatch(publicHtml, /\bbreakeven\s*:\s*\{/);
 });
+
+test("獨立頁不會強制綁定已移除的公開工具欄位", () => {
+  assert.doesNotMatch(
+    html,
+    /getElementById\("(?:purchasePrice|loanPurchasePrice|youngPurchasePrice)"\)\.addEventListener/,
+  );
+});

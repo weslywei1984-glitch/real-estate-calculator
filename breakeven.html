@@ -9217,9 +9217,9 @@
       scheduleGroup("buyer");
     }
 
-    document.getElementById("purchasePrice").addEventListener("input", syncBuyerDownPaymentFromRatio);
-    document.getElementById("loanRatio").addEventListener("input", syncBuyerDownPaymentFromRatio);
-    document.getElementById("buyerDownPayment").addEventListener("input", syncBuyerRatioFromDownPayment);
+    document.getElementById("purchasePrice")?.addEventListener("input", syncBuyerDownPaymentFromRatio);
+    document.getElementById("loanRatio")?.addEventListener("input", syncBuyerDownPaymentFromRatio);
+    document.getElementById("buyerDownPayment")?.addEventListener("input", syncBuyerRatioFromDownPayment);
 
     function syncLoanAmountFromPrice() {
       const purchasePrice = value("loanPurchasePrice");
@@ -9274,17 +9274,17 @@
       scheduleGroup("young");
     }
 
-    document.getElementById("loanPurchasePrice").addEventListener("input", syncLoanAmountFromPrice);
-    document.getElementById("loanLtvRatio").addEventListener("input", syncLoanAmountFromPrice);
-    document.getElementById("loanAmount").addEventListener("input", syncLoanRatioFromAmount);
-    document.getElementById("loanDownPayment").addEventListener("input", syncLoanAmountFromDownPayment);
-    document.getElementById("annualRate").addEventListener("input", () => scheduleGroup("loan"));
-    document.getElementById("youngPurchasePrice").addEventListener("input", syncYoungDownPaymentFromLoanRatio);
-    document.getElementById("youngLoanRatio").addEventListener("input", syncYoungDownPaymentFromLoanRatio);
-    document.getElementById("youngDownPayment").addEventListener("input", syncYoungLoanRatioFromDownPayment);
-    document.getElementById("youngApplicantType").addEventListener("change", syncYoungDownPaymentFromLoanRatio);
+    document.getElementById("loanPurchasePrice")?.addEventListener("input", syncLoanAmountFromPrice);
+    document.getElementById("loanLtvRatio")?.addEventListener("input", syncLoanAmountFromPrice);
+    document.getElementById("loanAmount")?.addEventListener("input", syncLoanRatioFromAmount);
+    document.getElementById("loanDownPayment")?.addEventListener("input", syncLoanAmountFromDownPayment);
+    document.getElementById("annualRate")?.addEventListener("input", () => scheduleGroup("loan"));
+    document.getElementById("youngPurchasePrice")?.addEventListener("input", syncYoungDownPaymentFromLoanRatio);
+    document.getElementById("youngLoanRatio")?.addEventListener("input", syncYoungDownPaymentFromLoanRatio);
+    document.getElementById("youngDownPayment")?.addEventListener("input", syncYoungLoanRatioFromDownPayment);
+    document.getElementById("youngApplicantType")?.addEventListener("change", syncYoungDownPaymentFromLoanRatio);
 
-    document.getElementById("youngPriceTier").addEventListener("change", () => scheduleGroup("young"));
+    document.getElementById("youngPriceTier")?.addEventListener("change", () => scheduleGroup("young"));
 
     // 薪水滑桿與數字欄位雙向同步（滑桿以「萬」為單位，欄位存的是元）
     function bindSalarySlider(sliderId, inputId, group) {
