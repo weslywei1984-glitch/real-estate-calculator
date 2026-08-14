@@ -75,7 +75,8 @@ test("青安結果拆分總貸款、青安貸款與一般房貸", () => {
   assert.match(html, /青安貸款本金/);
   assert.match(html, /一般房貸本金（利率 2\.5% 試算）/);
   assert.match(html, /GENERAL_LOAN_RATE = 2\.5/);
-  assert.match(html, /monthlyPayment\(supplementalLoan, GENERAL_LOAN_RATE \/ 100 \/ 12, totalMonths\)/);
+  assert.match(html, /calculateLoanSchedule\(\{[\s\S]{0,180}principal: supplementalLoan,[\s\S]{0,180}annualRate: GENERAL_LOAN_RATE/);
+  assert.match(html, /combineLoanSummary\(youngSchedule, supplementalSchedule, monthlyIncome\)/);
 });
 
 test("拆分貸款時直接給出兩筆相加的合計", () => {

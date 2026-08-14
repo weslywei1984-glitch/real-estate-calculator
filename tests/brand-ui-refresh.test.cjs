@@ -102,9 +102,9 @@ test("移除說明句後不留無效的 intro 樣式", () => {
 
 test("沒有寬限期時不顯示寬限期月付，也不硬切在第 36 期", () => {
   assert.match(html, /const hasGrace = graceMonths > 0/);
-  assert.match(html, /const periodBreak = hasGrace \? graceMonths : totalMonths/);
+  assert.match(html, /loanPeriodDefinitions\(paidMonths, graceMonths\)/);
   assert.match(html, /class="loan-payment-grid \$\{hasGrace \? "has-grace" : "single"\}"/);
-  assert.match(html, /<span>每月月付<\/span>\s*<strong>\$\{money\.format\(Math\.round\(firstNormalPayment\)\)\}<\/strong>/);
+  assert.match(html, /<span>\$\{paymentPresentation\.normalLabel\}<\/span>/);
   assert.doesNotMatch(html, /Math\.min\(36, totalMonths\)/);
 });
 
@@ -191,11 +191,13 @@ test("貸款結果的自備款用萬，總利息改放收合明細", () => {
   assert.match(html, /approxWanLine\("總預估還款額", principal \+ totalInterest\)/);
 });
 
-test("房地合一稅欄位預設為 0，且移除兩個套用範例", () => {
-  ["salePrice", "buyCost", "sellExpense", "holdingYears"].forEach(id => {
+test("房地合一稅金額欄位預設為 0、日期必填，且移除兩個套用範例", () => {
+  ["salePrice", "buyCost", "sellExpense", "priorTransactionLoss"].forEach(id => {
     assert.match(html, new RegExp(`<input id="${id}"[^>]*value="0">`));
   });
-  assert.match(html, /salePrice:\s*0,[\s\S]{0,120}holdingYears:\s*0,/);
+  assert.match(html, /id="taxAcquisitionDate" type="date" required/);
+  assert.match(html, /id="taxSaleDate" type="date" required/);
+  assert.match(html, /salePrice:\s*0,[\s\S]{0,180}priorTransactionLoss:\s*0,/);
   assert.doesNotMatch(html, /data-reset="tax"/);
   assert.doesNotMatch(html, /data-reset="loan"/);
 });

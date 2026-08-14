@@ -6243,10 +6243,32 @@
                 <span class="unit">萬元</span>
               </div>
             </div>
+            <div class="field" data-wizard-step="1">
+              <label for="taxAcquisitionDate">取得日期</label>
+              <div class="control">
+                <input id="taxAcquisitionDate" type="date" required>
+                <span class="unit">日期</span>
+              </div>
+            </div>
+            <div class="field" data-wizard-step="1">
+              <label for="taxSaleDate">出售日期</label>
+              <div class="control">
+                <input id="taxSaleDate" type="date" required>
+                <span class="unit">日期</span>
+              </div>
+              <div class="field-note">持有期間會依取得日的周年日精確判定</div>
+            </div>
             <div class="field" data-wizard-step="2">
               <label for="sellExpense">取得、改良與移轉費用</label>
               <div class="control">
                 <input id="sellExpense" data-money-unit="wan" type="number" min="0" step="0.1" value="0">
+                <span class="unit">萬元</span>
+              </div>
+            </div>
+            <div class="field" data-wizard-step="2">
+              <label for="priorTransactionLoss">交易日前 3 年房地交易損失</label>
+              <div class="control">
+                <input id="priorTransactionLoss" data-money-unit="wan" type="number" min="0" step="0.1" value="0">
                 <span class="unit">萬元</span>
               </div>
             </div>
@@ -6262,13 +6284,6 @@
               <div class="lookup-buttons">
                 <a href="tainan-land-value-helper.html"><svg class="lookup-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>查土地公告現值</a>
                 <a href="land-increment-total.html"><svg class="lookup-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18 10 11l4 4 6-8"/><path d="M20 7h-4.5M20 7v4.5"/></svg>查土地漲價總數額</a>
-              </div>
-            </div>
-            <div class="field" data-wizard-step="1">
-              <label for="holdingYears">持有年數</label>
-              <div class="control">
-                <input id="holdingYears" type="number" min="0" step="0.1" value="0">
-                <span class="unit">年</span>
               </div>
             </div>
             <div class="field" data-wizard-step="3">
@@ -6390,6 +6405,14 @@
                 <span class="unit">萬元</span>
               </div>
               <div class="field-note">填公告地價 × 持有面積（m²）</div>
+            </div>
+            <div class="field" data-wizard-step="2">
+              <label for="publicDeedValue">公契記載價額</label>
+              <div class="control">
+                <input id="publicDeedValue" data-money-unit="wan" type="number" min="0" step="0.1" value="280">
+                <span class="unit">萬元</span>
+              </div>
+              <div class="field-note">填公契上的土地與建物價額合計，不是買賣成交總價</div>
             </div>
             <div class="lookup-links field wide" data-wizard-step="2" aria-label="土地公告地價查詢連結">
               <span>查完資料後回填－土地申報地價總額</span>
@@ -6799,13 +6822,19 @@
         <li class="source-item">
           <span class="source-item__body">
             房地合一稅基與自住房地優惠參考
-            <a href="https://www.mof.gov.tw/houseandland/multiplehtml/de144e74630c4ac59f2d84a068c889c9" target="_blank" rel="noreferrer">財政部房地合一稅制設計</a>
+            <a href="https://www.etax.nat.gov.tw/etwmain/tax-info/understanding/tax-q-and-a/national/individual-income-tax/house-tax-and-land-tax-consolidation-question/bD1Kz5A" target="_blank" rel="noreferrer">財政部課稅所得計算說明</a>
           </span>
         </li>
         <li class="source-item">
           <span class="source-item__body">
             買方常見費用參考
             <a href="https://land.yunlin.gov.tw/cp.aspx?n=540" target="_blank" rel="noreferrer">雲林縣政府地政處／內政部不動產交易服務網資料</a>
+          </span>
+        </li>
+        <li class="source-item">
+          <span class="source-item__body">
+            不動產公契印花稅按契約金額 1‰ 參考
+            <a href="https://www.etax.nat.gov.tw/etwmain/tax-info/understanding/tax-saving-manual/local/stamp-tax/n10kBpY" target="_blank" rel="noreferrer">財政部印花稅課徵說明</a>
           </span>
         </li>
         <li class="source-item">
@@ -6946,9 +6975,11 @@
       tax: {
         salePrice: 0,
         buyCost: 0,
+        taxAcquisitionDate: "",
+        taxSaleDate: "",
         sellExpense: 0,
         landGain: 0,
-        holdingYears: 0,
+        priorTransactionLoss: 0,
         residentType: "resident",
         selfUseRegistered: false,
         selfUseSixYears: false,
@@ -6963,6 +6994,7 @@
         mortgageSettingRatio: 1.2,
         buildingValue: 1000000,
         landDeclaredValue: 1800000,
+        publicDeedValue: 2800000,
         scrivenerTransfer: 10000,
         scrivenerLoan: 4000,
         signingFee: 1000,
@@ -7161,7 +7193,9 @@
       const numericAmount = Number(amount);
       if (!Number.isFinite(numericAmount)) return 0;
       if (Math.abs(numericAmount) < 0.5) return 0;
-      return Math.sign(numericAmount) * Math.ceil(Math.abs(numericAmount) / 1000) * 1000;
+      const nearestInteger = Math.round(numericAmount);
+      const stableAmount = Math.abs(numericAmount - nearestInteger) < 0.01 ? nearestInteger : numericAmount;
+      return Math.sign(stableAmount) * Math.ceil(Math.abs(stableAmount) / 1000) * 1000;
     }
 
     function approxWanAmount(amount) {
@@ -7178,19 +7212,123 @@
       return `<div class="line"><span>${label}</span><b>${approxWanAmount(amount)}</b></div>`;
     }
 
-    function taxRate({ years, resident, selfUse, special }) {
-      if (resident === "nonresident") {
-        // 非境內居住者只有 45% / 35% 兩種稅率，不適用自住優惠與 20% 特別情形
-        return years <= 2
-          ? { rate: 0.45, label: "非境內個人，持有 2 年以內 45%" }
-          : { rate: 0.35, label: "非境內個人，持有超過 2 年 35%" };
+    function parseCalculatorDate(rawValue) {
+      const match = String(rawValue || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (!match) return null;
+      const year = Number(match[1]);
+      const month = Number(match[2]);
+      const day = Number(match[3]);
+      const date = new Date(Date.UTC(year, month - 1, day));
+      if (
+        date.getUTCFullYear() !== year ||
+        date.getUTCMonth() !== month - 1 ||
+        date.getUTCDate() !== day
+      ) return null;
+      return date;
+    }
+
+    function calculatorAnniversary(acquisitionDate, years) {
+      const anniversary = new Date(acquisitionDate.getTime());
+      const acquisitionMonth = anniversary.getUTCMonth();
+      anniversary.setUTCFullYear(anniversary.getUTCFullYear() + years);
+      if (acquisitionMonth === 1 && acquisitionDate.getUTCDate() === 29 && anniversary.getUTCMonth() === 2) {
+        anniversary.setUTCDate(0);
       }
-      if (selfUse) return { rate: 0.10, label: "自住房地優惠：超過 400 萬部分 10%" };
-      if (special) return { rate: 0.20, label: "特別情形 20%" };
-      if (years <= 2) return { rate: 0.45, label: "境內個人，持有 2 年以內 45%" };
-      if (years <= 5) return { rate: 0.35, label: "境內個人，持有超過 2 年至 5 年 35%" };
-      if (years <= 10) return { rate: 0.20, label: "境內個人，持有超過 5 年至 10 年 20%" };
-      return { rate: 0.15, label: "境內個人，持有超過 10 年 15%" };
+      return anniversary;
+    }
+
+    function completedCalculatorYears(acquisitionDate, saleDate, years) {
+      return saleDate >= calculatorAnniversary(acquisitionDate, years);
+    }
+
+    function passedCalculatorYears(acquisitionDate, saleDate, years) {
+      return saleDate > calculatorAnniversary(acquisitionDate, years);
+    }
+
+    function completedCalculatorYearCount(acquisitionDate, saleDate) {
+      let years = saleDate.getUTCFullYear() - acquisitionDate.getUTCFullYear();
+      if (years > 0 && saleDate < calculatorAnniversary(acquisitionDate, years)) years -= 1;
+      return Math.max(0, years);
+    }
+
+    function taxRate({ acquisitionDate, saleDate, resident, selfUse, special }) {
+      const acquired = parseCalculatorDate(acquisitionDate);
+      const sold = parseCalculatorDate(saleDate);
+      if (!acquired || !sold) {
+        return { automaticEligible: false, invalid: true, rate: null, label: "請先填入取得與出售日期" };
+      }
+      if (sold < acquired) {
+        return { automaticEligible: false, invalid: true, rate: null, label: "出售日期不可早於取得日期" };
+      }
+      const automaticEligible =
+        acquired >= parseCalculatorDate("2016-01-01") &&
+        sold >= parseCalculatorDate("2021-07-01");
+      const holdingYears = completedCalculatorYearCount(acquired, sold);
+      if (!automaticEligible) {
+        return {
+          automaticEligible: false,
+          invalid: false,
+          rate: null,
+          holdingYears,
+          label: "舊制或非房地合一稅 2.0 案件，請向稅務人員確認"
+        };
+      }
+
+      const selfUseApplied = resident !== "nonresident" && selfUse && completedCalculatorYears(acquired, sold, 6);
+      const specialAllowed = resident !== "nonresident" && special && !passedCalculatorYears(acquired, sold, 5);
+      const base = {
+        automaticEligible: true,
+        invalid: false,
+        holdingYears,
+        selfUse: selfUseApplied,
+        specialIgnored: Boolean(special && !specialAllowed)
+      };
+      if (resident === "nonresident") {
+        return passedCalculatorYears(acquired, sold, 2)
+          ? { ...base, rate: 0.35, label: "非境內個人，持有超過 2 年 35%" }
+          : { ...base, rate: 0.45, label: "非境內個人，持有 2 年以內 45%" };
+      }
+      if (selfUseApplied) return { ...base, rate: 0.10, label: "自住房地優惠：超過 400 萬部分 10%" };
+      if (specialAllowed) return { ...base, rate: 0.20, label: "持有 5 年以下特別情形 20%" };
+      if (!passedCalculatorYears(acquired, sold, 2)) return { ...base, rate: 0.45, label: "境內個人，持有 2 年以內 45%" };
+      if (!passedCalculatorYears(acquired, sold, 5)) return { ...base, rate: 0.35, label: "境內個人，持有超過 2 年至 5 年 35%" };
+      if (!passedCalculatorYears(acquired, sold, 10)) return { ...base, rate: 0.20, label: "境內個人，持有超過 5 年至 10 年 20%" };
+      return { ...base, rate: 0.15, label: "境內個人，持有超過 10 年 15%" };
+    }
+
+    function calculateHouseLandTax(input) {
+      const profile = taxRate({
+        ...input,
+        selfUse: Boolean(input.selfUseChecksPassed ?? input.selfUse)
+      });
+      const transactionIncome = input.salePrice - input.buyCost - input.sellExpense;
+      const taxableBaseBeforeExemption = Math.max(
+        0,
+        transactionIncome - Math.max(0, input.priorLoss) - Math.max(0, input.landGain)
+      );
+      if (!profile.automaticEligible) {
+        return {
+          profile,
+          transactionIncome,
+          taxableBaseBeforeExemption,
+          exemption: 0,
+          taxableIncome: null,
+          tax: null,
+          afterTaxResult: null
+        };
+      }
+      const exemption = profile.selfUse ? Math.min(taxableBaseBeforeExemption, 4_000_000) : 0;
+      const taxableIncome = Math.max(0, taxableBaseBeforeExemption - exemption);
+      const tax = taxableIncome * profile.rate;
+      return {
+        profile,
+        transactionIncome,
+        taxableBaseBeforeExemption,
+        exemption,
+        taxableIncome,
+        tax,
+        afterTaxResult: transactionIncome - tax
+      };
     }
 
     function calculateTax() {
@@ -7198,7 +7336,9 @@
       const buyCost = value("buyCost");
       const sellExpense = value("sellExpense");
       const landGain = value("landGain");
-      const holdingYears = value("holdingYears");
+      const priorLoss = value("priorTransactionLoss");
+      const acquisitionDate = document.getElementById("taxAcquisitionDate").value;
+      const saleDate = document.getElementById("taxSaleDate").value;
       const selfUseChecks = [
         { id: "selfUseRegistered", label: "本人、配偶或未成年子女已設籍" },
         { id: "selfUseSixYears", label: "持有並實際自住連續滿 6 年" },
@@ -7206,27 +7346,44 @@
         { id: "selfUseNoPriorClaim", label: "本人、配偶及未成年子女近 6 年未用過自住優惠" }
       ];
       const isResident = selectValue("residentType") === "resident";
+      const acquired = parseCalculatorDate(acquisitionDate);
+      const sold = parseCalculatorDate(saleDate);
+      const heldSixYears = Boolean(acquired && sold && sold >= acquired && completedCalculatorYears(acquired, sold, 6));
       const selfUsePassed = [
         { label: "境內居住者個人（非境內居住者不適用自住優惠）", passed: isResident },
-        { label: `左邊持有年數 ${number.format(holdingYears)} 年，至少須滿 6 年`, passed: holdingYears >= 6 },
+        { label: "取得日至出售日依周年日計算至少滿 6 年", passed: heldSixYears },
         ...selfUseChecks.map(item => ({ ...item, passed: value(item.id) }))
       ];
-      const selfUse = selfUsePassed.every(item => item.passed);
-      const specialRate = value("specialRate") && isResident;
-      const grossIncome = Math.max(0, salePrice - buyCost - sellExpense - landGain);
-      const exemption = selfUse ? Math.min(grossIncome, 4000000) : 0;
-      const taxableIncome = Math.max(0, grossIncome - exemption);
-      const rate = taxRate({
-        years: holdingYears,
+      const selfUseChecksPassed = selfUsePassed.every(item => item.passed);
+      const result = calculateHouseLandTax({
+        salePrice,
+        buyCost,
+        sellExpense,
+        landGain,
+        priorLoss,
+        acquisitionDate,
+        saleDate,
         resident: selectValue("residentType"),
-        selfUse,
-        special: specialRate
+        selfUseChecksPassed,
+        special: value("specialRate")
       });
-      const tax = taxableIncome * rate.rate;
-      const afterTaxProfit = Math.max(0, grossIncome - tax);
+      const { profile, tax, exemption, transactionIncome, taxableBaseBeforeExemption, afterTaxResult } = result;
       const selfUseDetails = selfUsePassed.map(item => `
         <div class="line"><span>${item.passed ? "已勾選" : "未勾選"}：${item.label}</span><b>${item.passed ? "OK" : "未符合"}</b></div>
       `).join("");
+      if (!profile.automaticEligible) {
+        document.getElementById("taxResult").innerHTML = `
+          <div class="metric main tax-result-hero">
+            <div class="metric tax-result-amount"><span>預估應納房地合一稅</span><strong>—</strong></div>
+            <div class="metric tax-result-rate"><span>適用稅率</span><strong>需確認</strong><em>${profile.label}</em></div>
+          </div>
+          <div class="metric warn tax-breakdown-card">
+            <span>目前不自動計算</span>
+            <div class="note">${profile.label}。本工具不會把舊制或非 2.0 案件硬套現行稅率。</div>
+          </div>
+        `;
+        return;
+      }
       document.getElementById("taxResult").innerHTML = `
         <div class="metric main tax-result-hero">
           <div class="metric tax-result-amount">
@@ -7235,8 +7392,8 @@
           </div>
           <div class="metric tax-result-rate">
             <span>適用稅率</span>
-            <strong>${number.format(rate.rate * 100)}%</strong>
-            <em>${rate.label}</em>
+            <strong>${number.format(profile.rate * 100)}%</strong>
+            <em>${profile.label}</em>
           </div>
         </div>
         <div class="metric tax-breakdown-card">
@@ -7245,49 +7402,106 @@
             ${wanLine("出售成交價額", salePrice)}
             ${wanLine("減：取得成本", -buyCost)}
             ${wanLine("減：取得、改良與移轉費用", -sellExpense)}
+            ${wanLine("交易所得（扣稅前損益）", transactionIncome)}
+            ${wanLine("減：交易日前 3 年房地交易損失", -priorLoss)}
             ${wanLine("減：土地漲價總數額", -landGain)}
-            ${wanLine("課稅所得稅基", grossIncome)}
-            ${selfUse ? wanLine("自住房地免稅額", -exemption) : ""}
-            ${wanLine("出售稅後淨利", afterTaxProfit)}
+            ${wanLine("課稅所得稅基", taxableBaseBeforeExemption)}
+            ${profile.selfUse ? wanLine("自住房地免稅額", -exemption) : ""}
+            ${wanLine("出售稅後損益", afterTaxResult)}
           </div>
         </div>
-        <div class="metric tax-self-use-card ${selfUse ? "" : "warn"}">
+        <div class="metric tax-self-use-card ${profile.selfUse ? "" : "warn"}">
           <div class="tax-self-use-head">
             <span>自住優惠檢核</span>
-            <strong>${selfUse ? "符合資格" : "未符合"}</strong>
+            <strong>${profile.selfUse ? "符合資格" : "未符合"}</strong>
           </div>
           <div class="breakdown tax-self-use-grid">${selfUseDetails}</div>
           <div class="note">須為境內居住者、持有滿 6 年且四項條件全符合，才會套用自住房地優惠（400 萬免稅＋10%）；非境內居住者一律 45% 或 35%，也不適用 20% 特別情形。</div>
+          ${profile.specialIgnored ? `<div class="tax-filing-note">已勾選 20% 特別情形，但目前身分或持有期間不在本工具的適用範圍，因此未套用。</div>` : ""}
           <div class="tax-filing-note">若無合法支出憑證，相關費用可能按成交價額 3% 推計且以 30 萬元為限；正式申報仍以稅務機關認定為準。</div>
         </div>
       `;
     }
 
-    function calculateBuyer() {
-      const purchasePrice = value("purchasePrice");
-      const downPayment = clamp(value("buyerDownPayment"), 0, purchasePrice);
+    function buyerCostModel(input) {
+      const purchasePrice = Math.max(0, Number(input.purchasePrice) || 0);
+      const downPayment = Math.min(purchasePrice, Math.max(0, Number(input.downPayment) || 0));
       const loanAmount = Math.max(0, purchasePrice - downPayment);
-      const mortgageSettingValue = loanAmount * value("mortgageSettingRatio");
-      const buildingValue = value("buildingValue");
-      const landDeclaredValue = value("landDeclaredValue");
+      const mortgageSettingValue = loanAmount * (Number(input.mortgageSettingRatio) || 0);
+      const buildingValue = Math.max(0, Number(input.buildingValue) || 0);
+      const landDeclaredValue = Math.max(0, Number(input.landDeclaredValue) || 0);
+      const publicDeedValue = Math.max(0, Number(input.publicDeedValue) || 0);
+      // 使用者指定：買方仲介服務費固定為成交總價 2%，不可改成可調參數。
       const brokerRate = 2;
       const deedTax = buildingValue * 0.06;
-      const stampTax = purchasePrice * 0.001;
+      const stampTax = publicDeedValue * 0.001;
       const registrationFee = (buildingValue + landDeclaredValue) * 0.001;
       const mortgageRegistrationFee = mortgageSettingValue * 0.001;
-      const documentFee = value("transcriptCount") * 20 + value("certificateCount") * 80;
+      const documentFee = (Number(input.transcriptCount) || 0) * 20 + (Number(input.certificateCount) || 0) * 80;
       const brokerFee = purchasePrice * brokerRate / 100;
       const serviceFees =
-        value("scrivenerTransfer") +
-        value("scrivenerLoan") +
-        value("signingFee") +
-        value("bankFee") +
-        value("insuranceFee") +
-        value("settlementFee") +
+        (Number(input.scrivenerTransfer) || 0) +
+        (Number(input.scrivenerLoan) || 0) +
+        (Number(input.signingFee) || 0) +
+        (Number(input.bankFee) || 0) +
+        (Number(input.insuranceFee) || 0) +
+        (Number(input.settlementFee) || 0) +
         documentFee;
       const statutoryFees = deedTax + stampTax + registrationFee + mortgageRegistrationFee;
       const totalFees = statutoryFees + brokerFee + serviceFees;
       const cashNeeded = downPayment + totalFees;
+      return {
+        purchasePrice,
+        downPayment,
+        loanAmount,
+        mortgageSettingValue,
+        buildingValue,
+        landDeclaredValue,
+        publicDeedValue,
+        brokerRate,
+        deedTax,
+        stampTax,
+        registrationFee,
+        mortgageRegistrationFee,
+        documentFee,
+        brokerFee,
+        serviceFees,
+        statutoryFees,
+        totalFees,
+        cashNeeded
+      };
+    }
+
+    function calculateBuyer() {
+      const result = buyerCostModel({
+        purchasePrice: value("purchasePrice"),
+        downPayment: value("buyerDownPayment"),
+        mortgageSettingRatio: value("mortgageSettingRatio"),
+        buildingValue: value("buildingValue"),
+        landDeclaredValue: value("landDeclaredValue"),
+        publicDeedValue: value("publicDeedValue"),
+        scrivenerTransfer: value("scrivenerTransfer"),
+        scrivenerLoan: value("scrivenerLoan"),
+        signingFee: value("signingFee"),
+        bankFee: value("bankFee"),
+        insuranceFee: value("insuranceFee"),
+        settlementFee: value("settlementFee"),
+        transcriptCount: value("transcriptCount"),
+        certificateCount: value("certificateCount")
+      });
+      const {
+        downPayment,
+        brokerRate,
+        deedTax,
+        stampTax,
+        registrationFee,
+        mortgageRegistrationFee,
+        documentFee,
+        brokerFee,
+        serviceFees,
+        totalFees,
+        cashNeeded
+      } = result;
       const replacementReminder = value("buyerReplacementReminder");
       const oldPropertyTax = value("buyerOldPropertyTax");
       document.getElementById("buyerResult").innerHTML = `
@@ -7298,7 +7512,7 @@
           <div class="breakdown">
             ${line("自備款", downPayment)}
             ${line("契稅：房屋契價 6%", deedTax)}
-            ${line("印花稅：成交總價 0.1%", stampTax)}
+            ${line("印花稅：公契記載價額 0.1%", stampTax)}
             ${line("買賣登記規費：建物契價與土地申報地價 0.1%", registrationFee)}
             ${line("抵押權設定登記規費：設定權利價值 0.1%", mortgageRegistrationFee)}
             ${line("登記謄本與權狀費", documentFee)}
@@ -7336,6 +7550,83 @@
       return payment * (1 - Math.pow(1 + monthlyRate, -months)) / monthlyRate;
     }
 
+    function loanCapacityFromPayment(payment, monthlyRate, months, mode, extraPayment) {
+      const availablePayment = Math.max(0, Number(payment) - Math.max(0, Number(extraPayment) || 0));
+      if (availablePayment <= 0 || months <= 0) return 0;
+      if (mode === "levelPrincipal") {
+        return availablePayment / (1 / months + monthlyRate);
+      }
+      return loanFromPayment(availablePayment, monthlyRate, months);
+    }
+
+    function calculateLoanSchedule(options) {
+      const principal = Math.max(0, Number(options.principal) || 0);
+      const annualRate = Math.max(0, Number(options.annualRate) || 0);
+      const totalMonths = Math.max(1, Math.round((Number(options.years) || 0) * 12));
+      const graceMonths = Math.min(totalMonths - 1, Math.max(0, Math.round((Number(options.graceYears) || 0) * 12)));
+      const repaymentMonths = Math.max(1, totalMonths - graceMonths);
+      const monthlyRate = annualRate / 100 / 12;
+      const extraPayment = Math.max(0, Number(options.extraPayment) || 0);
+      const mode = options.mode === "levelPrincipal" ? "levelPrincipal" : "levelPayment";
+      const scheduledLevelPayment = monthlyPayment(principal, monthlyRate, repaymentMonths);
+      const scheduledLevelPrincipal = principal / repaymentMonths;
+      let balance = principal;
+      let totalInterest = 0;
+      const rows = [];
+
+      for (let month = 1; month <= totalMonths && balance > 0; month += 1) {
+        const interest = balance * monthlyRate;
+        let principalPaid = 0;
+        if (month > graceMonths) {
+          principalPaid = mode === "levelPrincipal"
+            ? scheduledLevelPrincipal + extraPayment
+            : Math.max(0, scheduledLevelPayment - interest) + extraPayment;
+          if (month === totalMonths || principalPaid >= balance) principalPaid = balance;
+        }
+        const payment = interest + principalPaid;
+        balance = Math.max(0, balance - principalPaid);
+        if (balance < 0.000001) balance = 0;
+        totalInterest += interest;
+        rows.push({ month, payment, principalPaid, interest, balance });
+      }
+
+      return {
+        rows,
+        totalInterest,
+        paidMonths: rows.length ? rows[rows.length - 1].month : 0,
+        totalMonths,
+        graceMonths,
+        repaymentMonths,
+        monthlyRate,
+        mode
+      };
+    }
+
+    function loanPeriodDefinitions(paidMonths, graceMonths) {
+      const paid = Math.max(0, Math.round(Number(paidMonths) || 0));
+      const grace = Math.min(paid, Math.max(0, Math.round(Number(graceMonths) || 0)));
+      if (paid <= 0) return [];
+      if (grace <= 0) return [{ start: 1, end: paid, label: `第 1～${paid} 期` }];
+      const periods = [{ start: 1, end: grace, label: `寬限期：第 1～${grace} 期` }];
+      if (paid > grace) periods.push({ start: grace + 1, end: paid, label: `第 ${grace + 1}～${paid} 期` });
+      return periods;
+    }
+
+    function loanPaymentPresentation(mode, hasGrace, graceMonths = 0) {
+      if (mode === "levelPrincipal") {
+        return {
+          normalLabel: hasGrace ? "寬限期後首期月付" : "首期月付",
+          note: `${hasGrace ? `前 ${graceMonths} 期為寬限期，只付利息；寬限期後` : ""}本金平均攤還每期償還的基礎本金相同，利息隨餘額下降，月付會逐期下降。`
+        };
+      }
+      return {
+        normalLabel: hasGrace ? "寬限期後月付" : "每月月付",
+        note: hasGrace
+          ? `前 ${graceMonths} 期為寬限期，只付利息；寬限期後開始本息平均攤還。`
+          : "沒有寬限期，從第 1 期開始本息平均攤還。"
+      };
+    }
+
     // 房貸負擔率：月付抓月收入的 1/3 ～ 2/5
     const AFFORD_RATIO_LOW = 1 / 3;
     const AFFORD_RATIO_HIGH = 2 / 5;
@@ -7354,21 +7645,24 @@
       const salary = Math.max(0, Number(options.salary) || 0);
       const annualRate = Math.max(0, Number(options.annualRate) || 0);
       const years = Math.max(1, Number(options.years) || 1);
+      const graceYears = Math.max(0, Math.min(years - 1 / 12, Number(options.graceYears) || 0));
+      const repaymentMode = options.repaymentMode === "levelPrincipal" ? "levelPrincipal" : "levelPayment";
+      const extraPayment = Math.max(0, Number(options.extraPayment) || 0);
       const downPayment = Math.max(0, Number(options.downPayment) || 0);
       const purchasePrice = Math.max(0, Number(options.purchasePrice) || 0);
       const mode = normalizeAffordBurdenMode(options.mode);
       const modeOption = AFFORD_BURDEN_OPTIONS[mode];
       if (salary <= 0) return { empty: true, mode, modeLabel: modeOption.label };
 
-      const months = Math.max(1, Math.round(years * 12));
+      const months = Math.max(1, Math.round((years - graceYears) * 12));
       const monthlyRate = annualRate / 100 / 12;
       const payLow = salary * AFFORD_RATIO_LOW;
       const payHigh = salary * AFFORD_RATIO_HIGH;
-      const priceLow = loanFromPayment(payLow, monthlyRate, months) + downPayment;
-      const priceHigh = loanFromPayment(payHigh, monthlyRate, months) + downPayment;
+      const priceLow = loanCapacityFromPayment(payLow, monthlyRate, months, repaymentMode, extraPayment) + downPayment;
+      const priceHigh = loanCapacityFromPayment(payHigh, monthlyRate, months, repaymentMode, extraPayment) + downPayment;
       const selectedRatio = modeOption.ratio;
       const selectedPay = selectedRatio === null ? payHigh : salary * selectedRatio;
-      const selectedPrice = loanFromPayment(selectedPay, monthlyRate, months) + downPayment;
+      const selectedPrice = loanCapacityFromPayment(selectedPay, monthlyRate, months, repaymentMode, extraPayment) + downPayment;
       const zone = purchasePrice < priceLow ? "安心" : purchasePrice <= priceHigh ? "剛好" : "挑戰";
       const scaleMax = Math.max(1, priceHigh * 1.2, selectedPrice * 1.12, purchasePrice * 1.08);
       return {
@@ -7481,6 +7775,9 @@
       const {salary, annualRate, years, downPayment, rateNote} = options;
       const months = Math.max(1, Math.round(years * 12));
       const monthlyRate = annualRate / 100 / 12;
+      const capacityFromPayment = typeof options.capacityFromPayment === "function"
+        ? options.capacityFromPayment
+        : payment => loanFromPayment(payment, monthlyRate, months);
 
       if (salary <= 0) {
         card.innerHTML = `<p class="afford-empty">填入每月收入，就會算出大概買得起多少價位的房子。</p>`;
@@ -7489,8 +7786,8 @@
 
       const payLow = salary * AFFORD_RATIO_LOW;
       const payHigh = salary * AFFORD_RATIO_HIGH;
-      const priceLow = loanFromPayment(payLow, monthlyRate, months) + downPayment;
-      const priceHigh = loanFromPayment(payHigh, monthlyRate, months) + downPayment;
+      const priceLow = capacityFromPayment(payLow) + downPayment;
+      const priceHigh = capacityFromPayment(payHigh) + downPayment;
 
       card.innerHTML = `
         <h4 class="afford-headline">以你的收入，大概買得起 ${wanLabel(priceLow)}～${wanLabel(priceHigh)} 的房子。</h4>
@@ -7521,62 +7818,22 @@
       const actualLoanRatio = purchasePrice > 0 ? principal / purchasePrice * 10 : 0;
       const downPayment = Math.max(0, purchasePrice - principal);
       const overLoanAmount = Math.max(0, principal - purchasePrice);
-      const monthlyRate = value("annualRate") / 100 / 12;
-      const totalMonths = Math.max(1, Math.round(value("loanYears") * 12));
-      const graceMonths = Math.min(totalMonths - 1, Math.round(value("graceYears") * 12));
       const mode = selectValue("loanMode");
-      const extra = value("extraPayment");
-      let balance = principal;
-      let totalInterest = 0;
-      const rows = [];
-      const repaymentMonths = Math.max(1, totalMonths - graceMonths);
-      const scheduledLevelPayment = monthlyPayment(principal, monthlyRate, repaymentMonths);
-
-      for (let month = 1; month <= totalMonths && balance > 0.5; month += 1) {
-        const interest = balance * monthlyRate;
-        let principalPaid = 0;
-        let payment = 0;
-
-        if (month <= graceMonths) {
-          payment = interest;
-        } else if (mode === "levelPrincipal") {
-          const remainingMonths = totalMonths - month + 1;
-          principalPaid = balance / remainingMonths;
-          payment = principalPaid + interest;
-        } else {
-          payment = scheduledLevelPayment;
-          principalPaid = payment - interest;
-        }
-
-        if (month > graceMonths && extra > 0) {
-          principalPaid += extra;
-          payment += extra;
-        }
-
-        if (principalPaid > balance) {
-          payment -= principalPaid - balance;
-          principalPaid = balance;
-        }
-
-        balance = Math.max(0, balance - principalPaid);
-        totalInterest += interest;
-        rows.push({
-          month,
-          payment,
-          principalPaid,
-          interest,
-          balance
-        });
-      }
+      const schedule = calculateLoanSchedule({
+        principal,
+        annualRate: value("annualRate"),
+        years: value("loanYears"),
+        graceYears: value("graceYears"),
+        mode,
+        extraPayment: value("extraPayment")
+      });
+      const { rows, totalInterest, totalMonths, graceMonths, paidMonths } = schedule;
 
       const firstNormalMonth = rows.find(row => row.month > graceMonths) || rows[0];
       const firstNormalPayment = firstNormalMonth ? firstNormalMonth.payment : 0;
       const firstGracePayment = graceMonths > 0 && rows[0] ? rows[0].payment : firstNormalPayment;
-      const paidMonths = rows.length ? rows[rows.length - 1].month : 0;
-      // 沒有寬限期時不要硬切在第 36 期：那個切點沒有任何意義，
-      // 只會讓人以為月付從第 37 期開始改變
       const hasGrace = graceMonths > 0;
-      const periodBreak = hasGrace ? graceMonths : totalMonths;
+      const paymentPresentation = loanPaymentPresentation(mode, hasGrace, graceMonths);
       const summarizePeriod = (start, end, label) => {
         const periodRows = rows.filter(row => row.month >= start && row.month <= end);
         if (!periodRows.length) return null;
@@ -7590,12 +7847,9 @@
           endingBalance: periodRows[periodRows.length - 1].balance
         };
       };
-      const periodSummaries = [
-        summarizePeriod(1, periodBreak, `${hasGrace ? "寬限期：" : ""}第 1～${periodBreak} 期`),
-        totalMonths > periodBreak
-          ? summarizePeriod(periodBreak + 1, totalMonths, `第 ${periodBreak + 1}～${totalMonths} 期`)
-          : null
-      ].filter(Boolean);
+      const periodSummaries = loanPeriodDefinitions(paidMonths, graceMonths)
+        .map(period => summarizePeriod(period.start, period.end, period.label))
+        .filter(Boolean);
       const tableRows = periodSummaries.map(summary => `
           <tr>
             <td>${summary.label}</td>
@@ -7621,17 +7875,17 @@
                 <strong>${money.format(Math.round(firstGracePayment))}</strong>
               </div>
               <div class="metric loan-payment-stage loan-payment-stage--after">
-                <span>寬限期後月付</span>
+                <span>${paymentPresentation.normalLabel}</span>
                 <strong>${money.format(Math.round(firstNormalPayment))}</strong>
               </div>
             ` : `
               <div class="metric loan-payment-stage">
-                <span>每月月付</span>
+                <span>${paymentPresentation.normalLabel}</span>
                 <strong>${money.format(Math.round(firstNormalPayment))}</strong>
               </div>
             `}
           </div>
-          <div class="loan-payment-note">${hasGrace ? `前 ${graceMonths} 期為寬限期，只付利息；寬限期後開始攤還本金。` : "沒有寬限期，從第 1 期就開始還本金，每期月付都一樣。"}</div>
+          <div class="loan-payment-note">${paymentPresentation.note}</div>
         </div>
         <div class="loan-facts-grid">
           <div class="metric loan-fact-card"><span>房屋成交總價</span><strong>${wanAmount(purchasePrice)}</strong></div>
@@ -7683,6 +7937,88 @@
       bindResultSalarySlider();
     }
 
+    function calculateYoungLoanSchedule(options) {
+      const principal = Math.max(0, Number(options.principal) || 0);
+      const totalMonths = Math.max(1, Math.round(Number(options.totalMonths) || 0));
+      const graceMonths = Math.min(totalMonths - 1, Math.max(0, Math.round(Number(options.graceMonths) || 0)));
+      const baseRate = Math.max(0, Number(options.baseRate) || 0);
+      const rateAtMonth = options.rateAtMonth;
+      let balance = principal;
+      let totalInterest = 0;
+      let scheduledPayment = 0;
+      let previousRate = null;
+      let firstGracePayment = 0;
+      let firstNormalPayment = 0;
+      let highestPayment = 0;
+      const rows = [];
+
+      for (let month = 1; month <= totalMonths && balance > 0; month += 1) {
+        const annualRate = rateAtMonth(baseRate, month);
+        const monthlyRate = annualRate / 100 / 12;
+        const interest = balance * monthlyRate;
+        let principalPaid = 0;
+        let payment = interest;
+
+        if (month <= graceMonths) {
+          if (month === 1) firstGracePayment = payment;
+        } else {
+          if (month === graceMonths + 1 || annualRate !== previousRate) {
+            scheduledPayment = Math.round(monthlyPayment(balance, monthlyRate, totalMonths - month + 1));
+          }
+          principalPaid = Math.max(0, scheduledPayment - interest);
+          if (month === totalMonths || principalPaid >= balance) principalPaid = balance;
+          payment = interest + principalPaid;
+          if (!firstNormalPayment) firstNormalPayment = payment;
+        }
+
+        balance = Math.max(0, balance - principalPaid);
+        if (balance < 0.000001) balance = 0;
+        totalInterest += interest;
+        highestPayment = Math.max(highestPayment, payment);
+        rows.push({ month, annualRate, payment, principalPaid, interest, balance });
+        previousRate = annualRate;
+      }
+
+      if (!firstNormalPayment) firstNormalPayment = highestPayment;
+      return {
+        rows,
+        totalInterest,
+        firstGracePayment,
+        firstNormalPayment,
+        highestPayment,
+        paidMonths: rows.length ? rows[rows.length - 1].month : 0,
+        totalMonths,
+        graceMonths
+      };
+    }
+
+    function combineLoanSummary(youngSchedule, supplementalSchedule, monthlyIncome) {
+      const supplementalFirstPayment = supplementalSchedule.rows[0]?.payment || 0;
+      const normalPayment = youngSchedule.firstNormalPayment + supplementalFirstPayment;
+      return {
+        supplementalFirstPayment,
+        gracePayment: (youngSchedule.graceMonths > 0 ? youngSchedule.firstGracePayment : youngSchedule.firstNormalPayment) + supplementalFirstPayment,
+        normalPayment,
+        youngInterest: youngSchedule.totalInterest,
+        supplementalInterest: supplementalSchedule.totalInterest,
+        totalInterest: youngSchedule.totalInterest + supplementalSchedule.totalInterest,
+        suggestedIncome: normalPayment / 0.4,
+        debtRatio: monthlyIncome > 0 ? normalPayment / monthlyIncome * 100 : 0
+      };
+    }
+
+    function splitLoanCapacityFromPayment(payment, options) {
+      const budget = Math.max(0, Number(payment) || 0);
+      const youngLimit = Math.max(0, Number(options.youngLimit) || 0);
+      const youngUnitPayment = monthlyPayment(1, options.youngMonthlyRate, options.youngMonths);
+      const generalUnitPayment = monthlyPayment(1, options.generalMonthlyRate, options.generalMonths);
+      const paymentAtYoungLimit = youngLimit * youngUnitPayment;
+      if (budget <= paymentAtYoungLimit || generalUnitPayment <= 0) {
+        return youngUnitPayment > 0 ? budget / youngUnitPayment : 0;
+      }
+      return youngLimit + (budget - paymentAtYoungLimit) / generalUnitPayment;
+    }
+
     function calculateYoung() {
       const purchasePrice = value("youngPurchasePrice");
       const ratio = clamp(value("youngLoanRatio"), 0, youngPolicy.POLICY.maxLtv);
@@ -7699,9 +8035,6 @@
       const loanYears = youngPolicy.loanYearsForAge(age);
       const totalMonths = Math.max(12, Math.round(loanYears * 12));
       const graceMonths = Math.min(totalMonths - 1, Math.round(clamp(value("youngGraceYears"), 0, 5) * 12));
-      const generalLoanPayment = supplementalLoan > 0
-        ? monthlyPayment(supplementalLoan, GENERAL_LOAN_RATE / 100 / 12, totalMonths)
-        : 0;
       const annualIncome = Math.max(0, value("youngAnnualIncome"));
       const priceTier = selectValue("youngPriceTier");
       const baseRate = youngPolicy.POLICY.defaultBaseRate;
@@ -7733,51 +8066,35 @@
         { passed: eligibility.checks.income, text: `年所得 ${money.format(annualIncome)}（須為 ${money.format(youngPolicy.POLICY.maxAnnualIncome)} 以下）` },
         { passed: eligibility.checks.price, text: `房價 ${money.format(purchasePrice)}（${priceTierLabels[priceTier] || priceTierLabels.other}上限 ${money.format(priceCap)}）` }
       ];
-      let balance = youngLoan;
-      let totalInterest = 0;
-      let scheduledPayment = 0;
-      let previousRate = null;
-      let firstGracePayment = 0;
-      let firstNormalPayment = 0;
-      let highestPayment = 0;
-      const rows = [];
-
-      for (let month = 1; month <= totalMonths && balance > 0.5; month += 1) {
-        const annualRate = youngPolicy.rateAtMonth(baseRate, month);
-        const monthlyRate = annualRate / 100 / 12;
-        const interest = balance * monthlyRate;
-        let principalPaid = 0;
-        let payment = 0;
-
-        if (month <= graceMonths) {
-          payment = interest;
-          if (month === 1) firstGracePayment = payment;
-        } else {
-          if (month === graceMonths + 1 || annualRate !== previousRate) {
-            // 利率變動時以剩餘本金、剩餘期數重算月付金，並比照銀行以元為單位四捨五入
-            scheduledPayment = Math.round(monthlyPayment(balance, monthlyRate, totalMonths - month + 1));
-          }
-          payment = scheduledPayment;
-          principalPaid = Math.max(0, payment - interest);
-          if (!firstNormalPayment) firstNormalPayment = payment;
-        }
-
-        if (principalPaid > balance) {
-          payment -= principalPaid - balance;
-          principalPaid = balance;
-        }
-
-        balance = Math.max(0, balance - principalPaid);
-        totalInterest += interest;
-        highestPayment = Math.max(highestPayment, payment);
-
-        rows.push({ month, annualRate, payment, principalPaid, interest, balance });
-        previousRate = annualRate;
-      }
-
-      if (!firstNormalPayment) firstNormalPayment = highestPayment;
-      const debtRatio = monthlyIncome > 0 ? firstNormalPayment / monthlyIncome * 100 : 0;
-      const suggestedIncome = firstNormalPayment / 0.4;
+      const youngSchedule = calculateYoungLoanSchedule({
+        principal: youngLoan,
+        totalMonths,
+        graceMonths,
+        baseRate,
+        rateAtMonth: youngPolicy.rateAtMonth
+      });
+      const supplementalSchedule = calculateLoanSchedule({
+        principal: supplementalLoan,
+        annualRate: GENERAL_LOAN_RATE,
+        years: loanYears,
+        graceYears: 0,
+        mode: "levelPayment",
+        extraPayment: 0
+      });
+      const combinedSummary = combineLoanSummary(youngSchedule, supplementalSchedule, monthlyIncome);
+      const {
+        rows,
+        totalInterest: youngInterest,
+        firstGracePayment,
+        firstNormalPayment
+      } = youngSchedule;
+      const {
+        supplementalFirstPayment: generalLoanPayment,
+        supplementalInterest,
+        totalInterest,
+        suggestedIncome,
+        debtRatio
+      } = combinedSummary;
       const eligibilityDetails = eligibilityChecks.map(check => `
         <div class="line"><span>${check.passed ? "符合" : "不符合"}｜${check.text}</span><b>${check.passed ? "OK" : "!"}</b></div>
       `).join("");
@@ -7896,8 +8213,11 @@
       `;
 
       const youngCostDetails = costDetails(
-        `${approxWanLine(`${loanYears} 年預估總利息`, totalInterest)}${youngStageInterestLines}`,
-        "利息為依目前青安五階段利率估算的長期總成本；實際金額仍以承貸銀行核定利率及還款方式為準。"
+        `${approxWanLine(`${loanYears} 年兩筆貸款預估總利息`, totalInterest)}
+         ${approxWanLine("其中：青安貸款利息", youngInterest)}
+         ${supplementalLoan > 0 ? approxWanLine("其中：一般房貸利息", supplementalInterest) : ""}
+         ${youngStageInterestLines}`,
+        "總利息已包含青安五階段利率與超額一般房貸的長期成本；實際金額仍以承貸銀行核定利率及還款方式為準。"
       );
 
       // 資格檢核放在五階段利率表之後；不符合資格時沒有試算內容，
@@ -7913,7 +8233,14 @@
         annualRate: baseRate,
         years: loanYears,
         downPayment,
-        rateNote: `補貼期滿後利率 ${rateNumber.format(baseRate)}%、還 ${loanYears} 年`
+        capacityFromPayment: payment => splitLoanCapacityFromPayment(payment, {
+          youngLimit: loanLimit,
+          youngMonthlyRate: baseRate / 100 / 12,
+          youngMonths: Math.max(1, totalMonths - graceMonths),
+          generalMonthlyRate: GENERAL_LOAN_RATE / 100 / 12,
+          generalMonths: totalMonths
+        }),
+        rateNote: `青安額度內用補貼期滿後 ${rateNumber.format(baseRate)}%，超額部分用一般房貸 ${GENERAL_LOAN_RATE}%`
       });
     }
 
@@ -8818,6 +9145,9 @@
         salary,
         annualRate: value("annualRate"),
         years: value("loanYears"),
+        graceYears: value("graceYears"),
+        repaymentMode: selectValue("loanMode"),
+        extraPayment: value("extraPayment"),
         downPayment: Math.max(0, value("loanPurchasePrice") - value("loanAmount")),
         purchasePrice: value("loanPurchasePrice"),
         mode: loanAffordBurdenMode

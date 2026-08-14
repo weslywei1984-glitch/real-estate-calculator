@@ -20,6 +20,7 @@ function loadAffordabilityModel() {
       "70": Object.freeze({ label: "7 成", ratio: 0.7 })
     }),
     loanFromPayment: payment => payment * 300,
+    loanCapacityFromPayment: payment => payment * 300,
     clamp: (value, min, max) => Math.min(max, Math.max(min, value))
   };
   vm.runInNewContext(html.slice(start, end), sandbox);

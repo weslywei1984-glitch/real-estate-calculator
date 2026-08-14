@@ -194,7 +194,7 @@ test("source references are structured lists at every width", () => {
   const css = consultantCss();
   const shared = css.slice(0, css.indexOf("@media (max-width: 900px)"));
 
-  assert.equal((html.match(/<li class="source-item">/g) || []).length, 5);
+  assert.equal((html.match(/<li class="source-item">/g) || []).length, 6);
   assert.match(shared, /\.sources-list\s*\{[^}]*display:\s*grid/s);
   assert.match(shared, /\.source-item\s*\{[^}]*grid-template-columns:\s*auto minmax\(0,\s*1fr\)/s);
   assert.doesNotMatch(shared, /\.source-item:not\(:last-child\)::after\s*\{[^}]*content:\s*"；"/s);

@@ -35,8 +35,10 @@ test("新增的房地合一稅與買方費用欄位改用萬元輸入", () => {
   for (const [id, value] of [
     ["sellExpense", "0"],
     ["landGain", "0"],
+    ["priorTransactionLoss", "0"],
     ["buildingValue", "100"],
-    ["landDeclaredValue", "180"]
+    ["landDeclaredValue", "180"],
+    ["publicDeedValue", "280"]
   ]) {
     assert.match(
       indexHtml,
@@ -62,7 +64,7 @@ test("房地合一稅結果全部以萬元顯示", () => {
     "減：土地漲價總數額",
     "課稅所得稅基",
     "自住房地免稅額",
-    "出售稅後淨利"
+    "出售稅後損益"
   ]) {
     assert.match(indexHtml, new RegExp(`wanLine\\("${label}"`));
   }
@@ -130,7 +132,7 @@ test("房貸與青安把利息移入預設收合的總成本明細", () => {
   assert.match(indexHtml, /<details class="cost-details">\s*<summary>查看總成本明細<\/summary>/);
   assert.ok(indexHtml.includes('approxWanLine("總預估利息", totalInterest)'));
   assert.ok(indexHtml.includes('approxWanLine("總預估還款額", principal + totalInterest)'));
-  assert.ok(indexHtml.includes('approxWanLine(`${loanYears} 年預估總利息`, totalInterest)'));
+  assert.ok(indexHtml.includes('approxWanLine(`${loanYears} 年兩筆貸款預估總利息`, totalInterest)'));
   assert.match(indexHtml, /periodInterestLines/);
   assert.match(indexHtml, /youngStageInterestLines/);
   assert.match(indexHtml, /#loanResult > \.table-wrap\s*\{[^}]*grid-column:\s*1 \/ -1/s);
@@ -142,7 +144,7 @@ test("房貸結果沒有重複最高與最低月付", () => {
   assert.doesNotMatch(indexHtml, /let maxPayment\s*=/);
   assert.doesNotMatch(indexHtml, /let minPayment\s*=/);
   assert.match(indexHtml, /class="loan-payment-grid \$\{hasGrace \? "has-grace" : "single"\}"/);
-  assert.match(indexHtml, /<span>每月月付<\/span>\s*<strong>\$\{money\.format\(Math\.round\(firstNormalPayment\)\)\}<\/strong>/);
+  assert.match(indexHtml, /<span>\$\{paymentPresentation\.normalLabel\}<\/span>\s*<strong>\$\{money\.format\(Math\.round\(firstNormalPayment\)\)\}<\/strong>/);
 });
 
 test("房貸結果使用月付主卡與四張購屋摘要卡", () => {
@@ -183,7 +185,8 @@ test("購屋預算跑道沿用三分之一到四成且標記不超界", () => {
       "70": Object.freeze({ label: "7 成", ratio: 0.7 })
     }),
     clamp: (value, min, max) => Math.min(max, Math.max(min, value)),
-    loanFromPayment: payment => payment * 300
+    loanFromPayment: payment => payment * 300,
+    loanCapacityFromPayment: payment => payment * 300
   };
   vm.runInNewContext(indexHtml.slice(start, end), sandbox);
 
@@ -213,7 +216,9 @@ test("青安摘要依序顯示購屋總價、總貸款與自備款，說明在�
 });
 
 test("青安總利息保留於總成本明細並移除本息合計", () => {
-  assert.ok(indexHtml.includes('approxWanLine(`${loanYears} 年預估總利息`, totalInterest)'));
+  assert.ok(indexHtml.includes('approxWanLine(`${loanYears} 年兩筆貸款預估總利息`, totalInterest)'));
+  assert.ok(indexHtml.includes('approxWanLine("其中：青安貸款利息", youngInterest)'));
+  assert.ok(indexHtml.includes('approxWanLine("其中：一般房貸利息", supplementalInterest)'));
   assert.doesNotMatch(indexHtml, /wanLine\("青安本息合計"/);
   assert.doesNotMatch(indexHtml, /<th>利息<\/th>/);
 });
